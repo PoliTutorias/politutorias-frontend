@@ -1,6 +1,6 @@
 'use client';
 
-import { SelectHTMLAttributes } from 'react';
+import { SelectHTMLAttributes, forwardRef } from 'react';
 
 interface SelectModalidadProps
   extends SelectHTMLAttributes<HTMLSelectElement> {
@@ -9,24 +9,31 @@ interface SelectModalidadProps
   options?: { value: string; label: string }[];
 }
 
-export function SelectModalidad({
-  label = 'Modalidad',
-  error,
-  options = [
-    { value: 'Presencial', label: 'Presencial' },
-    { value: 'Virtual', label: 'Virtual' },
-  ],
-  ...props
-}: SelectModalidadProps) {
+export const SelectModalidad = forwardRef<
+  HTMLSelectElement,
+  SelectModalidadProps
+>((
+  {
+    label = 'Modalidad',
+    error,
+    options = [
+      { value: 'Presencial', label: 'Presencial' },
+      { value: 'Virtual', label: 'Virtual' },
+    ],
+    ...props
+  },
+  ref
+) => {
   return (
     <div className="space-y-2">
       <label className="block text-sm font-medium text-foreground">
         {label}
       </label>
       <select
+        ref={ref}
         className={`w-full rounded-md border px-3 py-2 text-sm transition-colors ${error
-            ? 'border-[var(--error)] focus:border-[var(--error)] focus:outline-none focus:ring-2 focus:ring-[var(--error)]/20'
-            : 'border-[var(--border)] focus:border-[var(--primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/10'
+          ? 'border-[var(--error)] focus:border-[var(--error)] focus:outline-none focus:ring-2 focus:ring-[var(--error)]/20'
+          : 'border-[var(--border)] focus:border-[var(--primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/10'
           }`}
         {...props}
       >
@@ -42,4 +49,6 @@ export function SelectModalidad({
       )}
     </div>
   );
-}
+});
+
+SelectModalidad.displayName = 'SelectModalidad';
