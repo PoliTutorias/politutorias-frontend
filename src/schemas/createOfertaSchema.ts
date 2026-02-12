@@ -10,9 +10,14 @@ export const createOfertaSchema = z.object({
       'Escribe el título de la materia'
     ),
   price: z
-    .number()
-    .min(5, 'El precio mínimo por hora es de $5')
-    .refine((val) => val > 0, 'Ingresa un precio'),
+    .coerce.number({
+      invalid_type_error: 'Ingresa un precio',
+    })
+    .refine((val) => !isNaN(val), 'Ingresa un precio')
+    .default(0)
+    .refine((val) => val > 0, 'Ingresa un precio')
+    .refine((val) => val >= 5, 'El precio mínimo por hora es de $5')
+    .refine((val) => val <= 999, 'El precio no puede exceder $999'),
   modality: z
     .enum(['Presencial', 'Virtual', 'Ambos']),
   categories: z

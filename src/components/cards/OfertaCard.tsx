@@ -91,11 +91,10 @@ export function OfertaCard({
             {new Date(oferta.createdAt).toLocaleDateString('es-ES')}
           </span>
           <span
-            className={`px-2 py-1 rounded-full font-medium ${
-              oferta.status === 'active'
+            className={`px-2 py-1 rounded-full font-medium ${oferta.status === 'active'
                 ? 'bg-[var(--success)]/10 text-[var(--success)]'
                 : 'bg-gray-100 text-gray-600'
-            }`}
+              }`}
           >
             {oferta.status === 'active' ? 'Activa' : 'Inactiva'}
           </span>

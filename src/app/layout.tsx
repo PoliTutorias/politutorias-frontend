@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Toaster } from "sonner";
+import { inter, montserrat, lato, ibmPlexSans, dancingScript } from "@/lib/fonts";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -25,9 +27,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${inter.variable} ${montserrat.variable} ${lato.variable} ${ibmPlexSans.variable} ${dancingScript.variable} ${geistSans.variable} ${geistMono.variable} antialiased font-inter`}
       >
         {children}
+        <Toaster position="bottom-center" />
       </body>
     </html>
   );

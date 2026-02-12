@@ -30,9 +30,11 @@ export function OfertaForm({
     handleSubmit,
     watch,
     setValue,
+    trigger,
     errors,
     isSubmitting,
     formValues,
+    isFieldValid,
   } = useOfertaForm({
     onSubmit,
   });
@@ -41,6 +43,8 @@ export function OfertaForm({
     const current = formValues.categories || [];
     if (!current.includes(categoryId) && current.length < 5) {
       setValue('categories', [...current, categoryId]);
+      // Revalidar el campo de categorías después de seleccionar
+      trigger('categories');
     }
   };
 
@@ -50,6 +54,8 @@ export function OfertaForm({
       'categories',
       current.filter((id) => id !== categoryId)
     );
+    // Revalidar el campo de categorías después de remover
+    trigger('categories');
   };
 
   return (
@@ -61,6 +67,7 @@ export function OfertaForm({
       <InputTituloOferta
         {...register('title')}
         error={errors.title?.message}
+        isValid={isFieldValid('title')}
         currentLength={formValues.title?.length || 0}
         maxLength={80}
       />
@@ -68,8 +75,16 @@ export function OfertaForm({
       {/* Precio y Modalidad Row */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <InputPrecioHora
-          {...register('price', { valueAsNumber: true })}
+          {...register('price', {
+            setValueAs: (value) => {
+              if (value === '' || value === null || value === undefined) {
+                return 0;
+              }
+              return parseFloat(value) || 0;
+            }
+          })}
           error={errors.price?.message}
+          isValid={isFieldValid('price')}
         />
         <SelectModalidad
           {...register('modality')}
@@ -97,6 +112,7 @@ export function OfertaForm({
       <TextareaDescripcionOferta
         {...register('description')}
         error={errors.description?.message}
+        isValid={isFieldValid('description')}
         currentLength={formValues.description?.length || 0}
         maxLength={250}
       />
@@ -106,14 +122,14 @@ export function OfertaForm({
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-md border border-[var(--border)] bg-white px-6 py-2 text-sm font-medium text-foreground transition-colors hover:bg-[var(--bg-gray)]"
+          className="rounded-md border border-[var(--border)] bg-white px-6 py-2 text-sm font-medium text-foreground transition-colors hover:bg-[var(--bg-gray)] cursor-pointer"
         >
           Cancelar
         </button>
         <button
           type="submit"
           disabled={isSubmitting}
-          className="rounded-md bg-[var(--primary)] px-6 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--primary-dark)] disabled:opacity-50 disabled:cursor-not-allowed"
+          className="rounded-md bg-[var(--primary)] px-6 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--primary-dark)] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >
           {isSubmitting ? 'Publicando...' : 'Publicar Oferta'}
         </button>

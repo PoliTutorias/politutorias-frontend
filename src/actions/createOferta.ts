@@ -32,40 +32,26 @@ export async function createOfertaAction(
   data: CreateOfertaInput
 ): Promise<CreateOfertaResponse> {
   try {
-    // TODO: Reemplazar esta URL cuando el backend esté disponible
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
+    // Simulación: No hace petición real al backend
+    // Solo registra la oferta de forma simulada
+    console.log('Oferta registrada (simulado):', data);
 
-    const response = await fetch(`${apiUrl}/ofertas`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-
-      // Si el error tiene estructura de validación, extraer los errores
-      if (response.status === 400 && errorData.errors) {
-        return {
-          success: false,
-          message: errorData.message || 'Validación fallida',
-          errors: errorData.errors,
-        };
-      }
-
-      throw new Error(
-        errorData.message || 'Error al crear la oferta'
-      );
-    }
-
-    const result = await response.json();
+    // Simular un pequeño delay como si fuera una petición real
+    await new Promise((resolve) => setTimeout(resolve, 500));
 
     return {
       success: true,
-      message: result.message || 'Oferta creada exitosamente',
-      data: result.data,
+      message: 'Oferta registrada',
+      data: {
+        id: `oferta-${Date.now()}`,
+        title: data.title,
+        price: data.price,
+        modality: data.modality,
+        categories: data.categories,
+        description: data.description,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
     };
   } catch (error) {
     const message =

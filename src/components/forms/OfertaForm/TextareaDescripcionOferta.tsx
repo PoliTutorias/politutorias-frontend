@@ -9,6 +9,7 @@ interface TextareaDescripcionOfertaProps
   currentLength?: number;
   error?: string;
   helperText?: string;
+  isValid?: boolean;
 }
 
 export const TextareaDescripcionOferta = forwardRef<
@@ -20,8 +21,7 @@ export const TextareaDescripcionOferta = forwardRef<
     maxLength = 250,
     currentLength = 0,
     error,
-    helperText = 'Describe los temas, metodología y lo que incluye tu tutoría',
-    ...props
+    helperText = 'Describe los temas, metodología y lo que incluye tu tutoría', isValid = false, ...props
   },
   ref
 ) => {
@@ -34,7 +34,9 @@ export const TextareaDescripcionOferta = forwardRef<
         <span
           className={`text-xs ${error
             ? 'text-[var(--error)]'
-            : 'text-[var(--text-secondary)]'
+            : isValid
+              ? 'text-[var(--success)]'
+              : 'text-[var(--text-secondary)]'
             }`}
         >
           {currentLength}/{maxLength}
@@ -45,16 +47,20 @@ export const TextareaDescripcionOferta = forwardRef<
         maxLength={maxLength}
         rows={4}
         className={`w-full rounded-md border px-3 py-2 text-sm placeholder-gray-400 transition-colors resize-none ${error
-          ? 'border-error focus:border-error focus:outline-none focus:ring-2 focus:ring-(--error)/20'
-          : 'border-border focus:border-primary focus:outline-none focus:ring-2 focus:ring-(--primary)/10'
+          ? 'border-[var(--error)] focus:border-[var(--error)] focus:outline-none focus:ring-2 focus:ring-[var(--error)]/20'
+          : isValid
+            ? 'border-[var(--success)] focus:border-[var(--success)] focus:outline-none focus:ring-2 focus:ring-[var(--success)]/20'
+            : 'border-[var(--border)] focus:border-[var(--primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/10'
           }`}
         placeholder="Describe qué incluye tu tutoría, metodología, temas específicos..."
         {...props}
       />
       {error ? (
         <p className="text-sm text-[var(--error)]">{error}</p>
+      ) : isValid ? (
+        <p className="text-sm text-[var(--success)]">✓ Buena descripción</p>
       ) : helperText ? (
-        <p className="text-xs text-[var(--text-secondary)]">{helperText}</p>
+        <p className="text-xs text-[var(--text-helper)]">{helperText}</p>
       ) : null}
     </div>
   );
