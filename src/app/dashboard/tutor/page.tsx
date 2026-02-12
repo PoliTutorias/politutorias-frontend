@@ -86,11 +86,10 @@ export default function TutorDashboardPage() {
         {/* Alert Message */}
         {showMessage && (
           <div
-            className={`mb-6 p-4 rounded-md flex items-center gap-3 ${
-              showMessage.type === 'success'
+            className={`mb-6 p-4 rounded-md flex items-center gap-3 ${showMessage.type === 'success'
                 ? 'bg-[var(--success)]/10 text-[var(--success)] border border-[var(--success)]/20'
                 : 'bg-[var(--error)]/10 text-[var(--error)] border border-[var(--error)]/20'
-            }`}
+              }`}
           >
             <svg
               className="h-5 w-5 flex-shrink-0"
