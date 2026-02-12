@@ -36,4 +36,4 @@ export const InputPrecioHora = forwardRef<
       ) : null}
     </div>
   );
-}
+})

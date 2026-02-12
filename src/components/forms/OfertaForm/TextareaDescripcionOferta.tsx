@@ -45,8 +45,8 @@ export const TextareaDescripcionOferta = forwardRef<
         maxLength={maxLength}
         rows={4}
         className={`w-full rounded-md border px-3 py-2 text-sm placeholder-gray-400 transition-colors resize-none ${error
-          ? 'border-[var(--error)] focus:border-[var(--error)] focus:outline-none focus:ring-2 focus:ring-[var(--error)]/20'
-          : 'border-[var(--border)] focus:border-[var(--primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/10'
+          ? 'border-error focus:border-error focus:outline-none focus:ring-2 focus:ring-(--error)/20'
+          : 'border-border focus:border-primary focus:outline-none focus:ring-2 focus:ring-(--primary)/10'
           }`}
         placeholder="Describe qué incluye tu tutoría, metodología, temas específicos..."
         {...props}
