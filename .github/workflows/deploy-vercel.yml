@@ -1,0 +1,142 @@
+# GitHub Actions Workflow: Frontend Next.js → Vercel
+# Migrado desde Azure Pipelines
+#
+# Flujo de ramas (Git Flow):
+#   1. feature/* → PR a develop → merge dispara deploy a Vercel
+#   2. develop   → PR a main    → merge dispara deploy a Vercel (producción)
+#   Nadie hace push directo a develop ni main (ramas protegidas).
+#   El evento "push" se dispara automáticamente cuando un PR es mergeado.
+
+name: Deploy Frontend to Vercel
+
+on:
+  # Se dispara cuando un PR es mergeado (el merge genera un push en la rama destino)
+  push:
+    branches:
+      - main
+      - develop
+  # Se dispara cuando se abre/actualiza un PR → solo ejecuta CI (build), NO deploy
+  pull_request:
+    branches:
+      - develop
+      - main
+
+env:
+  NODE_VERSION: "22.x"
+
+  # IDs de Vercel (Configuración del Proyecto)
+  VERCEL_PROJECT_ID: "prj_YDYhdgLT12EU3Tfp7o0OlAiK66iN"
+  VERCEL_ORG_ID: "team_rFjZG0SVqdEif7MINfBqAoiJ"
+
+  # Variables de Entorno de la Aplicación
+  NEXT_PUBLIC_BACKEND_URL: "http://politutorias-backend-staging.eba-qnyktbf8.us-east-1.elasticbeanstalk.com/api"
+  IMAGE_PROTOCOL: "https"
+  IMAGE_HOSTNAME: "politutorias-storage-staging.s3.amazonaws.com"
+
+jobs:
+  # ==========================================
+  # JOB 1: BUILD (Preparar y Verificar Código)
+  # ==========================================
+  build:
+    name: "1. Empaquetar Código (CI)"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: "Checkout del repositorio"
+        uses: actions/checkout@v4
+
+      - name: "Instalar Node.js"
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+
+      - name: "Instalar dependencias (Check)"
+        run: npm ci
+
+      - name: "Verificar Compilación (Dry Run)"
+        run: npm run build
+
+      - name: "Preparar Código Fuente"
+        run: |
+          echo "Preparando paquete para Vercel..."
+          mkdir deploy_source
+
+          # Copiamos archivos esenciales del proyecto
+          cp package.json deploy_source/
+          cp package-lock.json deploy_source/
+          cp next.config.ts deploy_source/
+          cp tsconfig.json deploy_source/
+
+          # Copiamos carpetas de código y assets
+          cp -r src deploy_source/
+          cp -r public deploy_source/
+
+          # Archivos opcionales de configuración
+          cp tailwind.config.ts deploy_source/ 2>/dev/null || true
+          cp postcss.config.mjs deploy_source/ 2>/dev/null || true
+          cp eslint.config.mjs deploy_source/ 2>/dev/null || true
+
+          echo "Contenido del paquete a enviar:"
+          ls -la deploy_source
+
+      - name: "Subir Artefacto"
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-source
+          path: deploy_source/
+          retention-days: 1
+
+  # ==========================================
+  # JOB 2: DEPLOY (Enviar a Vercel)
+  # ==========================================
+  deploy:
+    name: "2. Deploy to Vercel (CD)"
+    runs-on: ubuntu-latest
+    needs: build
+    # Solo despliega en push (no en PRs)
+    if: github.event_name == 'push'
+
+    environment:
+      name: VercelDeployment
+      url: ${{ steps.vercel_deploy.outputs.deployment_url }}
+
+    steps:
+      - name: "Descargar Artefacto"
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-source
+          path: app-source
+
+      - name: "Instalar Node.js"
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: "Instalar Vercel CLI"
+        run: |
+          echo "Instalando Vercel CLI en carpeta local..."
+          cd app-source
+          npm install vercel
+
+      - name: "Ejecutar Vercel Deploy"
+        id: vercel_deploy
+        run: |
+          cd app-source
+
+          echo "Iniciando despliegue a Vercel..."
+
+          # Construimos las variables de entorno para inyectarlas en el deploy
+          VARS="--env NEXT_PUBLIC_BACKEND_URL=${{ env.NEXT_PUBLIC_BACKEND_URL }} --env IMAGE_PROTOCOL=${{ env.IMAGE_PROTOCOL }} --env IMAGE_HOSTNAME=${{ env.IMAGE_HOSTNAME }}"
+
+          # Ejecutamos el deploy con Vercel CLI
+          # --prod: Producción
+          # --yes: Sin preguntas
+          # --force: Forzar nuevo build en Vercel
+          DEPLOYMENT_URL=$(./node_modules/.bin/vercel deploy --prod $VARS --token ${{ secrets.VERCEL_TOKEN }} --yes --force)
+
+          echo "deployment_url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
+          echo "✅ Desplegado en: $DEPLOYMENT_URL"
+        env:
+          VERCEL_ORG_ID: ${{ env.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ env.VERCEL_PROJECT_ID }}
