@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const createOfertaSchema = z.object({
   title: z
     .string()
-    .min(3, 'Mínimo 3 caracteres')
+    .min(3, 'Escribe el título de la materia')
     .max(80, 'Máximo 80 caracteres')
     .refine(
       (val) => val.trim().length > 0,
@@ -26,7 +26,7 @@ export const createOfertaSchema = z.object({
     .max(5, 'Máximo 5 categorías'),
   description: z
     .string()
-    .min(20, 'Mínimo 20 caracteres')
+    .min(20, 'Agrega una descripción')
     .max(250, 'Máximo 250 caracteres')
     .refine(
       (val) => val.trim().length > 0,
