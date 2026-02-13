@@ -10,11 +10,11 @@ import { OfertaDto } from '@/interfaces/oferta/OfertaDto';
  */
 export async function getTutorOffersAction(): Promise<ApiResponse<OfertaDto[]>> {
   try {
-    // Simular latencia de red
-    await new Promise((resolve) => setTimeout(resolve, 300));
-
     // Se retorna el seed de ofertas
     const ofertas = getOfertaSeeds();
+    
+    console.log('getTutorOffersAction - ofertas:', ofertas);
+    console.log('getTutorOffersAction - length:', ofertas.length);
 
     return {
       statusCode: 200,

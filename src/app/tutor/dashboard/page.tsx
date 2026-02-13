@@ -13,7 +13,7 @@ import { OfertaForm } from '@/components/forms/OfertaForm/OfertaForm';
  * Client Component que obtiene las ofertas y renderiza condicionalmente
  */
 export default function DashboardPage() {
-  const [ofertas, setOfertas] = useState<OfertaDto[]>([]);
+  const [ofertas, setOfertas] = useState<OfertaDto[] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -21,9 +21,12 @@ export default function DashboardPage() {
     const loadOfertas = async () => {
       try {
         const response = await getTutorOffersAction();
-        setOfertas(response.data || []);
+        // Asegurarse de que siempre hay un array, aunque sea vacío
+        const data = Array.isArray(response.data) ? response.data : [];
+        setOfertas(data);
       } catch (error) {
         console.error('Error loading ofertas:', error);
+        setOfertas([]);
       } finally {
         setIsLoading(false);
       }
@@ -45,6 +48,10 @@ export default function DashboardPage() {
     const response = await getTutorOffersAction();
     setOfertas(response.data || []);
     setIsModalOpen(false);
+  };
+
+  const handleOfertaSubmit = async () => {
+    await handleOfertaCreated();
   };
 
   return (
@@ -75,7 +82,7 @@ export default function DashboardPage() {
 
       {/* Modal para crear nueva oferta */}
       <NuevaOfertaModal isOpen={isModalOpen} onClose={handleCloseModal}>
-        <OfertaForm onSuccess={handleOfertaCreated} />
+        <OfertaForm onSubmit={handleOfertaSubmit} onCancel={handleCloseModal} />
       </NuevaOfertaModal>
     </div>
   );

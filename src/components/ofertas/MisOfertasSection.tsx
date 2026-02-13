@@ -27,3 +27,10 @@ export function MisOfertasSection({ offers, onNewOfertaClick }: MisOfertasSectio
         <button
           onClick={onNewOfertaClick}
           className="px-6 py-2 bg-blue-900 text-white rounded-lg font-medium hover:bg-blue-800 transition"
+        >
+          + Nueva Oferta
+        </button>
+      </div>
+    </div>
+  );
+}

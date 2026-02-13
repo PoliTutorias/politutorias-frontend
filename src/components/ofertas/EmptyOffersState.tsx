@@ -20,8 +20,10 @@ export function EmptyOffersState({ onCreateOfertaClick }: EmptyOffersStateProps)
         <button
           onClick={onCreateOfertaClick}
           className="px-6 py-2 bg-blue-900 text-white rounded-lg font-medium hover:bg-blue-800 transition"
+        >
+          + Crear mi primera oferta
         </button>
+      </div>
     </div>
-    </div >
   );
 }
