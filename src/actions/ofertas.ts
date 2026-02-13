@@ -12,9 +12,6 @@ export async function getTutorOffersAction(): Promise<ApiResponse<OfertaDto[]>> 
   try {
     // Se retorna el seed de ofertas
     const ofertas = getOfertaSeeds();
-    
-    console.log('getTutorOffersAction - ofertas:', ofertas);
-    console.log('getTutorOffersAction - length:', ofertas.length);
 
     return {
       statusCode: 200,
