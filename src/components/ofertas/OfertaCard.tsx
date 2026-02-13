@@ -12,34 +12,34 @@ interface OfertaCardProps {
  */
 export function OfertaCard({ offer }: OfertaCardProps) {
   return (
-    <div className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow p-6">
+    <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6 hover:shadow-md transition-shadow">
       {/* Header: Título y Precio */}
-      <div className="flex justify-between items-start mb-3">
-        <h3 className="text-[17px] font-semibold text-gray-900 flex-1 pr-4">
+      <div className="flex justify-between items-start gap-4 mb-2">
+        <h2 className="text-[17px] font-bold text-gray-900 flex-1">
           {offer.title}
-        </h3>
+        </h2>
         <span className="text-[17.4px] font-bold text-yellow-500 whitespace-nowrap">
           ${offer.pricePerHour}/h
         </span>
       </div>
 
-      {/* Modalidad (Presencial/Virtual) */}
-      <div className="flex items-center gap-2 mb-3">
+      {/* Modalidad (Presencial/Virtual) - Icono con texto */}
+      <div className="flex items-center gap-2 mb-2 text-gray-600">
         {offer.isPresencial ? (
           <>
-            <MdPerson2 className="w-5 h-5 text-gray-600" />
-            <span className="text-[12.7px] text-gray-600">Presencial</span>
+            <MdPerson2 className="w-5 h-5" />
+            <span className="text-[12.7px]">Presencial</span>
           </>
         ) : (
           <>
-            <MdMonitor className="w-5 h-5 text-gray-600" />
-            <span className="text-[12.7px] text-gray-600">Virtual</span>
+            <MdMonitor className="w-5 h-5" />
+            <span className="text-[12.7px]">Virtual</span>
           </>
         )}
       </div>
 
       {/* Descripción */}
-      <p className="text-[13.1px] text-gray-700 mb-4">
+      <p className="text-[13.1px] text-gray-600 mb-4">
         {offer.description}
       </p>
 
@@ -48,7 +48,7 @@ export function OfertaCard({ offer }: OfertaCardProps) {
         {offer.tags.map((tag) => (
           <span
             key={tag}
-            className="inline-block px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-[11.4px] font-medium"
+            className="inline-block px-3 py-1.5 bg-gray-100 text-gray-700 rounded-full text-[11.4px] font-medium border border-gray-200"
           >
             {tag}
           </span>
