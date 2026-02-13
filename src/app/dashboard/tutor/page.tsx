@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import { montserrat, dancingScript } from '@/lib/fonts';
 import { TutorDashboardContent } from '@/components/dashboard/TutorDashboardContent';
-import MisOfertasPage from './mis-ofertas';
 
 /**
  * Componente principal del Dashboard del tutor.
@@ -28,19 +27,7 @@ export default function TutorDashboardPage() {
       </header>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 py-8">
-          {/* Sidebar del tutor */}
-          <div className="lg:col-span-1">
-            <TutorDashboardContent />
-          </div>
-
-          {/* Mis Ofertas */}
-          <div className="lg:col-span-3">
-            <MisOfertasPage />
-          </div>
-        </div>
-      </div>
+      <TutorDashboardContent />
     </div>
   );
 }
