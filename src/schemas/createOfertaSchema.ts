@@ -3,12 +3,15 @@ import { z } from 'zod';
 export const createOfertaSchema = z.object({
   title: z
     .string()
-    .min(3, 'Mínimo 3 caracteres')
-    .max(80, 'Máximo 80 caracteres')
     .refine(
       (val) => val.trim().length > 0,
       'Escribe el título de la materia'
-    ),
+    )
+    .refine(
+      (val) => val.trim().length >= 3,
+      'Mínimo 3 caracteres'
+    )
+    .max(80, 'Máximo 80 caracteres'),
   price: z
     .coerce.number({
       message: 'Ingresa un precio',
@@ -26,12 +29,15 @@ export const createOfertaSchema = z.object({
     .max(5, 'Máximo 5 categorías'),
   description: z
     .string()
-    .min(20, 'Mínimo 20 caracteres')
-    .max(250, 'Máximo 250 caracteres')
     .refine(
       (val) => val.trim().length > 0,
       'Agrega una descripción'
-    ),
+    )
+    .refine(
+      (val) => val.trim().length >= 20,
+      'Mínimo 20 caracteres'
+    )
+    .max(250, 'Máximo 250 caracteres'),
 });
 
 export type CreateOfertaFormValues = z.input<typeof createOfertaSchema>;
