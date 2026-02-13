@@ -15,7 +15,7 @@ export async function getTutorOffersAction(): Promise<ApiResponse<OfertaDto[]>> 
 
     return {
       statusCode: 200,
-      data: ofertas,
+      data: [],
     };
 
     /*
