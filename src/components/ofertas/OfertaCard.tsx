@@ -1,7 +1,7 @@
 'use client';
 
 import { OfertaDto } from '@/interfaces/oferta/OfertaDto';
-import { MdPerson2, MdMonitor } from 'react-icons/md';
+import { MdOutlinePerson, MdMonitor } from 'react-icons/md';
 
 interface OfertaCardProps {
   offer: OfertaDto;
@@ -27,7 +27,7 @@ export function OfertaCard({ offer }: OfertaCardProps) {
       <div className="flex items-center gap-2 mb-2 text-gray-600">
         {offer.isPresencial ? (
           <>
-            <MdPerson2 className="w-5 h-5" />
+            <MdOutlinePerson className="w-5 h-5" />
             <span className="text-[12.7px]">Presencial</span>
           </>
         ) : (

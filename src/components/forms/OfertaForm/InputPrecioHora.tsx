@@ -23,8 +23,8 @@ export const InputPrecioHora = forwardRef<
         ref={ref}
         type="number"
         min="5"
+        max="20"
         step="0.50"
-        defaultValue={5}
         className={`w-full rounded-md border px-3 py-2 text-sm placeholder-gray-400 transition-colors ${error
           ? 'border-[var(--error)] focus:border-[var(--error)] focus:outline-none focus:ring-2 focus:ring-[var(--error)]/20'
           : isValid

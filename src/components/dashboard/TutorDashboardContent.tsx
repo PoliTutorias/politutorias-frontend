@@ -129,7 +129,7 @@ export function TutorDashboardContent() {
                 </div>
               ) : ofertas.length > 0 ? (
                 <div className="bg-white rounded-lg border border-[var(--border)] p-6">
-                  <MisOfertasSection offers={ofertas} onNewOfertaClick={handleOpenModal} />
+                  <MisOfertasSection offers={ofertas} />
                 </div>
               ) : (
                 <div className="bg-white rounded-lg border border-[var(--border)] p-12 text-center flex-grow flex flex-col items-center justify-center">

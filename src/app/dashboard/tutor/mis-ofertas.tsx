@@ -72,7 +72,7 @@ export default function MisOfertasPage() {
           <p className="text-gray-600">Cargando ofertas...</p>
         </div>
       ) : (
-        <MisOfertasSection offers={ofertas || []} onNewOfertaClick={handleOpenModal} />
+        <MisOfertasSection offers={ofertas || []} />
       )}
 
       {/* Modal para crear nueva oferta */}
