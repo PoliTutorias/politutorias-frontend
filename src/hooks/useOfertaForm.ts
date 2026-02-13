@@ -5,11 +5,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import {
   createOfertaSchema,
   type CreateOfertaInput,
+  type CreateOfertaFormValues,
 } from '@/schemas/createOfertaSchema';
 
 interface UseOfertaFormOptions {
   onSubmit?: (data: CreateOfertaInput) => void | Promise<void>;
-  defaultValues?: Partial<CreateOfertaInput>;
+  defaultValues?: Partial<CreateOfertaFormValues>;
 }
 
 export function useOfertaForm({
@@ -30,16 +31,16 @@ export function useOfertaForm({
     trigger,
     formState: { errors, isSubmitting, dirtyFields, isDirty },
     reset,
-  } = useForm<CreateOfertaInput>({
+  } = useForm<CreateOfertaFormValues, unknown, CreateOfertaInput>({
     resolver: zodResolver(createOfertaSchema),
     mode: 'onChange',
-    defaultValues: defaultValues as CreateOfertaInput,
+    defaultValues: defaultValues as CreateOfertaFormValues,
   });
 
   const formValues = watch();
 
   // Detectar si un campo es válido
-  const isFieldValid = (fieldName: keyof CreateOfertaInput) => {
+  const isFieldValid = (fieldName: keyof CreateOfertaFormValues) => {
     const isTouched = dirtyFields[fieldName];
     const hasNoError = !errors[fieldName];
     const hasValue = formValues[fieldName];

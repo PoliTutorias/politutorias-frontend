@@ -11,7 +11,7 @@ export const createOfertaSchema = z.object({
     ),
   price: z
     .coerce.number({
-      invalid_type_error: 'Ingresa un precio',
+      message: 'Ingresa un precio',
     })
     .refine((val) => !isNaN(val), 'Ingresa un precio')
     .default(0)
@@ -34,4 +34,5 @@ export const createOfertaSchema = z.object({
     ),
 });
 
+export type CreateOfertaFormValues = z.input<typeof createOfertaSchema>;
 export type CreateOfertaInput = z.infer<typeof createOfertaSchema>;
