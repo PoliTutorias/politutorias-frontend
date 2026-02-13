@@ -29,20 +29,27 @@ export function TutorDashboardContent() {
           duration: 3000,
         });
 
-        // Cerrar modal después de 500ms
+        // Cerrar modal después de 1 segundo y mantener deshabilitado ese tiempo
         setTimeout(() => {
           handleCloseModal();
-        }, 500);
+          setIsLoading(false);
+        }, 1000);
       } else {
-        toast.error(
-          result.message || 'Ocurrió un error al crear la oferta'
-        );
+        setIsLoading(false);
+        if (result.errors && result.errors.length > 0) {
+          result.errors.forEach((error) => {
+            toast.error(error);
+          });
+        } else {
+          toast.error(
+            result.message || 'Ocurrió un error al crear la oferta'
+          );
+        }
       }
     } catch (error) {
+      setIsLoading(false);
       toast.error('Error inesperado al crear la oferta');
       console.error('Error:', error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -127,6 +134,7 @@ export function TutorDashboardContent() {
         <OfertaForm
           onCancel={handleCloseModal}
           onSubmit={handleSubmitOferta}
+          isLoading={isLoading}
         />
       </NuevaOfertaModal>
     </>

@@ -1,6 +1,7 @@
 'use server';
 
 import { CreateOfertaInput } from '@/schemas/createOfertaSchema';
+import { getCategoriesSeed } from '@/seed/CategoriesSeedData';
 
 export interface CreateOfertaResponse {
   success: boolean;
@@ -12,10 +13,11 @@ export interface CreateOfertaResponse {
     modality: string;
     categories: string[];
     description: string;
+    tutorId: string;
     createdAt: string;
     updatedAt: string;
   };
-  errors?: Record<string, string>;
+  errors?: string[];
 }
 
 /**
@@ -23,36 +25,82 @@ export interface CreateOfertaResponse {
  * 
  * @param data - Datos de la oferta validados con Zod
  * @returns Respuesta con el resultado de la operación
- * 
- * NOTA: Este Server Action necesita ser integrado con el backend.
- * Actualmente solo simula la creación. Cuando el backend esté listo,
- * reemplazar la llamada fetch por la del API real.
  */
 export async function createOfertaAction(
   data: CreateOfertaInput
 ): Promise<CreateOfertaResponse> {
   try {
-    // Simulación: No hace petición real al backend
-    // Solo registra la oferta de forma simulada
-    console.log('Oferta registrada (simulado):', data);
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
 
-    // Simular un pequeño delay como si fuera una petición real
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    if (!backendUrl) {
+      throw new Error('NEXT_PUBLIC_BACKEND_API_URL no está configurada');
+    }
 
-    return {
-      success: true,
-      message: 'Oferta registrada',
-      data: {
-        id: `oferta-${Date.now()}`,
+    // Mapear IDs de categorías a nombres
+    const categories = getCategoriesSeed();
+    const categoryNames = data.categories.map((categoryId) => {
+      const category = categories.find((cat) => cat.id === categoryId);
+      return category?.name || categoryId;
+    });
+
+    const response = await fetch(`${backendUrl}ofertas`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
         title: data.title,
         price: data.price,
         modality: data.modality,
-        categories: data.categories,
+        categories: categoryNames,
         description: data.description,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      },
-    };
+      }),
+    });
+
+    const responseData = await response.json();
+
+    // Respuesta exitosa 201
+    if (response.status === 201) {
+      return {
+        success: true,
+        message: responseData.message || 'Oferta creada exitosamente',
+        data: responseData.data,
+      };
+    }
+
+    // Error 400 - Bad Request (validación)
+    if (response.status === 400) {
+      return {
+        success: false,
+        message: Array.isArray(responseData.message)
+          ? responseData.message[0]
+          : responseData.message || 'Error de validación',
+        errors: Array.isArray(responseData.message)
+          ? responseData.message
+          : [responseData.message],
+      };
+    }
+
+    // Error 409 - Conflict (oferta duplicada)
+    if (response.status === 409) {
+      return {
+        success: false,
+        message: responseData.message || 'Ya existe una oferta con este título',
+      };
+    }
+
+    // Error 500 - Internal Server Error
+    if (response.status === 500) {
+      return {
+        success: false,
+        message: responseData.message || 'Error interno del servidor',
+      };
+    }
+
+    // Otros errores
+    throw new Error(
+      `Error ${response.status}: ${responseData.message || 'Error desconocido'}`
+    );
   } catch (error) {
     const message =
       error instanceof Error ? error.message : 'Error desconocido';
