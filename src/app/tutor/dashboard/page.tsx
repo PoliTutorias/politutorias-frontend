@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { OfertaDto } from '@/interfaces/oferta/OfertaDto';
-import { getTutorOffersAction } from '@/app/actions/ofertas';
+import { getTutorOffersAction } from '@/actions/getTutorOffers';
 import { MisOfertasSection } from '@/components/ofertas/MisOfertasSection';
 import { EmptyOffersState } from '@/components/ofertas/EmptyOffersState';
 import { NuevaOfertaModal } from '@/components/ui/Modal/NuevaOfertaModal';
