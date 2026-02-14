@@ -1,8 +1,10 @@
 'use server';
 
-import { getOfertaSeeds } from '@/seed/OfertaSeedData';
 import { ApiResponse } from '@/interfaces/api/ApiResponse';
 import { OfertaDto } from '@/interfaces/oferta/OfertaDto';
+
+// ID del tutor - Constante configurada inicialmente
+const TUTOR_ID = '550e8400-e29b-41d4-a716-446655440000';
 
 /**
  * Obtiene el listado de ofertas de tutoría de un tutor específico
@@ -10,51 +12,31 @@ import { OfertaDto } from '@/interfaces/oferta/OfertaDto';
  */
 export async function getTutorOffersAction(): Promise<ApiResponse<OfertaDto[]>> {
   try {
-    // Se retorna el seed de ofertas
-    const ofertas = getOfertaSeeds();
+    const baseUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL || 'http://localhost:3000/api/';
 
-    return {
-      statusCode: 200,
-      data: [],
-    };
+    const response = await fetch(`${baseUrl}tutor/${TUTOR_ID}/ofertas`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        // 'Authorization': `Bearer ${token}`, // Si requiere autenticación
+      },
+      cache: 'no-store',
+    });
 
-    /*
-     * CÓDIGO COMENTADO PARA INTEGRACIÓN CON BACKEND REAL
-     * Descomenta esto cuando el backend esté listo
-     *
-    const tutorId = 'tutor-001'; // Este tutorId debería venir del contexto de sesión o token
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
-
-    try {
-      const response = await fetch(`${baseUrl}/tutor/${tutorId}/ofertas`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          // 'Authorization': `Bearer ${token}`, // Si requiere autenticación
-        },
-        cache: 'no-store',
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        return {
-          statusCode: response.status,
-          message: errorData.message || 'Error al obtener las ofertas',
-          error: errorData.error || 'Unknown error',
-        };
-      }
-
-      const data = await response.json();
-      return data as ApiResponse<OfertaDto[]>;
-    } catch (error) {
-      console.error('Error fetching ofertas:', error);
+    if (!response.ok) {
+      const errorData = await response.json();
       return {
-        statusCode: 500,
-        message: 'Error interno del servidor al obtener ofertas.',
-        error: error instanceof Error ? error.message : 'Unknown error',
+        statusCode: response.status,
+        message: errorData.message || 'Error al obtener las ofertas',
+        error: errorData.error || 'Unknown error',
       };
     }
-    */
+
+    const data = await response.json();
+    return {
+      statusCode: 200,
+      data: data,
+    };
   } catch (error) {
     console.error('Error en getTutorOffersAction:', error);
     return {
