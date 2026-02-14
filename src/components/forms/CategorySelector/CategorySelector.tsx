@@ -24,10 +24,27 @@ export function CategorySelector({
   const [searchTerm, setSearchTerm] = useState('');
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const filteredCategories = availableCategories.filter((cat) =>
-    cat.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
-    !selectedCategories.includes(cat.id)
-  );
+  // Agrupar categorías por grupo
+  const groupedCategories = availableCategories.reduce((acc, cat) => {
+    if (!acc[cat.group]) {
+      acc[cat.group] = [];
+    }
+    acc[cat.group].push(cat);
+    return acc;
+  }, {} as Record<string, Category[]>);
+
+  // Filtrar categorías por búsqueda
+  const filteredGroupedCategories = Object.entries(groupedCategories).reduce((acc, [group, cats]) => {
+    const filtered = cats.filter(
+      (cat) =>
+        cat.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+        !selectedCategories.includes(cat.id)
+    );
+    if (filtered.length > 0) {
+      acc[group] = filtered;
+    }
+    return acc;
+  }, {} as Record<string, Category[]>);
 
   const getSelectedCategoryNames = () => {
     return selectedCategories
@@ -66,8 +83,8 @@ export function CategorySelector({
         <div
           onClick={() => !isMaxReached && setIsOpen(true)}
           className={`w-full rounded-md border px-3 py-2 text-sm transition-colors flex flex-wrap items-center gap-2 cursor-text min-h-[42px] ${error
-            ? 'border-[var(--error)] focus-within:border-[var(--error)] focus-within:ring-2 focus-within:ring-[var(--error)]/20'
-            : 'border-[var(--border)] focus-within:border-[var(--primary)] focus-within:ring-2 focus-within:ring-[var(--primary)]/10'
+              ? 'border-[var(--error)] focus-within:border-[var(--error)] focus-within:ring-2 focus-within:ring-[var(--error)]/20'
+              : 'border-[var(--border)] focus-within:border-[var(--primary)] focus-within:ring-2 focus-within:ring-[var(--primary)]/10'
             }`}
         >
           {/* Selected Category Tags */}
@@ -114,26 +131,34 @@ export function CategorySelector({
         {/* Dropdown Menu */}
         {isOpen && (
           <div className="absolute top-full z-10 mt-1 w-full rounded-md border border-[var(--border)] bg-white shadow-lg">
-            {/* Categories List */}
-            <ul className="max-h-48 overflow-y-auto">
-              {filteredCategories.length > 0 ? (
-                filteredCategories.map((category) => (
-                  <li key={category.id}>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        handleSelect(category);
-                        setSearchTerm('');
-                      }}
-                      disabled={isMaxReached}
-                      className={`w-full px-3 py-2 text-left text-sm transition-colors ${isMaxReached
-                        ? 'cursor-not-allowed text-gray-300'
-                        : 'text-foreground hover:bg-gray-50'
-                        }`}
-                    >
-                      {category.name}
-                    </button>
-                  </li>
+            {/* Categories List Grouped */}
+            <div className="max-h-64 overflow-y-auto">
+              {Object.entries(filteredGroupedCategories).length > 0 ? (
+                Object.entries(filteredGroupedCategories).map(([group, categories]) => (
+                  <div key={group}>
+                    {/* Group Header - No seleccionable */}
+                    <div className="px-3 py-2 bg-gray-100 font-semibold text-sm text-gray-700 sticky top-0">
+                      {group}
+                    </div>
+                    {/* Group Items */}
+                    {categories.map((category) => (
+                      <button
+                        key={category.id}
+                        type="button"
+                        onClick={() => {
+                          handleSelect(category);
+                          setSearchTerm('');
+                        }}
+                        disabled={isMaxReached}
+                        className={`w-full px-6 py-2 text-left text-sm transition-colors ${isMaxReached
+                            ? 'cursor-not-allowed text-gray-300'
+                            : 'text-foreground hover:bg-gray-50'
+                          }`}
+                      >
+                        {category.name}
+                      </button>
+                    ))}
+                  </div>
                 ))
               ) : searchTerm ? (
                 <div className="px-3 py-2 text-center text-sm text-gray-500">
@@ -144,7 +169,7 @@ export function CategorySelector({
                   Todas las categorías están seleccionadas
                 </div>
               )}
-            </ul>
+            </div>
           </div>
         )}
       </div>

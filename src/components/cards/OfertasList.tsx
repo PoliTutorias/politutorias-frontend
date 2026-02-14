@@ -2,6 +2,7 @@
 
 import { OfertaEntity } from '@/interfaces/oferta/OfertaEntity';
 import { OfertaCard } from './OfertaCard';
+import { EmptyOfferState } from '@/components/ofertas/EmptyOfferState';
 
 interface OfertasListProps {
   ofertas: OfertaEntity[];
@@ -40,30 +41,7 @@ export function OfertasList({
   }
 
   if (ofertas.length === 0) {
-    return (
-      <div className="rounded-lg bg-white border border-[var(--border)] p-12 text-center">
-        <svg
-          className="mx-auto h-12 w-12 text-[var(--text-secondary)] mb-4"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={1.5}
-            d="M12 6.253v13m0-13C6.5 6.253 2 10.753 2 16.25s4.5 10 10 10 10-4.5 10-10S17.5 6.253 12 6.253z"
-          />
-        </svg>
-        <h3 className="text-lg font-semibold text-foreground mb-2">
-          No tienes ofertas activas
-        </h3>
-        <p className="text-[var(--text-secondary)] text-sm mb-6 max-w-md mx-auto">
-          Publica tu primera oferta de tutoría para que los estudiantes
-          te encuentren
-        </p>
-      </div>
-    );
+    return <EmptyOfferState showButton={false} />;
   }
 
   return (
