@@ -1,4 +1,7 @@
 import { getOffersAction } from '@/actions/offers/getOffersAction';
+import { SearchResultsHeader } from '@/components/offers/SearchResultsHeader/SearchResultsHeader';
+import { OfferList } from '@/components/offers/OfferList/OfferList';
+import { PaginationControls } from '@/components/offers/PaginationControls/PaginationControls';
 
 interface PageProps {
   searchParams: { [key: string]: string | string[] | undefined };
@@ -29,30 +32,18 @@ export default async function PoliTutoriasPage({ searchParams }: PageProps) {
 
     return (
       <main className="min-h-screen bg-[#f7fafc]">
-        <div className="containers mx-auto px-6 py-8">
+        <div className="container mx-auto px-6 py-8">
           {/* Cabecera de resultados */}
-          {/* <SearchResultsHeader totalResults={meta.totalResults} /> */}
+          <SearchResultsHeader totalResults={meta.totalResults} />
 
           {/* Lista de ofertas */}
-          {data.length > 0 ? (
-            <div>
-              {/* <OfferList offers={data} /> */}
-              {/* Placeholder para ofertas */}
-              <p className="text-gray-600">
-                {data.length} ofertas cargadas (Mostrando página {meta.currentPage} de {meta.totalPages})
-              </p>
-            </div>
-          ) : (
-            <div className="rounded-lg bg-white p-8 text-center shadow-sm">
-              <p className="text-gray-600">No se encontraron ofertas de tutoría</p>
-            </div>
-          )}
+          <OfferList offers={data} />
 
           {/* Controles de paginación */}
-          {/* <PaginationControls 
-            currentPage={meta.currentPage} 
-            totalPages={meta.totalPages} 
-          /> */}
+          <PaginationControls
+            currentPage={meta.currentPage}
+            totalPages={meta.totalPages}
+          />
         </div>
       </main>
     );
@@ -60,7 +51,7 @@ export default async function PoliTutoriasPage({ searchParams }: PageProps) {
     console.error('Error al cargar las ofertas:', error);
     return (
       <main className="min-h-screen bg-[#f7fafc]">
-        <div className="containers mx-auto px-6 py-8">
+        <div className="container mx-auto px-6 py-8">
           <div className="rounded-lg bg-white p-8 text-center shadow-sm">
             <h2 className="mb-2 text-lg font-semibold text-gray-800">
               Error al cargar las ofertas

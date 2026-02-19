@@ -10,7 +10,7 @@ interface EmptyOfferStateProps {
  */
 export function EmptyOfferState({ onCreateClick, showButton = false }: EmptyOfferStateProps) {
   return (
-    <div className="bg-white rounded-lg border border-[var(--border)] p-12 text-center flex-grow flex flex-col items-center justify-center">
+    <div className="bg-white rounded-lg shadow-sm p-12 text-center flex-grow flex flex-col items-center justify-center">
       <svg
         className="h-12 w-12 text-[var(--text-secondary)] mb-4"
         fill="none"

@@ -84,12 +84,12 @@ export function TutorDashboardContent() {
 
   return (
     <>
-      <main className="max-w-7xl mx-auto p-6">
+      <main className="max-w-7xl mx-auto p-6 bg-[#f7fafc]">
         {/* Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Profile Card - Left Side */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg border border-[var(--border)] p-6">
+            <div className="bg-white rounded-lg shadow-sm p-6">
               {/* Avatar Circle */}
               <div className="flex justify-center mb-4">
                 <div className="w-24 h-24 rounded-full bg-[var(--primary)] text-white flex items-center justify-center text-3xl font-bold">
@@ -125,11 +125,11 @@ export function TutorDashboardContent() {
 
               {/* Content Area */}
               {isLoadingOfertas ? (
-                <div className="bg-white rounded-lg border border-[var(--border)] p-12 text-center flex-grow flex flex-col items-center justify-center">
+                <div className="bg-white rounded-lg shadow-sm p-12 text-center flex-grow flex flex-col items-center justify-center">
                   <p className="text-[var(--text-secondary)]">Cargando ofertas...</p>
                 </div>
               ) : ofertas.length > 0 ? (
-                <div className="bg-white rounded-lg border border-[var(--border)] p-6">
+                <div className="bg-white rounded-lg shadow-sm p-6">
                   <MisOfertasSection offers={ofertas} />
                 </div>
               ) : (
