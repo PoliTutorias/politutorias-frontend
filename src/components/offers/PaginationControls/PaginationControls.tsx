@@ -69,8 +69,8 @@ export function PaginationControls({
           key={page}
           onClick={() => goToPage(page)}
           className={`flex h-7 w-7 items-center justify-center rounded text-xs font-medium transition-colors ${currentPage === page
-              ? 'bg-gray-900 text-white' // Página activa
-              : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300' // Página inactiva
+            ? 'bg-gray-900 text-white' // Página activa
+            : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300' // Página inactiva
             }`}
           aria-current={currentPage === page ? 'page' : undefined}
         >
