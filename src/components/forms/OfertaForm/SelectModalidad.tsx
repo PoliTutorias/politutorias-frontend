@@ -32,7 +32,6 @@ export const SelectModalidad = forwardRef<
       </label>
       <select
         ref={ref}
-        defaultValue="Presencial"
         className={`w-full rounded-md border px-3 py-2 text-sm transition-colors ${error
           ? 'border-[var(--error)] focus:border-[var(--error)] focus:outline-none focus:ring-2 focus:ring-[var(--error)]/20'
           : 'border-[var(--border)] focus:border-[var(--primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/10'
