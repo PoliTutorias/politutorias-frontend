@@ -57,7 +57,11 @@ export function PaginationControls({
       <button
         onClick={goToPreviousPage}
         disabled={currentPage === 1}
-        className="flex h-7 w-7 items-center justify-center rounded border border-gray-300 text-gray-600 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
+        className={`flex h-7 w-7 items-center justify-center rounded text-gray-600 transition-colors ${
+          currentPage === 1
+            ? 'border border-gray-200 cursor-not-allowed opacity-50'
+            : 'border border-gray-300 hover:bg-gray-100'
+        }`}
         aria-label="Página anterior"
       >
         <IoChevronBack className="h-4 w-4" />
@@ -68,10 +72,11 @@ export function PaginationControls({
         <button
           key={page}
           onClick={() => goToPage(page)}
-          className={`flex h-7 w-7 items-center justify-center rounded text-xs font-medium transition-colors ${currentPage === page
-            ? 'bg-gray-900 text-white' // Página activa
-            : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300' // Página inactiva
-            }`}
+          className={`flex h-7 w-7 items-center justify-center rounded text-xs font-medium transition-colors ${
+            currentPage === page
+              ? 'bg-gray-900 text-white' // Página activa
+              : 'bg-transparent text-gray-700 hover:bg-gray-100' // Página inactiva
+          }`}
           aria-current={currentPage === page ? 'page' : undefined}
         >
           {page}
@@ -82,7 +87,11 @@ export function PaginationControls({
       <button
         onClick={goToNextPage}
         disabled={currentPage === totalPages}
-        className="flex h-7 w-7 items-center justify-center rounded border border-gray-300 text-gray-600 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
+        className={`flex h-7 w-7 items-center justify-center rounded text-gray-600 transition-colors ${
+          currentPage === totalPages
+            ? 'border border-gray-200 cursor-not-allowed opacity-50'
+            : 'border border-gray-300 hover:bg-gray-100'
+        }`}
         aria-label="Página siguiente"
       >
         <IoChevronForward className="h-4 w-4" />
