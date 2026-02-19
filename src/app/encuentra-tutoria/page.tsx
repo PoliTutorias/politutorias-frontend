@@ -5,17 +5,20 @@ import { PaginationControls } from '@/components/offers/PaginationControls/Pagin
 import { Navbar } from '@/components/navbar/Navbar';
 
 interface PageProps {
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 export default async function PoliTutoriasPage({ searchParams }: PageProps) {
   try {
+    // Await searchParams (Next.js 15+)
+    const params = await searchParams;
+
     // Obtener parámetros de paginación de la URL
-    const page = searchParams.page
-      ? parseInt(Array.isArray(searchParams.page) ? searchParams.page[0] : searchParams.page)
+    const page = params.page
+      ? parseInt(Array.isArray(params.page) ? params.page[0] : params.page)
       : 1;
-    const limit = searchParams.limit
-      ? parseInt(Array.isArray(searchParams.limit) ? searchParams.limit[0] : searchParams.limit)
+    const limit = params.limit
+      ? parseInt(Array.isArray(params.limit) ? params.limit[0] : params.limit)
       : 10;
 
     // Validar que los parámetros sean válidos
