@@ -19,7 +19,7 @@ export const SelectModalidad = forwardRef<
     options = [
       { value: 'Presencial', label: 'Presencial' },
       { value: 'Virtual', label: 'Virtual' },
-      { value: 'Ambos', label: 'Ambos' },
+      { value: 'Virtual/Presencial', label: 'Ambos' },
     ],
     ...props
   },
@@ -32,13 +32,13 @@ export const SelectModalidad = forwardRef<
       </label>
       <select
         ref={ref}
+        defaultValue="Presencial"
         className={`w-full rounded-md border px-3 py-2 text-sm transition-colors ${error
           ? 'border-[var(--error)] focus:border-[var(--error)] focus:outline-none focus:ring-2 focus:ring-[var(--error)]/20'
           : 'border-[var(--border)] focus:border-[var(--primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/10'
           }`}
         {...props}
       >
-        <option value="">Selecciona una modalidad</option>
         {options.map((option) => (
           <option key={option.value} value={option.value}>
             {option.label}
