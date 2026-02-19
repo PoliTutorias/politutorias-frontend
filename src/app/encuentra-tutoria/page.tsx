@@ -2,6 +2,7 @@ import { getOffersAction } from '@/actions/offers/getOffersAction';
 import { SearchResultsHeader } from '@/components/offers/SearchResultsHeader/SearchResultsHeader';
 import { OfferList } from '@/components/offers/OfferList/OfferList';
 import { PaginationControls } from '@/components/offers/PaginationControls/PaginationControls';
+import { Navbar } from '@/components/navbar/Navbar';
 
 interface PageProps {
   searchParams: { [key: string]: string | string[] | undefined };
@@ -31,37 +32,43 @@ export default async function PoliTutoriasPage({ searchParams }: PageProps) {
     const { data, meta } = offersData;
 
     return (
-      <main className="min-h-screen bg-[#f7fafc]">
-        <div className="container mx-auto px-6 py-8">
-          {/* Cabecera de resultados */}
-          <SearchResultsHeader totalResults={meta.totalResults} />
+      <div className="min-h-screen bg-[#f7fafc]">
+        <Navbar userName="Patricio" />
+        <main>
+          <div className="container mx-auto px-6 py-8">
+            {/* Cabecera de resultados */}
+            <SearchResultsHeader totalResults={meta.totalResults} />
 
-          {/* Lista de ofertas */}
-          <OfferList offers={data} />
+            {/* Lista de ofertas */}
+            <OfferList offers={data} />
 
-          {/* Controles de paginación */}
-          <PaginationControls
-            currentPage={meta.currentPage}
-            totalPages={meta.totalPages}
-          />
-        </div>
-      </main>
+            {/* Controles de paginación */}
+            <PaginationControls
+              currentPage={meta.currentPage}
+              totalPages={meta.totalPages}
+            />
+          </div>
+        </main>
+      </div>
     );
   } catch (error) {
     console.error('Error al cargar las ofertas:', error);
     return (
-      <main className="min-h-screen bg-[#f7fafc]">
-        <div className="container mx-auto px-6 py-8">
-          <div className="rounded-lg bg-white p-8 text-center shadow-sm">
-            <h2 className="mb-2 text-lg font-semibold text-gray-800">
-              Error al cargar las ofertas
-            </h2>
-            <p className="text-gray-600">
-              Intenta nuevamente más tarde
-            </p>
+      <div className="min-h-screen bg-[#f7fafc]">
+        <Navbar userName="Patricio" />
+        <main>
+          <div className="container mx-auto px-6 py-8">
+            <div className="rounded-lg bg-white p-8 text-center shadow-sm">
+              <h2 className="mb-2 text-lg font-semibold text-gray-800">
+                Error al cargar las ofertas
+              </h2>
+              <p className="text-gray-600">
+                Intenta nuevamente más tarde
+              </p>
+            </div>
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
     );
   }
 }
