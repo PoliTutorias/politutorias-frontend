@@ -52,15 +52,15 @@ export function PaginationControls({
   const pageNumbers = getPageNumbers();
 
   return (
-    <div className="mt-12 flex items-center justify-center gap-2">
+    <div className="mt-10 flex items-center justify-center gap-1.5">
       {/* Botón anterior */}
       <button
         onClick={goToPreviousPage}
         disabled={currentPage === 1}
-        className="flex h-8 w-8 items-center justify-center rounded border border-gray-300 text-gray-600 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
+        className="flex h-7 w-7 items-center justify-center rounded border border-gray-300 text-gray-600 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
         aria-label="Página anterior"
       >
-        <IoChevronBack className="h-5 w-5" />
+        <IoChevronBack className="h-4 w-4" />
       </button>
 
       {/* Números de página */}
@@ -68,7 +68,7 @@ export function PaginationControls({
         <button
           key={page}
           onClick={() => goToPage(page)}
-          className={`flex h-8 w-8 items-center justify-center rounded font-medium transition-colors ${currentPage === page
+          className={`flex h-7 w-7 items-center justify-center rounded text-xs font-medium transition-colors ${currentPage === page
               ? 'bg-gray-900 text-white' // Página activa
               : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300' // Página inactiva
             }`}
@@ -82,10 +82,10 @@ export function PaginationControls({
       <button
         onClick={goToNextPage}
         disabled={currentPage === totalPages}
-        className="flex h-8 w-8 items-center justify-center rounded border border-gray-300 text-gray-600 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
+        className="flex h-7 w-7 items-center justify-center rounded border border-gray-300 text-gray-600 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
         aria-label="Página siguiente"
       >
-        <IoChevronForward className="h-5 w-5" />
+        <IoChevronForward className="h-4 w-4" />
       </button>
     </div>
   );
