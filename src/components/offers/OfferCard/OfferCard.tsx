@@ -51,9 +51,11 @@ export function OfferCard({ offer }: OfferCardProps) {
       </div>
 
       {/* Descripción */}
-      <p className="mb-3 line-clamp-2 text-xs text-gray-600 leading-relaxed">
-        {offer.description}
-      </p>
+      <div className="mb-3 flex items-center min-h-[2.5rem]">
+        <p className="line-clamp-2 text-xs text-gray-600 leading-relaxed">
+          {offer.description}
+        </p>
+      </div>
 
       {/* Tags/Servicios */}
       <div className="mb-3 flex flex-wrap gap-1.5">
