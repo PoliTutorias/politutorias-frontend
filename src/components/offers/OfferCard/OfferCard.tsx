@@ -28,7 +28,7 @@ export function OfferCard({ offer }: OfferCardProps) {
   const remainingTags = offer.tags.length - 2;
 
   return (
-    <div className="flex h-full flex-col rounded-lg bg-white border border-transparent border-t-4 border-t-[#F6B750] p-5 shadow-sm transition-all hover:border-[#F6B750] hover:shadow-xl hover:-translate-y-1">
+    <div className="flex h-full flex-col rounded-lg bg-white border border-transparent border-t-4 border-t-[#F6B750] p-5 shadow-sm transition-all cursor-pointer hover:border-[#F6B750] hover:shadow-xl hover:-translate-y-1">
       {/* Encabezado: Título y Precio */}
       <div className="mb-2 flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
