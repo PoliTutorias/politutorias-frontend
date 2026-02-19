@@ -32,7 +32,7 @@ export function OfferCard({ offer }: OfferCardProps) {
       {/* Encabezado: Título y Precio */}
       <div className="mb-2 flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
-          <h3 className="text-base font-semibold text-gray-900 line-clamp-2 leading-tight">
+          <h3 className="text-[17.3px] font-semibold text-gray-900 line-clamp-2 leading-tight">
             {offer.title}
           </h3>
         </div>
@@ -45,14 +45,14 @@ export function OfferCard({ offer }: OfferCardProps) {
       </div>
 
       {/* Modalidad */}
-      <div className="mb-3 flex items-center gap-1.5 text-xs text-gray-600">
+      <div className="mb-3 flex items-center gap-1.5 text-[11px] text-gray-600">
         {renderModalityIcon(offer.modality)}
-        <span className="text-xs">{offer.modality}</span>
+        <span className="text-[11px]">{offer.modality}</span>
       </div>
 
       {/* Descripción */}
       <div className="mb-3 flex items-center min-h-[2.5rem]">
-        <p className="line-clamp-2 text-xs text-gray-600 leading-relaxed">
+        <p className="line-clamp-2 text-[13px] text-gray-600 leading-relaxed">
           {offer.description}
         </p>
       </div>
@@ -88,7 +88,7 @@ export function OfferCard({ offer }: OfferCardProps) {
           />
         </div>
         <div className="min-w-0">
-          <p className="truncate text-xs font-medium text-gray-800">{offer.tutor.name}</p>
+          <p className="truncate text-[13.2px] font-bold text-[#17253d]">{offer.tutor.name}</p>
         </div>
       </div>
     </div>
