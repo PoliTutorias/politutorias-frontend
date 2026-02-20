@@ -1,64 +1,65 @@
 'use server';
 
-import { getOffersSeedData } from '@/seed/OfferSeedData';
-import { PaginatedOffersResponse } from '@/interfaces/offers/OfferResponseDto';
+import { PaginatedOffersResponse, OfferResponseDto } from '@/interfaces/offers/OfferResponseDto';
 
 interface GetOffersParams {
   page?: number;
   limit?: number;
+  modality?: 'Virtual' | 'Presencial' | 'Virtual/Presencial';
+  minPrice?: number;
+  maxPrice?: number;
+  sortBy?: 'price' | 'rating' | 'newest';
+}
+
+interface BackendOffersResponse {
+  offers: OfferResponseDto[];
+  totalResults: number;
+  currentPage: number;
+  itemsPerPage: number;
+  totalPages: number;
 }
 
 /**
  * Server Action para obtener las ofertas de tutorías con paginación
- * Actualmente retorna datos del seed, con lógica de fetch comentada para integración futura con el backend
- * @param params - Parámetros de paginación (page y limit)
+ * Se conecta directamente con el endpoint GET /api/offers del backend
+ * @param params - Parámetros de filtrado y paginación (page, limit, modality, minPrice, maxPrice, sortBy)
  * @returns PaginatedOffersResponse con las ofertas paginadas
+ * @throws Error si la petición al backend falla
  */
 export async function getOffersAction(
   params: GetOffersParams = {}
 ): Promise<PaginatedOffersResponse> {
-  // Simular retardo de red
-  await new Promise((resolve) => setTimeout(resolve, 500));
-
-  // Extraer parámetros con valores por defecto
-  const page = params.page ?? 1;
-  const limit = params.limit ?? 10;
-
-  // Obtener datos del seed
-  const seedData = getOffersSeedData();
-
-  // Calcular índices para paginación
-  const startIndex = (page - 1) * limit;
-  const endIndex = startIndex + limit;
-
-  // Obtener sub-array de ofertas
-  const paginatedOffers = seedData.data.slice(startIndex, endIndex);
-
-  // Calcular total de páginas
-  const totalPages = Math.ceil(seedData.meta.totalResults / limit);
-
-  // Retornar respuesta paginada
-  return {
-    data: paginatedOffers,
-    meta: {
-      totalResults: seedData.meta.totalResults,
-      currentPage: page,
-      itemsPerPage: limit,
-      totalPages: totalPages,
-    },
-  };
-
-  /*
-  // TODO: Descomentar cuando el backend esté listo
   try {
-    // Construir query parameters
+    // Extraer parámetros con valores por defecto
+    const page = params.page ?? 1;
+    const limit = params.limit ?? 10;
+
+    // Construir query parameters dinámicamente
     const queryParams = new URLSearchParams();
-    if (page) queryParams.append('page', page.toString());
-    if (limit) queryParams.append('limit', limit.toString());
+    queryParams.append('page', page.toString());
+    queryParams.append('limit', limit.toString());
+
+    if (params.modality) {
+      queryParams.append('modality', params.modality);
+    }
+    if (params.minPrice !== undefined) {
+      queryParams.append('minPrice', params.minPrice.toString());
+    }
+    if (params.maxPrice !== undefined) {
+      queryParams.append('maxPrice', params.maxPrice.toString());
+    }
+    if (params.sortBy) {
+      queryParams.append('sortBy', params.sortBy);
+    }
 
     // Realizar petición al backend
+    const apiBaseUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
+    if (!apiBaseUrl) {
+      throw new Error('NEXT_PUBLIC_BACKEND_API_URL no está configurada');
+    }
+
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/offers?${queryParams}`,
+      `${apiBaseUrl}offers?${queryParams.toString()}`,
       {
         method: 'GET',
         headers: {
@@ -69,15 +70,29 @@ export async function getOffersAction(
 
     // Validar respuesta
     if (!response.ok) {
-      throw new Error(`API error: ${response.statusText}`);
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        `Error al obtener ofertas: ${response.status} - ${errorData.message || response.statusText}`
+      );
     }
 
-    // Parsear y retornar respuesta
-    const data: PaginatedOffersResponse = await response.json();
-    return data;
+    // Parsear respuesta del backend
+    const backendData: BackendOffersResponse = await response.json();
+
+    // Transformar respuesta del backend al formato esperado por la app
+    const paginatedResponse: PaginatedOffersResponse = {
+      data: backendData.offers,
+      meta: {
+        totalResults: backendData.totalResults,
+        currentPage: backendData.currentPage,
+        itemsPerPage: backendData.itemsPerPage,
+        totalPages: backendData.totalPages,
+      },
+    };
+
+    return paginatedResponse;
   } catch (error) {
-    console.error('Error fetching offers:', error);
+    console.error('Error al obtener ofertas del backend:', error);
     throw error;
   }
-  */
 }

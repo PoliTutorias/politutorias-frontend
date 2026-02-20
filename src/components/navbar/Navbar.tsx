@@ -24,7 +24,7 @@ export function Navbar({ userName = 'Estudiante' }: NavbarProps) {
             Poli
           </span>
           <span className={`${dancingScript.className} antialiased text-[var(--yellow)] text-lg`}>
-            tutorías
+            Tutorías
           </span>
         </Link>
 

@@ -14,6 +14,7 @@ export interface OfferResponseDto {
   rating: number; // Ej. 4.8
   reviewsCount: number; // Ej. 15
   tutor: TutorResponseDto;
+  createdAt?: string; // ISO 8601 timestamp del backend
 }
 
 export interface PaginatedOffersResponse {
