@@ -8,7 +8,7 @@ import { TutorDashboardContent } from '@/components/dashboard/TutorDashboardCont
  */
 export default function TutorDashboardPage() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[#f7fafc]">
       {/* Header */}
       <header className="bg-[var(--primary)] text-white p-6">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
