@@ -8,13 +8,13 @@ import { FiSearch } from 'react-icons/fi';
  * Componente SearchBar para búsqueda de ofertas
  *
  * Permite a los estudiantes buscar tutorías por título o nombre del tutor.
- * Actualiza los parámetros de la URL cuando el usuario realiza una búsqueda,
- * lo que dispara un re-render del Server Component OfertasPage.
+ * Actualiza los parámetros de la URL en tiempo real mientras escriben.
  *
  * Features:
- * - Búsqueda por Enter o clic en el icono de búsqueda
+ * - Búsqueda en tiempo real (onChange)
+ * - Ocupa 50% del ancho de la pantalla
+ * - Sin botón de búsqueda, icono integrado
  * - Inicialización con valores de URL existentes
- * - Limpieza de parámetros si el campo se deja vacío
  */
 export function SearchBar() {
   const router = useRouter();
@@ -30,53 +30,43 @@ export function SearchBar() {
   }, [searchParams]);
 
   /**
-   * Maneja la lógica de búsqueda
-   * Actualiza la URL con el nuevo searchTerm o lo elimina si está vacío
+   * Maneja la búsqueda en tiempo real
+   * Se dispara cada que el usuario escribe
    */
-  const handleSearch = () => {
+  const handleSearchChange = (value: string) => {
+    setSearchInput(value);
+
+    // Actualizar URL en tiempo real
     const params = new URLSearchParams();
 
-    if (searchInput.trim() !== '') {
-      params.set('searchTerm', searchInput.trim());
+    if (value.trim() !== '') {
+      params.set('searchTerm', value.trim());
     }
-    // Si está vacío, no añadimos el parámetro
 
-    // Actualizar URL y disparar re-render
+    // Actualizar URL sin recargar
     const queryString = params.toString();
-    router.push(queryString ? `/ofertas?${queryString}` : '/ofertas');
-  };
-
-  /**
-   * Manejar la tecla Enter en el input
-   */
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      handleSearch();
-    }
+    const newUrl = queryString
+      ? `/encuentra-tutoria?${queryString}`
+      : '/encuentra-tutoria';
+    router.push(newUrl);
   };
 
   return (
-    <div className="flex items-center gap-2 mb-6">
-      {/* Input de búsqueda */}
-      <div className="flex-1">
+    <div className="flex items-center mb-6 w-1/2">
+      {/* Input de búsqueda con icono integrado */}
+      <div className="relative w-full">
+        <FiSearch
+          size={20}
+          className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[var(--text-secondary)]"
+        />
         <input
           type="text"
           placeholder="Buscar por materia, tutor..."
           value={searchInput}
-          onChange={(e) => setSearchInput(e.target.value)}
-          onKeyPress={handleKeyPress}
-          className="w-full px-4 py-3 border border-[var(--input-border)] rounded-lg focus:outline-none focus:border-[var(--input-border-focus)] focus:ring-1 focus:ring-[var(--input-border-focus)] font-inter text-base text-[var(--foreground)]"
+          onChange={(e) => handleSearchChange(e.target.value)}
+          className="w-full pl-12 pr-4 py-3 border border-[var(--input-border)] rounded-lg focus:outline-none focus:border-[var(--input-border-focus)] focus:ring-1 focus:ring-[var(--input-border-focus)] font-inter text-base text-[var(--foreground)]"
         />
       </div>
-
-      {/* Botón de búsqueda con icono */}
-      <button
-        onClick={handleSearch}
-        className="flex items-center justify-center px-4 py-3 bg-[var(--primary)] text-white rounded-lg hover:bg-[var(--primary-dark)] transition-colors font-inter font-medium"
-        aria-label="Buscar"
-      >
-        <FiSearch size={20} />
-      </button>
     </div>
   );
 }
