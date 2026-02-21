@@ -5,6 +5,7 @@ import { PaginatedOffersResponse, OfferResponseDto } from '@/interfaces/offers/O
 interface GetOffersParams {
   page?: number;
   limit?: number;
+  searchTerm?: string;
   modality?: 'Virtual' | 'Presencial' | 'Virtual/Presencial';
   minPrice?: number;
   maxPrice?: number;
@@ -39,6 +40,9 @@ export async function getOffersAction(
     queryParams.append('page', page.toString());
     queryParams.append('limit', limit.toString());
 
+    if (params.searchTerm) {
+      queryParams.append('searchTerm', params.searchTerm);
+    }
     if (params.modality) {
       queryParams.append('modality', params.modality);
     }
