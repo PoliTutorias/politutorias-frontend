@@ -12,34 +12,10 @@
  * - Casos simulados: búsqueda exitosa, sin coincidencias, campo vacío
  */
 
-// Nota: Se importará desde interfaces/ofertas/Oferta.ts una vez que esté creado
-// Por ahora, definimos la estructura aquí y se actualizará después de T02
-
-export interface TutorEntity {
-  id: string;
-  nombre: string;
-  fotoUrl?: string;
-}
-
-export interface OfertaEntity {
-  id: string;
-  titulo: string;
-  descripcion: string;
-  precioHora: number;
-  modalidad: 'Presencial' | 'Virtual' | 'Virtual/Presencial';
-  lugarReunion?: string;
-  carrera: string;
-  imagenRepresentativaUrl?: string;
-  createdAt: string;
-  tutor: TutorEntity;
-}
-
-export interface PaginatedOffersResponse {
-  items: OfertaEntity[];
-  totalResults: number;
-  page: number;
-  limit: number;
-}
+import {
+  OfertaEntity,
+  PaginatedOffersResponse,
+} from '@/interfaces/ofertas/Oferta';
 
 /**
  * Array de datos de ejemplo para ofertas de tutoría
