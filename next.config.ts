@@ -13,13 +13,6 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "randomuser.me",
       },
-<<<<<<< HEAD
-      {
-        protocol: "https",
-        hostname: "example.com",
-      },
-=======
->>>>>>> aee0c9fdf06e07b032bef37a879054a5881641a3
     ],
   },
 };
