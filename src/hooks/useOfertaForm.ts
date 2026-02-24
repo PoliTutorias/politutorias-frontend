@@ -17,7 +17,7 @@ export function useOfertaForm({
   onSubmit,
   defaultValues = {
     title: '',
-    price: 5,
+    price: undefined,
     modality: 'Presencial',
     categories: [],
     description: '',
