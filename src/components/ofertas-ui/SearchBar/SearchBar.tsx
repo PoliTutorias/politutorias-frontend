@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { FiSearch } from 'react-icons/fi';
 
@@ -11,45 +11,63 @@ import { FiSearch } from 'react-icons/fi';
  * Actualiza los parámetros de la URL en tiempo real mientras escriben.
  *
  * Features:
- * - Búsqueda en tiempo real (onChange)
+ * - Búsqueda en tiempo real con debounce
+ * - Permite espacios en blanco, hace trim solo al enviar
  * - Ocupa 50% del ancho de la pantalla
  * - Sin botón de búsqueda, icono integrado
- * - Inicialización con valores de URL existentes
  */
 export function SearchBar() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Estado local para el input
-  const [searchInput, setSearchInput] = useState<string>('');
-
-  // Inicializar con searchTerm de la URL si existe
-  useEffect(() => {
-    const currentSearchTerm = searchParams.get('searchTerm') || '';
-    setSearchInput(currentSearchTerm);
-  }, [searchParams]);
+  // Estado local para el input (permite espacios)
+  // Inicializado con searchTerm de la URL si existe
+  const [searchInput, setSearchInput] = useState<string>(
+    () => searchParams.get('searchTerm') || ''
+  );
 
   /**
-   * Maneja la búsqueda en tiempo real
+   * Maneja la búsqueda en tiempo real con debounce
    * Se dispara cada que el usuario escribe
    */
   const handleSearchChange = (value: string) => {
+    // Permitir escribir espacios en la interfaz
     setSearchInput(value);
 
-    // Actualizar URL en tiempo real
-    const params = new URLSearchParams();
-
-    if (value.trim() !== '') {
-      params.set('searchTerm', value.trim());
+    // Limpiar timer anterior
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
     }
 
-    // Actualizar URL sin recargar
-    const queryString = params.toString();
-    const newUrl = queryString
-      ? `/encuentra-tutoria?${queryString}`
-      : '/encuentra-tutoria';
-    router.push(newUrl);
+    // Aplicar debounce de 300ms antes de actualizar URL
+    debounceTimerRef.current = setTimeout(() => {
+      const params = new URLSearchParams();
+
+      // Hacer trim solo al momento de la consulta
+      const trimmedValue = value.trim();
+
+      if (trimmedValue !== '') {
+        params.set('searchTerm', trimmedValue);
+      }
+
+      // Actualizar URL
+      const queryString = params.toString();
+      const newUrl = queryString
+        ? `/encuentra-tutoria?${queryString}`
+        : '/encuentra-tutoria';
+      router.push(newUrl);
+    }, 300);
   };
+
+  // Limpiar timer al desmontar
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, []);
 
   return (
     <div className="flex items-center mb-6 w-1/2">

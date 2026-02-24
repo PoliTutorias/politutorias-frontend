@@ -2,12 +2,9 @@ import { getOffersAction } from '@/actions/offers/getOffersAction';
 import { SearchResultsHeader } from '@/components/offers/SearchResultsHeader/SearchResultsHeader';
 import { OfferList } from '@/components/offers/OfferList/OfferList';
 import { PaginationControls } from '@/components/offers/PaginationControls/PaginationControls';
-<<<<<<< HEAD
 import { SearchBar } from '@/components/ofertas-ui/SearchBar/SearchBar';
 import { ResultsCounter } from '@/components/ofertas-ui/ResultsCounter/ResultsCounter';
 import { NoResultsMessage } from '@/components/ofertas-ui/NoResultsMessage/NoResultsMessage';
-=======
->>>>>>> aee0c9fdf06e07b032bef37a879054a5881641a3
 import { Navbar } from '@/components/navbar/Navbar';
 
 interface PageProps {
@@ -19,7 +16,6 @@ export default async function PoliTutoriasPage({ searchParams }: PageProps) {
     // Await searchParams (Next.js 15+)
     const params = await searchParams;
 
-<<<<<<< HEAD
     // Extraer searchTerm
     const searchTerm = params.searchTerm
       ? Array.isArray(params.searchTerm)
@@ -27,8 +23,6 @@ export default async function PoliTutoriasPage({ searchParams }: PageProps) {
         : params.searchTerm
       : '';
 
-=======
->>>>>>> aee0c9fdf06e07b032bef37a879054a5881641a3
     // Obtener parámetros de paginación de la URL
     const page = params.page
       ? parseInt(Array.isArray(params.page) ? params.page[0] : params.page)
@@ -41,18 +35,11 @@ export default async function PoliTutoriasPage({ searchParams }: PageProps) {
     const validPage = isNaN(page) || page < 1 ? 1 : page;
     const validLimit = isNaN(limit) || limit < 1 ? 10 : limit;
 
-<<<<<<< HEAD
     // Obtener datos de ofertas con searchTerm
     const offersData = await getOffersAction({
       page: validPage,
       limit: validLimit,
       searchTerm: searchTerm || undefined,
-=======
-    // Obtener datos de ofertas
-    const offersData = await getOffersAction({
-      page: validPage,
-      limit: validLimit,
->>>>>>> aee0c9fdf06e07b032bef37a879054a5881641a3
     });
 
     // Desestructurar datos para pasar a componentes hijos
@@ -63,7 +50,6 @@ export default async function PoliTutoriasPage({ searchParams }: PageProps) {
         <Navbar userName="Patricio" />
         <main>
           <div className="container mx-auto px-6 py-8">
-<<<<<<< HEAD
             {/* Barra de búsqueda */}
             <div className="mb-8">
               <SearchBar />
@@ -90,19 +76,6 @@ export default async function PoliTutoriasPage({ searchParams }: PageProps) {
               /* Mensaje de sin resultados */
               <NoResultsMessage />
             )}
-=======
-            {/* Cabecera de resultados */}
-            <SearchResultsHeader totalResults={meta.totalResults} />
-
-            {/* Lista de ofertas */}
-            <OfferList offers={data} />
-
-            {/* Controles de paginación */}
-            <PaginationControls
-              currentPage={meta.currentPage}
-              totalPages={meta.totalPages}
-            />
->>>>>>> aee0c9fdf06e07b032bef37a879054a5881641a3
           </div>
         </main>
       </div>
@@ -114,15 +87,12 @@ export default async function PoliTutoriasPage({ searchParams }: PageProps) {
         <Navbar userName="Patricio" />
         <main>
           <div className="container mx-auto px-6 py-8">
-<<<<<<< HEAD
             {/* Barra de búsqueda */}
             <div className="mb-8">
               <SearchBar />
             </div>
 
             {/* Mensaje de error */}
-=======
->>>>>>> aee0c9fdf06e07b032bef37a879054a5881641a3
             <div className="rounded-lg bg-white p-8 text-center shadow-sm">
               <h2 className="mb-2 text-lg font-semibold text-gray-800">
                 Error al cargar las ofertas
