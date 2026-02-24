@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { getOffersAction } from '@/actions/offers/getOffersAction';
 import { SearchResultsHeader } from '@/components/offers/SearchResultsHeader/SearchResultsHeader';
 import { OfferList } from '@/components/offers/OfferList/OfferList';
@@ -52,7 +53,9 @@ export default async function PoliTutoriasPage({ searchParams }: PageProps) {
           <div className="container mx-auto px-6 py-8">
             {/* Barra de búsqueda */}
             <div className="mb-8">
-              <SearchBar />
+              <Suspense fallback={<div className="w-1/2 h-12 bg-gray-100 animate-pulse rounded-lg"></div>}>
+                <SearchBar />
+              </Suspense>
             </div>
 
             {/* Contador de resultados */}
@@ -89,7 +92,9 @@ export default async function PoliTutoriasPage({ searchParams }: PageProps) {
           <div className="container mx-auto px-6 py-8">
             {/* Barra de búsqueda */}
             <div className="mb-8">
-              <SearchBar />
+              <Suspense fallback={<div className="w-1/2 h-12 bg-gray-100 animate-pulse rounded-lg"></div>}>
+                <SearchBar />
+              </Suspense>
             </div>
 
             {/* Mensaje de error */}
