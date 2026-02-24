@@ -19,7 +19,7 @@ export const SelectModalidad = forwardRef<
     options = [
       { value: 'Presencial', label: 'Presencial' },
       { value: 'Virtual', label: 'Virtual' },
-      { value: 'Virtual/Presencial', label: 'Ambos' },
+      { value: 'Ambos', label: 'Ambos' },
     ],
     ...props
   },
