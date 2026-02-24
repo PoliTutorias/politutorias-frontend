@@ -5,6 +5,7 @@ import { PaginatedOffersResponse, OfferResponseDto } from '@/interfaces/offers/O
 interface GetOffersParams {
   page?: number;
   limit?: number;
+  searchTerm?: string;
   modality?: 'Virtual' | 'Presencial' | 'Virtual/Presencial';
   minPrice?: number;
   maxPrice?: number;
@@ -39,6 +40,12 @@ export async function getOffersAction(
     queryParams.append('page', page.toString());
     queryParams.append('limit', limit.toString());
 
+    // Trim del searchTerm y solo agregarlo si no está vacío
+    const trimmedSearchTerm = params.searchTerm?.trim();
+    if (trimmedSearchTerm && trimmedSearchTerm.length > 0) {
+      queryParams.append('searchTerm', trimmedSearchTerm);
+    }
+
     if (params.modality) {
       queryParams.append('modality', params.modality);
     }
@@ -59,7 +66,7 @@ export async function getOffersAction(
     }
 
     const response = await fetch(
-      `${apiBaseUrl}offers?${queryParams.toString()}`,
+      `${apiBaseUrl}ofertas/search?${queryParams.toString()}`,
       {
         method: 'GET',
         headers: {
