@@ -40,9 +40,12 @@ export async function getOffersAction(
     queryParams.append('page', page.toString());
     queryParams.append('limit', limit.toString());
 
-    if (params.searchTerm) {
-      queryParams.append('searchTerm', params.searchTerm);
+    // Trim del searchTerm y solo agregarlo si no está vacío
+    const trimmedSearchTerm = params.searchTerm?.trim();
+    if (trimmedSearchTerm && trimmedSearchTerm.length > 0) {
+      queryParams.append('searchTerm', trimmedSearchTerm);
     }
+
     if (params.modality) {
       queryParams.append('modality', params.modality);
     }
@@ -63,7 +66,7 @@ export async function getOffersAction(
     }
 
     const response = await fetch(
-      `${apiBaseUrl}offers?${queryParams.toString()}`,
+      `${apiBaseUrl}ofertas/search?${queryParams.toString()}`,
       {
         method: 'GET',
         headers: {
