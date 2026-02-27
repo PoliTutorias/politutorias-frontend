@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { InputField } from '@/components/shared/input-field/InputField';
 import { Textarea } from '@/components/shared/textarea/Textarea';
+import { Dropdown } from '@/components/shared/dropdown/Dropdown';
 import { FACULTADES_SEED } from '@/lib/seeds/facultades';
 import { SEMESTRES_SEED } from '@/lib/seeds/semestres';
 
@@ -63,46 +64,26 @@ export function FormularioDatosBasicos() {
       />
 
       {/* Facultad */}
-      <div>
-        <label htmlFor="facultad" className="block text-sm font-semibold text-gray-700 mb-2">
-          Facultad
-        </label>
-        <select
-          id="facultad"
-          name="facultad"
-          value={formData.facultad}
-          onChange={handleChange}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
-        >
-          <option value="">Selecciona tu facultad</option>
-          {FACULTADES_SEED.map((facultad) => (
-            <option key={facultad} value={facultad}>
-              {facultad}
-            </option>
-          ))}
-        </select>
-      </div>
+      <Dropdown
+        id="facultad"
+        name="facultad"
+        label="Facultad"
+        options={Array.from(FACULTADES_SEED)}
+        defaultText="Selecciona tu facultad"
+        value={formData.facultad}
+        onChange={handleChange}
+      />
 
       {/* Semestre Actual */}
-      <div>
-        <label htmlFor="semestreActual" className="block text-sm font-semibold text-gray-700 mb-2">
-          Semestre Actual
-        </label>
-        <select
-          id="semestreActual"
-          name="semestreActual"
-          value={formData.semestreActual}
-          onChange={handleChange}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
-        >
-          <option value="">Selecciona</option>
-          {SEMESTRES_SEED.map((semestre) => (
-            <option key={semestre} value={semestre}>
-              {semestre}
-            </option>
-          ))}
-        </select>
-      </div>
+      <Dropdown
+        id="semestreActual"
+        name="semestreActual"
+        label="Semestre Actual"
+        options={Array.from(SEMESTRES_SEED)}
+        defaultText="Selecciona"
+        value={formData.semestreActual}
+        onChange={handleChange}
+      />
 
       {/* Biografía Corta */}
       <Textarea
