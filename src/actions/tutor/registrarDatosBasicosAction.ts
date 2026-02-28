@@ -6,7 +6,7 @@ import { TUTOR_REGISTRO_RESPONSE_SEED } from '@/lib/seeds/tutor-registro-respons
 interface ServerActionResponse {
   success: boolean;
   message: string;
-  data?: any;
+  data?: Record<string, unknown>;
   errors?: Record<string, string>;
 }
 
@@ -35,7 +35,7 @@ export async function registrarDatosBasicosAction(
 
     if (!validationResult.success) {
       const errors: Record<string, string> = {};
-      validationResult.error.issues.forEach((err: any) => {
+      validationResult.error.issues.forEach((err) => {
         const path = err.path[0];
         if (typeof path === 'string') {
           errors[path] = err.message;

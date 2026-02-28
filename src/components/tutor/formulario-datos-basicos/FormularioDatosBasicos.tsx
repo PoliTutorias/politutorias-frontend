@@ -16,8 +16,8 @@ import { useRegistroStore } from '@/lib/stores/registroStore';
 
 interface FormularioDatosBasicosProps {
   onStepComplete?: () => void;
-  savedData?: any;
-  onSaveData?: (data: any) => void;
+  savedData?: Record<string, unknown>;
+  onSaveData?: (data: TutorBasicosInput) => void;
 }
 
 export function FormularioDatosBasicos({
@@ -220,7 +220,7 @@ export function FormularioDatosBasicos({
               : 'Solo letras y espacios'
           }
           {...register('nombreCompleto')}
-          pattern={'letters-only' as unknown as any}
+          pattern="letters-only"
         />
       </div>
 
@@ -239,7 +239,7 @@ export function FormularioDatosBasicos({
               : 'Incluye el código del país (593 para Ecuador)'
           }
           {...register('numeroWhatsapp')}
-          pattern={'numbers-only' as unknown as any}
+          pattern="numbers-only"
         />
       </div>
 
