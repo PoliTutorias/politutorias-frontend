@@ -7,6 +7,8 @@ import { ResultsCounter } from '@/components/ofertas-ui/ResultsCounter/ResultsCo
 import { NoResultsMessage } from '@/components/ofertas-ui/NoResultsMessage/NoResultsMessage';
 import { Navbar } from '@/components/navbar/Navbar';
 
+export const dynamic = 'force-dynamic';
+
 interface PageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }

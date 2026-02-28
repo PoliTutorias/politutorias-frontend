@@ -3,10 +3,10 @@
 import { TutorBasicosInput, tutorBasicosSchema } from '@/lib/validations/tutor-basicos-schema';
 import { TUTOR_REGISTRO_RESPONSE_SEED } from '@/lib/seeds/tutor-registro-response';
 
-interface ServerActionResponse {
+interface ServerActionResponse<T = unknown> {
   success: boolean;
   message: string;
-  data?: Record<string, unknown>;
+  data?: T;
   errors?: Record<string, string>;
 }
 
