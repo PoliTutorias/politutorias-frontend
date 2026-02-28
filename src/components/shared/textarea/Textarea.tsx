@@ -1,6 +1,7 @@
 'use client';
 
 import React, { TextareaHTMLAttributes, useState } from 'react';
+import { FiCheckCircle } from 'react-icons/fi';
 
 interface TextareaProps extends Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'maxLength'> {
   label?: string;
@@ -9,6 +10,8 @@ interface TextareaProps extends Omit<TextareaHTMLAttributes<HTMLTextAreaElement>
   showCharCount?: boolean;
   error?: string;
   helperText?: string;
+  success?: boolean;
+  successMessage?: string;
   ref?: React.Ref<HTMLTextAreaElement>;
 }
 
@@ -21,6 +24,8 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
       showCharCount = false,
       error,
       helperText,
+      success = false,
+      successMessage,
       className = '',
       value: initialValue = '',
       onChange,
@@ -86,29 +91,47 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
             {label}
           </label>
         )}
-        <textarea
-          ref={ref}
-          placeholder={placeholder}
-          value={value}
-          onChange={handleChange}
-          onPaste={handlePaste}
-          className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 resize-none transition-colors ${error
-              ? 'border-[var(--error)] focus:ring-[var(--error)]'
-              : 'border-gray-300 focus:ring-[var(--primary)]'
-            } ${className}`}
-          {...rest}
-        />
+        <div className="relative">
+          <textarea
+            ref={ref}
+            placeholder={placeholder}
+            value={value}
+            onChange={handleChange}
+            onPaste={handlePaste}
+            className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 resize-none transition-colors ${className}`}
+            style={{
+              borderColor: success
+                ? 'var(--success)'
+                : error
+                  ? 'var(--error)'
+                  : '#d1d5db',
+              '--tw-ring-color': success
+                ? 'var(--success)'
+                : error
+                  ? 'var(--error)'
+                  : 'var(--primary)',
+            } as React.CSSProperties}
+            {...rest}
+          />
+        </div>
 
         <div className="flex justify-between items-start mt-1">
-          {error ? (
-            <p className="text-sm text-[var(--error)]">{error}</p>
+          {success && successMessage ? (
+            <p className="text-sm flex items-center gap-1" style={{ color: 'var(--success)' }}>
+              <FiCheckCircle className="w-4 h-4" />
+              {successMessage}
+            </p>
+          ) : error ? (
+            <p className="text-sm" style={{ color: 'var(--error)' }}>
+              {error}
+            </p>
           ) : (
             helperText && <p className="text-xs text-gray-500">{helperText}</p>
           )}
           {showCharCount && maxLength && (
             <p
-              className={`text-xs font-medium ${isOverLimit ? 'text-[var(--error)]' : 'text-gray-500'
-                }`}
+              className="text-xs font-medium"
+              style={{ color: isOverLimit ? 'var(--error)' : '#6b7280' }}
             >
               {charCount}/{maxLength}
             </p>

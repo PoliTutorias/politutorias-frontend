@@ -1,8 +1,11 @@
 export const FACULTADES_SEED = [
   'FIS - Sistemas',
-  'FCEC - Ciencias de la Computación',
-  'FA - Administración',
-  'FI - Ingeniería',
-  'FED - Educación',
-  'FCSH - Ciencias Sociales y Humanidades',
+  'FIEE - Eléctrica y Electrónica',
+  'FC - Ciencias',
+  'FICA - Civil y Ambiental',
+  'FIM - Mecánica',
+  'FIQA - Química y Agroindustria',
+  'FIGP - Geología y Petróleos',
+  'FCA - Ciencias Administrativas',
+  'ESFOT - Formación de Tecnólogos',
 ] as const;

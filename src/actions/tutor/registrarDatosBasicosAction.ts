@@ -35,7 +35,7 @@ export async function registrarDatosBasicosAction(
 
     if (!validationResult.success) {
       const errors: Record<string, string> = {};
-      validationResult.error.errors.forEach((err) => {
+      validationResult.error.issues.forEach((err: any) => {
         const path = err.path[0];
         if (typeof path === 'string') {
           errors[path] = err.message;

@@ -37,12 +37,14 @@ export const Dropdown = React.forwardRef<HTMLSelectElement, DropdownProps>(
         <select
           ref={ref}
           className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 transition-colors appearance-none bg-white cursor-pointer ${error
-              ? 'border-[var(--error)] focus:ring-[var(--error)]'
-              : 'border-gray-300 focus:ring-[var(--primary)]'
+            ? 'border-[var(--error)] focus:ring-[var(--error)]'
+            : 'border-gray-300 focus:ring-[var(--primary)]'
             } ${className}`}
           {...rest}
         >
-          <option value="">{defaultText}</option>
+          <option value="" disabled>
+            {defaultText}
+          </option>
           {options.map((option) => (
             <option key={option} value={option}>
               {option}
