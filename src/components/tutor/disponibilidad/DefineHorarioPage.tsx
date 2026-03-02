@@ -22,6 +22,23 @@ export function DefineHorarioPage({
   const handleNextStep = async () => {
     if (!disponibilidad || disponibilidad.length === 0) {
       setErrorMessage('Selecciona al menos un horario disponible');
+      toast.error('Selecciona tu disponibilidad', {
+        position: 'bottom-center',
+        duration: 4000,
+        unstyled: true,
+        style: {
+          backgroundColor: '#ef4444',
+          color: '#ffffff',
+          fontSize: '16px',
+          fontWeight: 'bold',
+          padding: '12px 20px',
+          borderRadius: '6px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+        },
+      });
       return;
     }
 
@@ -51,14 +68,23 @@ export function DefineHorarioPage({
   return (
     <div className="w-full">
       {/* Title and Subtitle */}
-      <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-gray-900 mb-2">
+      <div className="text-center mb-2">
+        <h2 className="text-3xl font-bold text-gray-900 mb-3">
           Define tu Horario
         </h2>
         <p className="text-gray-600 text-base">
           Selecciona los bloques horarios en los que puedes dar clases
         </p>
       </div>
+
+      {/* Error Message - Right after subtitle */}
+      {errorMessage && (
+        <div className="text-center mb-6">
+          <p className="text-red-500 font-medium text-base">
+            {errorMessage}
+          </p>
+        </div>
+      )}
 
       {/* Selected counter */}
       {disponibilidad && disponibilidad.length > 0 && (
@@ -70,7 +96,7 @@ export function DefineHorarioPage({
       )}
 
       {/* Horario Grid */}
-      <div className="mb-8">
+      <div className="mb-12">
         <HorarioGrid
           selectedBlocks={disponibilidad || []}
           onBlocksChange={(blocks) => {
@@ -80,20 +106,12 @@ export function DefineHorarioPage({
         />
       </div>
 
-      {/* Error Message */}
-      {errorMessage && (
-        <div className="text-center mb-8">
-          <p className="text-red-500 font-medium">
-            {errorMessage}
-          </p>
-        </div>
-      )}
-
       {/* Navigation Buttons */}
-      <div className="flex justify-between items-center mt-12">
+      <div className="flex justify-between items-center mt-12 gap-6">
         <button
           onClick={onPreviousStep}
-          className="flex items-center gap-2 px-6 py-3 text-gray-700 font-medium hover:text-gray-900 transition-colors"
+          className="flex items-center justify-center gap-2 px-6 py-3 font-medium text-white rounded-lg transition-colors hover:opacity-90"
+          style={{ backgroundColor: '#9ca3af' }}
         >
           <span>←</span>
           <span>Atrás</span>
@@ -103,7 +121,7 @@ export function DefineHorarioPage({
         <button
           onClick={handleNextStep}
           disabled={isLoading}
-          className="flex items-center gap-2 px-8 py-3 font-medium text-white rounded-lg transition-colors disabled:opacity-50"
+          className="flex items-center justify-center gap-2 px-8 py-3 font-medium text-white rounded-lg transition-colors disabled:opacity-50 hover:opacity-90"
           style={{ backgroundColor: 'var(--primary)' }}
         >
           <span>Siguiente</span>

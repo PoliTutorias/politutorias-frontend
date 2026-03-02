@@ -35,18 +35,22 @@ export function HorarioGrid({ selectedBlocks, onBlocksChange }: HorarioGridProps
   };
 
   return (
-    <div className="bg-white rounded-lg p-6 overflow-x-auto border border-gray-200">
+    <div className="overflow-x-auto" style={{ borderRadius: '8px', overflow: 'hidden' }}>
       {/* Grid Table */}
-      <table className="w-full border-collapse">
+      <table className="w-full border-collapse" style={{ borderCollapse: 'collapse' }}>
         <thead>
           <tr>
-            <th className="w-16 p-3 text-left text-xs font-bold text-gray-600 uppercase border-b border-gray-200">
+            <th
+              className="w-16 p-3 text-left text-xs font-bold text-gray-600 uppercase"
+              style={{ backgroundColor: '#f3f4f6' }}
+            >
               Hora
             </th>
             {days.map((day) => (
               <th
                 key={day}
-                className="min-w-20 p-3 text-center text-xs font-bold text-gray-700 border-b border-gray-200"
+                className="min-w-20 p-3 text-center text-xs font-bold text-gray-700"
+                style={{ backgroundColor: '#f3f4f6' }}
               >
                 {day}
               </th>
@@ -55,9 +59,12 @@ export function HorarioGrid({ selectedBlocks, onBlocksChange }: HorarioGridProps
         </thead>
         <tbody>
           {hours.map((hour) => (
-            <tr key={hour}>
+            <tr key={hour} style={{ borderBottom: '1px solid #e5e7eb' }}>
               {/* Hour cell */}
-              <td className="w-16 p-3 text-xs font-semibold text-gray-600 border-b border-gray-100">
+              <td
+                className="w-16 p-3 text-xs font-semibold text-gray-600"
+                style={{ backgroundColor: '#f3f4f6' }}
+              >
                 {hour}
               </td>
 
@@ -65,18 +72,20 @@ export function HorarioGrid({ selectedBlocks, onBlocksChange }: HorarioGridProps
               {days.map((day) => (
                 <td
                   key={`${day}-${hour}`}
-                  className="min-w-20 p-2 text-center border-b border-gray-100"
+                  className="min-w-20 p-0"
+                  style={{ borderRight: '1px solid #e5e7eb' }}
                 >
                   <button
                     onClick={() => toggleBlock(day, hour)}
-                    className={`w-full h-12 border transition-colors font-semibold ${
-                      isSelected(day, hour)
-                        ? 'bg-blue-900 border-blue-900 text-white'
-                        : 'bg-white border-gray-300 text-gray-400 hover:bg-gray-50 hover:border-gray-400'
-                    }`}
+                    className="w-full h-12 transition-colors font-semibold border-0 flex items-center justify-center"
+                    style={{
+                      backgroundColor: isSelected(day, hour) ? 'var(--primary)' : 'white',
+                      color: isSelected(day, hour) ? 'white' : '#d1d5db',
+                      cursor: 'pointer',
+                    }}
                     aria-label={`Disponibilidad ${day} ${hour}`}
                   >
-                    {isSelected(day, hour) && <span>✓</span>}
+                    {isSelected(day, hour) && <span className="text-base font-bold">✓</span>}
                   </button>
                 </td>
               ))}
