@@ -60,6 +60,15 @@ export function DefineHorarioPage({
         </p>
       </div>
 
+      {/* Selected counter */}
+      {disponibilidad && disponibilidad.length > 0 && (
+        <div className="text-center mb-6">
+          <p className="text-green-600 font-medium text-sm">
+            ✓ {disponibilidad.length} horario{disponibilidad.length !== 1 ? 's' : ''} seleccionado{disponibilidad.length !== 1 ? 's' : ''}
+          </p>
+        </div>
+      )}
+
       {/* Horario Grid */}
       <div className="mb-8">
         <HorarioGrid

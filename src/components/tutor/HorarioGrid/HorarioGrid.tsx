@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { AvailabilityBlock } from '@/interfaces/tutor/AvailabilityBlock';
 
 interface HorarioGridProps {
@@ -36,64 +35,55 @@ export function HorarioGrid({ selectedBlocks, onBlocksChange }: HorarioGridProps
   };
 
   return (
-    <div className="bg-white rounded-lg p-6 overflow-x-auto">
-      {/* Selected blocks counter */}
-      {selectedBlocks.length > 0 && (
-        <div className="text-center mb-6">
-          <p className="text-green-600 font-medium text-sm">
-            ✓ {selectedBlocks.length} horario{selectedBlocks.length !== 1 ? 's' : ''} seleccionado{selectedBlocks.length !== 1 ? 's' : ''}
-          </p>
-        </div>
-      )}
-
-      {/* Grid */}
-      <div className="inline-block min-w-full">
-        {/* Header Row */}
-        <div className="flex border-b border-gray-200">
-          <div className="w-16 flex-shrink-0 p-3 text-xs font-semibold text-gray-600 uppercase">
-            HORA
-          </div>
-          {days.map((day) => (
-            <div
-              key={day}
-              className="flex-1 min-w-20 p-3 text-center text-xs font-semibold text-gray-700"
-            >
-              {day}
-            </div>
-          ))}
-        </div>
-
-        {/* Hour Rows */}
-        {hours.map((hour) => (
-          <div key={hour} className="flex border-b border-gray-100">
-            {/* Hour Cell */}
-            <div className="w-16 flex-shrink-0 p-3 text-xs font-semibold text-gray-600">
-              {hour}
-            </div>
-
-            {/* Block Cells */}
+    <div className="bg-white rounded-lg p-6 overflow-x-auto border border-gray-200">
+      {/* Grid Table */}
+      <table className="w-full border-collapse">
+        <thead>
+          <tr>
+            <th className="w-16 p-3 text-left text-xs font-bold text-gray-600 uppercase border-b border-gray-200">
+              Hora
+            </th>
             {days.map((day) => (
-              <div
-                key={`${day}-${hour}`}
-                className="flex-1 min-w-20"
+              <th
+                key={day}
+                className="min-w-20 p-3 text-center text-xs font-bold text-gray-700 border-b border-gray-200"
               >
-                <button
-                  onClick={() => toggleBlock(day, hour)}
-                  className={`w-full h-14 border transition-all ${isSelected(day, hour)
-                      ? 'bg-blue-900 border-blue-900 text-white flex items-center justify-center'
-                      : 'bg-white border-gray-200 hover:bg-gray-50'
-                    }`}
-                  aria-label={`Disponibilidad ${day} ${hour}`}
-                >
-                  {isSelected(day, hour) && (
-                    <span className="text-white text-lg font-bold">✓</span>
-                  )}
-                </button>
-              </div>
+                {day}
+              </th>
             ))}
-          </div>
-        ))}
-      </div>
+          </tr>
+        </thead>
+        <tbody>
+          {hours.map((hour) => (
+            <tr key={hour}>
+              {/* Hour cell */}
+              <td className="w-16 p-3 text-xs font-semibold text-gray-600 border-b border-gray-100">
+                {hour}
+              </td>
+
+              {/* Day cells */}
+              {days.map((day) => (
+                <td
+                  key={`${day}-${hour}`}
+                  className="min-w-20 p-2 text-center border-b border-gray-100"
+                >
+                  <button
+                    onClick={() => toggleBlock(day, hour)}
+                    className={`w-full h-12 border transition-colors font-semibold ${
+                      isSelected(day, hour)
+                        ? 'bg-blue-900 border-blue-900 text-white'
+                        : 'bg-white border-gray-300 text-gray-400 hover:bg-gray-50 hover:border-gray-400'
+                    }`}
+                    aria-label={`Disponibilidad ${day} ${hour}`}
+                  >
+                    {isSelected(day, hour) && <span>✓</span>}
+                  </button>
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
