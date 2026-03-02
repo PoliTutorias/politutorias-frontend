@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { HorarioGrid } from '../HorarioGrid/HorarioGrid';
 import { useRegistroStore } from '@/lib/stores/registroStore';
+import { guardarDisponibilidadAction } from '@/actions/tutor/guardarDisponibilidadAction';
+import { toast } from 'sonner';
 
 interface DefineHorarioPageProps {
   onStepComplete?: () => void;
@@ -14,14 +16,36 @@ export function DefineHorarioPage({
   onPreviousStep,
 }: DefineHorarioPageProps) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const { disponibilidad, setDisponibilidad } = useRegistroStore();
 
-  const handleNextStep = () => {
+  const handleNextStep = async () => {
     if (!disponibilidad || disponibilidad.length === 0) {
       setErrorMessage('Selecciona al menos un horario disponible');
       return;
     }
-    onStepComplete?.();
+
+    // Simular guardado con Server Action
+    setIsLoading(true);
+    try {
+      const result = await guardarDisponibilidadAction({
+        tutorId: 'a1b2c3d4e5f6g7h8i9j0', // TODO: Obtener tutorId del contexto de autenticación
+        blocks: disponibilidad,
+      });
+
+      if ('error' in result) {
+        setErrorMessage(result.error);
+        toast.error(result.error);
+      } else {
+        toast.success(result.message);
+        onStepComplete?.();
+      }
+    } catch (error) {
+      setErrorMessage('Error al guardar la disponibilidad');
+      toast.error('Error al guardar la disponibilidad');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -69,7 +93,8 @@ export function DefineHorarioPage({
 
         <button
           onClick={handleNextStep}
-          className="flex items-center gap-2 px-8 py-3 font-medium text-white rounded-lg transition-colors"
+          disabled={isLoading}
+          className="flex items-center gap-2 px-8 py-3 font-medium text-white rounded-lg transition-colors disabled:opacity-50"
           style={{ backgroundColor: 'var(--primary)' }}
         >
           <span>Siguiente</span>
