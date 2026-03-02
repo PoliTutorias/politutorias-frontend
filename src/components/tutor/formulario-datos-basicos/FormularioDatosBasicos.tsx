@@ -66,7 +66,7 @@ export function FormularioDatosBasicos({
         });
       }
     }
-  }, [reset, datosBasicos]);
+  }, []);
 
   const formValues = watch();
 
