@@ -113,7 +113,8 @@ export function DefineHorarioPage({
           className="flex items-center gap-3 px-6 py-3 font-semibold transition-colors rounded-lg"
           style={{
             backgroundColor: 'transparent',
-            color: '#6b7280'
+            color: '#6b7280',
+            cursor: 'pointer',
           }}
         >
           <span>←</span>
@@ -130,6 +131,7 @@ export function DefineHorarioPage({
           className="w-1/2 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-end py-3 px-2.5"
           style={{
             backgroundColor: 'var(--primary)',
+            cursor: isLoading ? 'not-allowed' : 'pointer',
           }}
           onMouseEnter={(e) => {
             if (!isLoading) e.currentTarget.style.backgroundColor = 'var(--primary-dark)';
