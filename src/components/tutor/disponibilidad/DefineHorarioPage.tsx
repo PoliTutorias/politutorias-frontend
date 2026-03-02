@@ -108,25 +108,45 @@ export function DefineHorarioPage({
 
       {/* Navigation Buttons */}
       <div className="flex justify-between items-center mt-12 gap-6">
+        {/* Back Button */}
         <button
           onClick={onPreviousStep}
-          className="flex items-center justify-center gap-2 px-6 py-3 font-medium text-white rounded-lg transition-colors hover:opacity-90"
-          style={{ backgroundColor: '#9ca3af' }}
+          className="flex items-center gap-3 px-6 py-3 font-semibold transition-colors rounded-lg"
+          style={{
+            backgroundColor: 'transparent',
+            color: '#6b7280'
+          }}
         >
           <span>←</span>
-          <span>Atrás</span>
-          <span>Datos Básicos</span>
+          <div className="flex flex-col items-start">
+            <div className="font-bold">Atrás</div>
+            <div className="text-sm font-normal">Datos Básicos</div>
+          </div>
         </button>
 
+        {/* Next Button */}
         <button
           onClick={handleNextStep}
           disabled={isLoading}
-          className="flex items-center justify-center gap-2 px-8 py-3 font-medium text-white rounded-lg transition-colors disabled:opacity-50 hover:opacity-90"
-          style={{ backgroundColor: 'var(--primary)' }}
+          className="w-1/2 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-end py-3 px-2.5"
+          style={{
+            backgroundColor: 'var(--primary)',
+          }}
+          onMouseEnter={(e) => {
+            if (!isLoading) e.currentTarget.style.backgroundColor = 'var(--primary-dark)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = 'var(--primary)';
+          }}
         >
-          <span>Siguiente</span>
-          <span>Perfil Profesional</span>
-          <span>→</span>
+          {/* Div con dos columnas alineadas a derecha */}
+          <div className="flex flex-col items-end pr-2">
+            <div className="font-bold">{isLoading ? 'Procesando...' : 'Siguiente'}</div>
+            <div className="text-sm font-normal">Perfil Profesional</div>
+          </div>
+
+          {/* Div con flecha */}
+          <div>→</div>
         </button>
       </div>
     </div>
