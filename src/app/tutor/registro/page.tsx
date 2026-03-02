@@ -2,6 +2,7 @@
 
 import { montserrat, dancingScript } from '@/lib/fonts';
 import { FormularioDatosBasicos } from '@/components/tutor/formulario-datos-basicos/FormularioDatosBasicos';
+import { DefineHorarioPage } from '@/components/tutor/disponibilidad/DefineHorarioPage';
 import Link from 'next/link';
 import { useState } from 'react';
 import { FiUser, FiCheckCircle } from 'react-icons/fi';
@@ -115,9 +116,10 @@ export default function RegistrarTutorPage() {
             />
           )}
           {currentStep === 2 && (
-            <div className="text-center py-12 text-gray-500">
-              Sección 2 - Disponibilidad (Por implementar)
-            </div>
+            <DefineHorarioPage
+              onStepComplete={() => setCurrentStep(3)}
+              onPreviousStep={() => setCurrentStep(1)}
+            />
           )}
           {currentStep === 3 && (
             <div className="text-center py-12 text-gray-500">
