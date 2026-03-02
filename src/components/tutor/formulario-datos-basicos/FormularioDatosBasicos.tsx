@@ -3,7 +3,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { InputField } from '@/components/shared/input-field/InputField';
 import { Textarea } from '@/components/shared/textarea/Textarea';
 import { Dropdown } from '@/components/shared/dropdown/Dropdown';
@@ -28,6 +28,7 @@ export function FormularioDatosBasicos({
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const hasInitialized = useRef(false);
   const { datosBasicos, setDatosBasicos } = useRegistroStore();
 
   const {
@@ -49,18 +50,21 @@ export function FormularioDatosBasicos({
     },
   });
 
-  // Cargar datos del store al montar el componente
+  // Cargar datos del store solo una vez al montar el componente
   useEffect(() => {
-    setMounted(true);
-    const storedData = datosBasicos;
-    if (storedData.nombreCompleto || storedData.numeroWhatsapp) {
-      reset({
-        nombreCompleto: storedData.nombreCompleto,
-        numeroWhatsapp: storedData.numeroWhatsapp,
-        facultad: storedData.facultad,
-        semestreActual: storedData.semestreActual,
-        biografiaCorta: storedData.biografiaCorta,
-      });
+    if (!hasInitialized.current) {
+      hasInitialized.current = true;
+      setMounted(true);
+      const storedData = datosBasicos;
+      if (storedData.nombreCompleto || storedData.numeroWhatsapp) {
+        reset({
+          nombreCompleto: storedData.nombreCompleto,
+          numeroWhatsapp: storedData.numeroWhatsapp,
+          facultad: storedData.facultad,
+          semestreActual: storedData.semestreActual,
+          biografiaCorta: storedData.biografiaCorta,
+        });
+      }
     }
   }, [reset, datosBasicos]);
 
