@@ -54,7 +54,6 @@ export function DefineHorarioPage({
         setErrorMessage(result.error);
         toast.error(result.error);
       } else {
-        toast.success(result.message);
         onStepComplete?.();
       }
     } catch (error) {
