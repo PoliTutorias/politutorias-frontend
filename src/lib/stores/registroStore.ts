@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { AvailabilityBlock } from '@/interfaces/tutor/AvailabilityBlock';
 
 interface TutorRegistroData {
   nombreCompleto: string;
@@ -11,9 +12,13 @@ interface TutorRegistroData {
 
 interface RegistroStore {
   datosBasicos: TutorRegistroData;
+  disponibilidad: AvailabilityBlock[];
   setDatosBasicos: (datos: Partial<TutorRegistroData>) => void;
   getDatosBasicos: () => TutorRegistroData;
   clearDatosBasicos: () => void;
+  setDisponibilidad: (blocks: AvailabilityBlock[]) => void;
+  getDisponibilidad: () => AvailabilityBlock[];
+  clearDisponibilidad: () => void;
 }
 
 export const useRegistroStore = create<RegistroStore>()(
@@ -26,6 +31,7 @@ export const useRegistroStore = create<RegistroStore>()(
         semestreActual: '',
         biografiaCorta: '',
       },
+      disponibilidad: [],
       setDatosBasicos: (datos) =>
         set((state) => ({
           datosBasicos: {
@@ -43,6 +49,15 @@ export const useRegistroStore = create<RegistroStore>()(
             semestreActual: '',
             biografiaCorta: '',
           },
+        }),
+      setDisponibilidad: (blocks) =>
+        set({
+          disponibilidad: blocks,
+        }),
+      getDisponibilidad: () => get().disponibilidad,
+      clearDisponibilidad: () =>
+        set({
+          disponibilidad: [],
         }),
     }),
     {

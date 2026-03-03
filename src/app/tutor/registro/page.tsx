@@ -2,6 +2,7 @@
 
 import { montserrat, dancingScript } from '@/lib/fonts';
 import { FormularioDatosBasicos } from '@/components/tutor/formulario-datos-basicos/FormularioDatosBasicos';
+import { DefineHorarioPage } from '@/components/tutor/disponibilidad/DefineHorarioPage';
 import Link from 'next/link';
 import { useState } from 'react';
 import { FiUser, FiCheckCircle } from 'react-icons/fi';
@@ -81,30 +82,32 @@ export default function RegistrarTutorPage() {
             ))}
           </div>
 
-          {/* Page Header */}
-          <div className="text-center mb-10">
-            <h1 className="text-3xl font-bold mb-4" style={{ color: 'var(--foreground)' }}>
-              Completa tu Perfil
-            </h1>
-            <p className="text-gray-600 text-base">
-              Cuéntanos sobre ti para que los estudiantes te conozcan
-            </p>
+          {/* Page Header - Only shown on Step 1 */}
+          {currentStep === 1 && (
+            <div className="text-center mb-10">
+              <h1 className="text-3xl font-bold mb-4" style={{ color: 'var(--foreground)' }}>
+                Completa tu Perfil
+              </h1>
+              <p className="text-gray-600 text-base">
+                Cuéntanos sobre ti para que los estudiantes te conozcan
+              </p>
 
-            {/* Profile Photo Upload */}
-            <div className="mt-8 mb-8 flex justify-center">
-              <button className="w-32 h-32 rounded-full border-2 border-dashed hover:bg-gray-50 transition-colors flex items-center justify-center group" style={{ borderColor: '#d1d5db' }}>
-                <div className="text-center">
-                  <FiUser className="w-10 h-10 mx-auto mb-2" style={{ color: '#9ca3af' }} />
-                  <p className="text-xs" style={{ color: '#6b7280' }}>
-                    Subir Foto
-                  </p>
-                  <p className="text-xs" style={{ color: '#9ca3af' }}>
-                    (Opcional)
-                  </p>
-                </div>
-              </button>
+              {/* Profile Photo Upload */}
+              <div className="mt-8 mb-8 flex justify-center">
+                <button className="w-32 h-32 rounded-full border-2 border-dashed hover:bg-gray-50 transition-colors flex items-center justify-center group" style={{ borderColor: '#d1d5db' }}>
+                  <div className="text-center">
+                    <FiUser className="w-10 h-10 mx-auto mb-2" style={{ color: '#9ca3af' }} />
+                    <p className="text-xs" style={{ color: '#6b7280' }}>
+                      Subir Foto
+                    </p>
+                    <p className="text-xs" style={{ color: '#9ca3af' }}>
+                      (Opcional)
+                    </p>
+                  </div>
+                </button>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Form */}
           {currentStep === 1 && (
@@ -115,9 +118,10 @@ export default function RegistrarTutorPage() {
             />
           )}
           {currentStep === 2 && (
-            <div className="text-center py-12 text-gray-500">
-              Sección 2 - Disponibilidad (Por implementar)
-            </div>
+            <DefineHorarioPage
+              onStepComplete={() => setCurrentStep(3)}
+              onPreviousStep={() => setCurrentStep(1)}
+            />
           )}
           {currentStep === 3 && (
             <div className="text-center py-12 text-gray-500">

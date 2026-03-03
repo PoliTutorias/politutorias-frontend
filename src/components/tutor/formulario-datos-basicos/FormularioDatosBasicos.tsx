@@ -293,6 +293,7 @@ export function FormularioDatosBasicos({
           className="w-1/2 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-end py-3 px-2.5"
           style={{
             backgroundColor: 'var(--primary)',
+            cursor: isLoading ? 'not-allowed' : 'pointer',
           }}
           onMouseEnter={(e) => {
             if (!isLoading) e.currentTarget.style.backgroundColor = 'var(--primary-dark)';
