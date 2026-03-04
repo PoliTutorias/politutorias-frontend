@@ -6,6 +6,7 @@ import { InputExperiencia } from '@/components/registro/input-experiencia/InputE
 import { InputFechaExperiencia } from '@/components/registro/input-fecha-experiencia/InputFechaExperiencia';
 import { clientValidarFecha } from '@/utils/clientDateValidation';
 import { validarCamposVaciosExperiencia } from '@/utils/formValidation';
+import { actionGuardarExperiencia } from '@/actions/registro/guardarExperiencia';
 
 interface ModalNuevaExperienciaProps {
   isOpen: boolean;
@@ -20,6 +21,7 @@ export function ModalNuevaExperiencia({ isOpen, onClose, onSave }: ModalNuevaExp
   const [fechaFin, setFechaFin] = useState('');
   const [errorFechaInicio, setErrorFechaInicio] = useState<string | undefined>();
   const [errorFechaFin, setErrorFechaFin] = useState<string | undefined>();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleFechaInicioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -55,7 +57,7 @@ export function ModalNuevaExperiencia({ isOpen, onClose, onSave }: ModalNuevaExp
     onClose();
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     // CA1: Ignorar guardar experiencia vacía - sin mostrar errores
     if (validarCamposVaciosExperiencia({ puesto, institucion, fechaInicio, fechaFin })) {
       return;
@@ -66,16 +68,28 @@ export function ModalNuevaExperiencia({ isOpen, onClose, onSave }: ModalNuevaExp
       return;
     }
 
-    const nuevaExperiencia: Experiencia = {
-      id: Date.now().toString(),
-      puesto,
-      institucion,
-      fechaInicio,
-      fechaFin,
-    };
+    setIsLoading(true);
 
-    onSave(nuevaExperiencia);
-    handleCancel();
+    try {
+      const nuevaExperiencia: Experiencia = {
+        puesto,
+        institucion,
+        fechaInicio,
+        fechaFin,
+      };
+
+      // Llamar a la Server Action
+      const experienciaGuardada = await actionGuardarExperiencia(nuevaExperiencia);
+      
+      // Notificar al componente padre
+      onSave(experienciaGuardada);
+      handleCancel();
+    } catch (error) {
+      console.error('Error guardando experiencia:', error);
+      // Aquí se podría mostrar un mensaje de error en el futuro
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -122,16 +136,18 @@ export function ModalNuevaExperiencia({ isOpen, onClose, onSave }: ModalNuevaExp
         <div className="flex gap-3 mt-8">
           <button
             onClick={handleCancel}
-            className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors"
+            disabled={isLoading}
+            className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
           >
             Cancelar
           </button>
           <button
             onClick={handleSave}
-            className="flex-1 px-4 py-2 text-white font-semibold rounded-lg transition-colors"
+            disabled={isLoading}
+            className="flex-1 px-4 py-2 text-white font-semibold rounded-lg transition-colors disabled:opacity-50"
             style={{ backgroundColor: 'var(--primary)' }}
           >
-            Guardar
+            {isLoading ? 'Guardando...' : 'Guardar'}
           </button>
         </div>
       </div>

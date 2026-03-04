@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Experiencia } from '@/interfaces/experiencia-tipo/Experiencia';
+import { ModalNuevaExperiencia } from '@/components/registro/modal-nueva-experiencia/ModalNuevaExperiencia';
 
 export function FormDetallesProfesionales() {
   const [experiencias, setExperiencias] = useState<Experiencia[]>([]);
@@ -11,11 +12,22 @@ export function FormDetallesProfesionales() {
 
   const handleExperienciaGuardada = (experiencia: Experiencia) => {
     setExperiencias([...experiencias, experiencia]);
-    setIsModalOpen(false);
   };
 
   const handleEliminarExperiencia = (indexToDelete: number) => {
     setExperiencias(experiencias.filter((_, index) => index !== indexToDelete));
+  };
+
+  const handleAgregarMateria = () => {
+    const materiaLimpia = materiaInput.trim();
+    if (materiaLimpia && !materias.includes(materiaLimpia)) {
+      setMaterias([...materias, materiaLimpia]);
+      setMateriaInput('');
+    }
+  };
+
+  const handleEliminarMateria = (materiaToDelete: string) => {
+    setMaterias(materias.filter((m) => m !== materiaToDelete));
   };
 
   return (
@@ -72,12 +84,7 @@ export function FormDetallesProfesionales() {
             className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
           />
           <button
-            onClick={() => {
-              if (materiaInput.trim() && !materias.includes(materiaInput.trim())) {
-                setMaterias([...materias, materiaInput.trim()]);
-                setMateriaInput('');
-              }
-            }}
+            onClick={handleAgregarMateria}
             className="px-6 py-2 border border-gray-800 text-gray-800 font-semibold rounded-lg hover:bg-gray-50 transition-colors"
             style={{ cursor: 'pointer' }}
           >
@@ -95,7 +102,7 @@ export function FormDetallesProfesionales() {
             >
               <span className="text-sm font-semibold text-blue-900">{materia}</span>
               <button
-                onClick={() => setMaterias(materias.filter((m) => m !== materia))}
+                onClick={() => handleEliminarMateria(materia)}
                 className="text-blue-900 hover:text-blue-700 transition-colors"
                 style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px', padding: 0 }}
               >
@@ -106,21 +113,12 @@ export function FormDetallesProfesionales() {
         </div>
       </div>
 
-      {/* Modal Placeholder */}
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full mx-4">
-            <h3 className="text-lg font-bold mb-4">Nueva Experiencia</h3>
-            <p className="text-gray-600 text-sm mb-4">Modal de experiencia (será implementado en Tarea 5)</p>
-            <button
-              onClick={() => setIsModalOpen(false)}
-              className="w-full px-4 py-2 bg-gray-300 text-gray-800 font-semibold rounded-lg hover:bg-gray-400 transition-colors"
-            >
-              Cerrar
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Modal de Nueva Experiencia */}
+      <ModalNuevaExperiencia
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSave={handleExperienciaGuardada}
+      />
     </div>
   );
 }
