@@ -6,6 +6,9 @@ import { SearchBar } from '@/components/ofertas-ui/SearchBar/SearchBar';
 import { ResultsCounter } from '@/components/ofertas-ui/ResultsCounter/ResultsCounter';
 import { NoResultsMessage } from '@/components/ofertas-ui/NoResultsMessage/NoResultsMessage';
 import { Navbar } from '@/components/navbar/Navbar';
+import { ClientOffersWrapper } from '@/components/ofertas/ClientOffersWrapper/ClientOffersWrapper';
+import { filtrarOfertasAction } from '@/actions/ofertas/filtrarOfertasAction';
+import { OfertaEntity } from '@/interfaces/ofertas/OfertaEntity';
 
 export const dynamic = 'force-dynamic';
 
@@ -43,43 +46,47 @@ async function OffersContent({ params }: { params: Awaited<Awaited<PageProps['se
   // Desestructurar datos para pasar a componentes hijos
   const { data, meta } = offersData;
 
+  // Obtener ofertas iniciales del backend para el filtro de precio (HU27)
+  const filtrarResult = await filtrarOfertasAction(5, 20);
+  const initialOffers: OfertaEntity[] = 'error' in filtrarResult ? [] : filtrarResult.ofertas;
+
   return (
-    <div className="container mx-auto px-6 py-8">
-      {/* Barra de búsqueda */}
-      <div className="mb-8">
-        <Suspense fallback={<div className="w-1/2 h-12 bg-gray-100 animate-pulse rounded-lg"></div>}>
-          <SearchBar />
-        </Suspense>
-      </div>
-
-      {/* Contador de resultados */}
-      <div className="mb-6">
-        <ResultsCounter totalResults={meta.totalResults} />
-      </div>
-
-      {/* Contenido condicional */}
-      {meta.totalResults > 0 ? (
-        <>
-          {/* Lista de ofertas */}
-          <OfferList offers={data} />
-
-          {/* Controles de paginación */}
-          <PaginationControls
-            currentPage={meta.currentPage}
-            totalPages={meta.totalPages}
-          />
-        </>
-      ) : (
-        /* Mensaje de sin resultados */
-        <NoResultsMessage />
+    <ClientOffersWrapper
+      initialOffers={initialOffers}
+      header={(
+        <div key="offers-header" className="flex items-start justify-between mb-6">
+          <Suspense fallback={<div className="w-1/2 h-12 bg-gray-100 animate-pulse rounded-lg"></div>}>
+            <SearchBar />
+          </Suspense>
+          <ResultsCounter totalResults={meta.totalResults} />
+        </div>
       )}
-    </div>
+    >
+      <>
+        {/* Contenido condicional */}
+        {meta.totalResults > 0 ? (
+          <>
+            {/* Lista de ofertas */}
+            <OfferList offers={data} />
+
+            {/* Controles de paginación */}
+            <PaginationControls
+              currentPage={meta.currentPage}
+              totalPages={meta.totalPages}
+            />
+          </>
+        ) : (
+          /* Mensaje de sin resultados */
+          <NoResultsMessage />
+        )}
+      </>
+    </ClientOffersWrapper>
   );
 }
 
 function ErrorContent() {
   return (
-    <div className="container mx-auto px-6 py-8">
+    <div className="max-w-7xl mx-auto px-6 py-8">
       {/* Barra de búsqueda */}
       <div className="mb-8">
         <Suspense fallback={<div className="w-1/2 h-12 bg-gray-100 animate-pulse rounded-lg"></div>}>
@@ -103,7 +110,7 @@ function ErrorContent() {
 function PageLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-[#f7fafc]">
-      <Navbar userName="Patricio" />
+      <Navbar userName="Patricio Chancusig" />
       <main>
         {children}
       </main>
