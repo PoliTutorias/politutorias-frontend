@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Experiencia } from '@/interfaces/experiencia-tipo/Experiencia';
 import { ModalNuevaExperiencia } from '@/components/registro/modal-nueva-experiencia/ModalNuevaExperiencia';
+import { TarjetaExperiencia } from '@/components/registro/tarjeta-experiencia/TarjetaExperiencia';
 
 export function FormDetallesProfesionales() {
   const [experiencias, setExperiencias] = useState<Experiencia[]>([]);
@@ -51,20 +52,11 @@ export function FormDetallesProfesionales() {
             <p className="text-gray-500 text-center py-8">No hay experiencias añadidas aún</p>
           ) : (
             experiencias.map((exp, index) => (
-              <div key={index} className="flex justify-between items-center p-4 border border-gray-200 rounded-lg bg-gray-50">
-                <div>
-                  <h3 className="font-semibold text-gray-800">{exp.puesto}</h3>
-                  <p className="text-sm text-gray-600">{exp.institucion}</p>
-                  <p className="text-xs text-gray-500">{exp.fechaInicio} — {exp.fechaFin}</p>
-                </div>
-                <button
-                  onClick={() => handleEliminarExperiencia(index)}
-                  className="text-red-500 hover:text-red-700 transition-colors font-bold text-lg"
-                  style={{ background: 'none', border: 'none', cursor: 'pointer' }}
-                >
-                  ×
-                </button>
-              </div>
+              <TarjetaExperiencia
+                key={index}
+                experiencia={exp}
+                onDelete={() => handleEliminarExperiencia(index)}
+              />
             ))
           )}
         </div>
