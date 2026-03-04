@@ -3,17 +3,6 @@
 import { Experiencia } from '@/interfaces/experiencia-tipo/Experiencia';
 
 export async function actionGuardarExperiencia(experienciaData: Experiencia): Promise<Experiencia> {
-  // Simular un retardo de red
-  await new Promise((resolve) => setTimeout(resolve, 500));
-
-  // Simular guardado exitoso retornando la experiencia con ID
-  const experienciaGuardada: Experiencia = {
-    ...experienciaData,
-    id: `exp-${Date.now()}`,
-  };
-
-  // BLOQUE COMENTADO: Código de integración con backend
-  /*
   try {
     const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3000';
     const response = await fetch(`${baseUrl}/api/experiencias`, {
@@ -34,7 +23,5 @@ export async function actionGuardarExperiencia(experienciaData: Experiencia): Pr
     console.error('Error guardando experiencia:', error);
     throw error;
   }
-  */
-
-  return experienciaGuardada;
 }
+
