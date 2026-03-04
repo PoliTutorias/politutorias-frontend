@@ -11,6 +11,7 @@ import { debounce } from '@/utils/debounce';
 
 interface ClientOffersWrapperProps {
   initialOffers: OfertaEntity[];
+  header: React.ReactNode;
   children: React.ReactNode;
 }
 
@@ -27,7 +28,7 @@ const DEFAULT_MAX = 20;
  * proporciona el layout de dos columnas (filtros + contenido).
  * Conecta el PrecioFilterComponent con filtrarOfertasAction.
  */
-export function ClientOffersWrapper({ initialOffers, children }: ClientOffersWrapperProps) {
+export function ClientOffersWrapper({ initialOffers, header, children }: ClientOffersWrapperProps) {
   const [offers, setOffers] = useState<OfertaEntity[]>(initialOffers);
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -161,6 +162,7 @@ export function ClientOffersWrapper({ initialOffers, children }: ClientOffersWra
 
             {/* Sección: Filtro de Precio (HU27 - funcional) */}
             <PrecioFilterComponent
+              key={`${activeMinPrice ?? DEFAULT_MIN}-${activeMaxPrice ?? DEFAULT_MAX}`}
               initialMinPrice={activeMinPrice ?? DEFAULT_MIN}
               initialMaxPrice={activeMaxPrice ?? DEFAULT_MAX}
               absoluteMin={ABSOLUTE_MIN}
@@ -195,6 +197,8 @@ export function ClientOffersWrapper({ initialOffers, children }: ClientOffersWra
 
         {/* Contenido principal - Columna derecha */}
         <div className="flex-1 min-w-0">
+          {header}
+
           {/* Etiquetas de filtros activos */}
           {isPriceFilterActive && (
             <div className="flex items-center gap-3 mb-4">

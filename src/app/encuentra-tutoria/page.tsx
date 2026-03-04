@@ -51,31 +51,35 @@ async function OffersContent({ params }: { params: Awaited<Awaited<PageProps['se
   const initialOffers: OfertaEntity[] = 'error' in filtrarResult ? [] : filtrarResult.ofertas;
 
   return (
-    <ClientOffersWrapper initialOffers={initialOffers}>
-      {/* Barra de búsqueda y contador de resultados */}
-      <div className="flex items-start justify-between mb-6">
-        <Suspense fallback={<div className="w-1/2 h-12 bg-gray-100 animate-pulse rounded-lg"></div>}>
-          <SearchBar />
-        </Suspense>
-        <ResultsCounter totalResults={meta.totalResults} />
-      </div>
-
-      {/* Contenido condicional */}
-      {meta.totalResults > 0 ? (
-        <>
-          {/* Lista de ofertas */}
-          <OfferList offers={data} />
-
-          {/* Controles de paginación */}
-          <PaginationControls
-            currentPage={meta.currentPage}
-            totalPages={meta.totalPages}
-          />
-        </>
-      ) : (
-        /* Mensaje de sin resultados */
-        <NoResultsMessage />
+    <ClientOffersWrapper
+      initialOffers={initialOffers}
+      header={(
+        <div key="offers-header" className="flex items-start justify-between mb-6">
+          <Suspense fallback={<div className="w-1/2 h-12 bg-gray-100 animate-pulse rounded-lg"></div>}>
+            <SearchBar />
+          </Suspense>
+          <ResultsCounter totalResults={meta.totalResults} />
+        </div>
       )}
+    >
+      <>
+        {/* Contenido condicional */}
+        {meta.totalResults > 0 ? (
+          <>
+            {/* Lista de ofertas */}
+            <OfferList offers={data} />
+
+            {/* Controles de paginación */}
+            <PaginationControls
+              currentPage={meta.currentPage}
+              totalPages={meta.totalPages}
+            />
+          </>
+        ) : (
+          /* Mensaje de sin resultados */
+          <NoResultsMessage />
+        )}
+      </>
     </ClientOffersWrapper>
   );
 }
