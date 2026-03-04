@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Experiencia } from '@/interfaces/experiencia-tipo/Experiencia';
 import { InputExperiencia } from '@/components/registro/input-experiencia/InputExperiencia';
 import { InputFechaExperiencia } from '@/components/registro/input-fecha-experiencia/InputFechaExperiencia';
+import { clientValidarFecha } from '@/utils/clientDateValidation';
 
 interface ModalNuevaExperienciaProps {
   isOpen: boolean;
@@ -19,6 +20,30 @@ export function ModalNuevaExperiencia({ isOpen, onClose, onSave }: ModalNuevaExp
   const [errorFechaInicio, setErrorFechaInicio] = useState<string | undefined>();
   const [errorFechaFin, setErrorFechaFin] = useState<string | undefined>();
 
+  const handleFechaInicioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setFechaInicio(value);
+
+    if (value.trim()) {
+      const validation = clientValidarFecha(value, 'fechaInicio');
+      setErrorFechaInicio(validation.message);
+    } else {
+      setErrorFechaInicio(undefined);
+    }
+  };
+
+  const handleFechaFinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setFechaFin(value);
+
+    if (value.trim()) {
+      const validation = clientValidarFecha(value, 'fechaFin');
+      setErrorFechaFin(validation.message);
+    } else {
+      setErrorFechaFin(undefined);
+    }
+  };
+
   const handleCancel = () => {
     setPuesto('');
     setInstitucion('');
@@ -32,6 +57,11 @@ export function ModalNuevaExperiencia({ isOpen, onClose, onSave }: ModalNuevaExp
   const handleSave = () => {
     // CA1: Ignorar guardar experiencia vacía
     if (!puesto.trim() && !institucion.trim() && !fechaInicio.trim() && !fechaFin.trim()) {
+      return;
+    }
+
+    // Validar que no haya errores de fecha
+    if (errorFechaInicio || errorFechaFin) {
       return;
     }
 
@@ -73,7 +103,7 @@ export function ModalNuevaExperiencia({ isOpen, onClose, onSave }: ModalNuevaExp
             label="Fecha Inicio"
             placeholder="MM/AAAA"
             value={fechaInicio}
-            onChange={(e) => setFechaInicio(e.target.value)}
+            onChange={handleFechaInicioChange}
             fieldName="fechaInicio"
             errorMessage={errorFechaInicio}
           />
@@ -82,7 +112,7 @@ export function ModalNuevaExperiencia({ isOpen, onClose, onSave }: ModalNuevaExp
             label="Fecha Fin"
             placeholder="MM/AAAA o Presente"
             value={fechaFin}
-            onChange={(e) => setFechaFin(e.target.value)}
+            onChange={handleFechaFinChange}
             fieldName="fechaFin"
             errorMessage={errorFechaFin}
           />
