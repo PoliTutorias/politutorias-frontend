@@ -4,12 +4,15 @@ import { useState } from 'react';
 import { Experiencia } from '@/interfaces/experiencia-tipo/Experiencia';
 import { ModalNuevaExperiencia } from '@/components/registro/modal-nueva-experiencia/ModalNuevaExperiencia';
 import { TarjetaExperiencia } from '@/components/registro/tarjeta-experiencia/TarjetaExperiencia';
+import { BotonFinalizarRegistro } from '@/components/ui/boton-finalizar-registro/BotonFinalizarRegistro';
+import { actionFinalizarRegistro } from '@/actions/registro/finalizarRegistro';
 
 export function FormDetallesProfesionales() {
   const [experiencias, setExperiencias] = useState<Experiencia[]>([]);
   const [materias, setMaterias] = useState<string[]>([]);
   const [materiaInput, setMateriaInput] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isFinalizando, setIsFinalizando] = useState(false);
 
   const handleExperienciaGuardada = (experiencia: Experiencia) => {
     setExperiencias([...experiencias, experiencia]);
@@ -29,6 +32,19 @@ export function FormDetallesProfesionales() {
 
   const handleEliminarMateria = (materiaToDelete: string) => {
     setMaterias(materias.filter((m) => m !== materiaToDelete));
+  };
+
+  const handleFinalizarRegistro = async () => {
+    setIsFinalizando(true);
+    try {
+      await actionFinalizarRegistro({
+        experiencias,
+        materias,
+      });
+    } catch (error) {
+      console.error('Error finalizando registro:', error);
+      setIsFinalizando(false);
+    }
   };
 
   return (
@@ -103,6 +119,14 @@ export function FormDetallesProfesionales() {
             </div>
           ))}
         </div>
+      </div>
+
+      {/* Botón Finalizar Registro */}
+      <div className="mt-8">
+        <BotonFinalizarRegistro
+          onClick={handleFinalizarRegistro}
+          isLoading={isFinalizando}
+        />
       </div>
 
       {/* Modal de Nueva Experiencia */}
