@@ -15,8 +15,8 @@ interface ClientOffersWrapperProps {
 }
 
 // Constantes del rango de precio
-const ABSOLUTE_MIN = 0;
-const ABSOLUTE_MAX = 50;
+const ABSOLUTE_MIN = 5;
+const ABSOLUTE_MAX = 20;
 const DEFAULT_MIN = 5;
 const DEFAULT_MAX = 20;
 

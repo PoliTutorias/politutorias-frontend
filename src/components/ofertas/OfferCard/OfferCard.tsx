@@ -101,13 +101,19 @@ export function OfferCard({ offer }: OfferCardProps) {
       {/* Tutor + Rating */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 min-w-0">
-          <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full">
-            <Image
-              src={offer.tutor.fotoUrl}
-              alt={offer.tutor.nombre}
-              fill
-              className="object-cover"
-            />
+          <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full bg-[var(--primary)] flex items-center justify-center">
+            {offer.tutor.fotoUrl ? (
+              <Image
+                src={offer.tutor.fotoUrl}
+                alt={offer.tutor.nombre}
+                fill
+                className="object-cover"
+              />
+            ) : (
+              <span className="text-white text-sm font-bold select-none">
+                {offer.tutor.nombre.charAt(0).toUpperCase()}
+              </span>
+            )}
           </div>
           <p className="truncate text-[13px] font-bold text-[var(--primary)] font-inter">
             {offer.tutor.nombre}

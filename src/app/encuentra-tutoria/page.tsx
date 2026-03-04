@@ -7,7 +7,8 @@ import { ResultsCounter } from '@/components/ofertas-ui/ResultsCounter/ResultsCo
 import { NoResultsMessage } from '@/components/ofertas-ui/NoResultsMessage/NoResultsMessage';
 import { Navbar } from '@/components/navbar/Navbar';
 import { ClientOffersWrapper } from '@/components/ofertas/ClientOffersWrapper/ClientOffersWrapper';
-import { ofertasSeedData } from '@/seed/OfertasSeedData';
+import { filtrarOfertasAction } from '@/actions/ofertas/filtrarOfertasAction';
+import { OfertaEntity } from '@/interfaces/ofertas/OfertaEntity';
 
 export const dynamic = 'force-dynamic';
 
@@ -45,8 +46,9 @@ async function OffersContent({ params }: { params: Awaited<Awaited<PageProps['se
   // Desestructurar datos para pasar a componentes hijos
   const { data, meta } = offersData;
 
-  // Obtener ofertas iniciales del seed para el filtro de precio (HU27)
-  const initialOffers = ofertasSeedData.ofertas;
+  // Obtener ofertas iniciales del backend para el filtro de precio (HU27)
+  const filtrarResult = await filtrarOfertasAction(5, 20);
+  const initialOffers: OfertaEntity[] = 'error' in filtrarResult ? [] : filtrarResult.ofertas;
 
   return (
     <ClientOffersWrapper initialOffers={initialOffers}>

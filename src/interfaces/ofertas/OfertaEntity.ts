@@ -4,7 +4,7 @@
 export interface TutorInfo {
   id: string;
   nombre: string;
-  fotoUrl: string;
+  fotoUrl?: string | null;
   contacto: string;
 }
 
@@ -15,13 +15,13 @@ export interface TutorInfo {
 export interface OfertaEntity {
   id: string;
   titulo: string;
-  carrera: string;
+  carrera?: string | null;
   modalidad: 'Presencial' | 'Virtual' | 'Virtual/Presencial';
   descripcion: string;
-  lugarReunion: string;
+  lugarReunion?: string | null;
   precio: number;
   tutor: TutorInfo;
-  imagenRepresentativaUrl: string;
+  imagenRepresentativaUrl?: string | null;
   // Campos adicionales para mostrar en las tarjetas
   tags?: string[];
   calificacionPromedio?: number;

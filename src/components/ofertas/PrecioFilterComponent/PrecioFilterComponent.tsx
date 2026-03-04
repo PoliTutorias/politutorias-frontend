@@ -20,8 +20,8 @@ interface PrecioFilterComponentProps {
 export function PrecioFilterComponent({
   initialMinPrice = 5,
   initialMaxPrice = 20,
-  absoluteMin = 0,
-  absoluteMax = 50,
+  absoluteMin = 5,
+  absoluteMax = 20,
   onPriceRangeChange,
 }: PrecioFilterComponentProps) {
   const [minPrice, setMinPrice] = useState<number>(initialMinPrice);
@@ -71,13 +71,6 @@ export function PrecioFilterComponent({
     onPriceRangeChange(minPrice, value);
   };
 
-  // Resetear al rango completo
-  const handleReset = () => {
-    setMinPrice(absoluteMin);
-    setMaxPrice(absoluteMax);
-    onPriceRangeChange(absoluteMin, absoluteMax);
-  };
-
   return (
     <div className="w-full">
       {/* Título de sección */}
@@ -96,7 +89,7 @@ export function PrecioFilterComponent({
       </div>
 
       {/* Contenedor del slider dual */}
-      <div className="relative h-6 w-full">
+      <div className="relative h-8 w-full">
         {/* Track base (gris) */}
         <div className="absolute top-1/2 -translate-y-1/2 h-[3px] w-full rounded-full bg-gray-200" />
 
@@ -114,7 +107,7 @@ export function PrecioFilterComponent({
           max={absoluteMax}
           value={minPrice}
           onChange={handleMinChange}
-          className="precio-slider pointer-events-none absolute top-0 left-0 h-full w-full appearance-none bg-transparent outline-none"
+          className="precio-slider pointer-events-none absolute top-1/2 -translate-y-1/2 left-0 h-0 w-full appearance-none bg-transparent outline-none"
           style={{ zIndex: minPrice > absoluteMax - 10 ? 5 : 3 }}
         />
 
@@ -125,13 +118,12 @@ export function PrecioFilterComponent({
           max={absoluteMax}
           value={maxPrice}
           onChange={handleMaxChange}
-          className="precio-slider pointer-events-none absolute top-0 left-0 h-full w-full appearance-none bg-transparent outline-none"
+          className="precio-slider pointer-events-none absolute top-1/2 -translate-y-1/2 left-0 h-0 w-full appearance-none bg-transparent outline-none"
           style={{ zIndex: 4 }}
         />
       </div>
 
-      {/* Estilos del slider */}
-      <style jsx>{`
+      <style>{`
         .precio-slider::-webkit-slider-thumb {
           -webkit-appearance: none;
           appearance: none;
@@ -143,7 +135,7 @@ export function PrecioFilterComponent({
           cursor: pointer;
           pointer-events: all;
           box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
-          position: relative;
+          margin-top: -10px;
         }
         .precio-slider::-moz-range-thumb {
           height: 20px;
@@ -156,10 +148,10 @@ export function PrecioFilterComponent({
           box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
         }
         .precio-slider::-webkit-slider-runnable-track {
-          height: 0px;
+          height: 0;
         }
         .precio-slider::-moz-range-track {
-          height: 0px;
+          height: 0;
         }
       `}</style>
     </div>
