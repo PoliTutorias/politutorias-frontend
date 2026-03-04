@@ -4,6 +4,8 @@ import { useState, useTransition, useMemo, useCallback } from 'react';
 import { OfertaEntity } from '@/interfaces/ofertas/OfertaEntity';
 import { OfertasResult } from '@/interfaces/ofertas/OfertasResult';
 import { PrecioFilterComponent } from '@/components/ofertas/PrecioFilterComponent/PrecioFilterComponent';
+import { OfertasListComponent } from '@/components/ofertas/OfertasListComponent/OfertasListComponent';
+import { NoOffersMessageComponent } from '@/components/ofertas/NoOffersMessageComponent/NoOffersMessageComponent';
 import { filtrarOfertasAction } from '@/actions/ofertas/filtrarOfertasAction';
 import { debounce } from '@/utils/debounce';
 
@@ -234,7 +236,27 @@ export function ClientOffersWrapper({ initialOffers, children }: ClientOffersWra
             </div>
           )}
 
-          {children}
+          {/* Renderizado condicional: si hay filtro de precio activo, mostrar resultados filtrados */}
+          {isPriceFilterActive ? (
+            <>
+              {/* Contador de resultados filtrados */}
+              <div className="text-right mb-6">
+                <p className="font-inter text-sm text-[var(--text-muted)]">
+                  {offers.length} {offers.length === 1 ? 'resultado' : 'resultados'}
+                </p>
+              </div>
+
+              {!isPending && offers.length > 0 && (
+                <OfertasListComponent offers={offers} />
+              )}
+              {!isPending && offers.length === 0 && (
+                <NoOffersMessageComponent onClearFilters={handleClearAllFilters} />
+              )}
+            </>
+          ) : (
+            /* Sin filtro de precio: mostrar contenido original (children) */
+            children
+          )}
         </div>
       </div>
     </div>
