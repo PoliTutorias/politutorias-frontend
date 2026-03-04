@@ -5,6 +5,7 @@ import { Experiencia } from '@/interfaces/experiencia-tipo/Experiencia';
 import { InputExperiencia } from '@/components/registro/input-experiencia/InputExperiencia';
 import { InputFechaExperiencia } from '@/components/registro/input-fecha-experiencia/InputFechaExperiencia';
 import { clientValidarFecha } from '@/utils/clientDateValidation';
+import { validarCamposVaciosExperiencia } from '@/utils/formValidation';
 
 interface ModalNuevaExperienciaProps {
   isOpen: boolean;
@@ -55,8 +56,8 @@ export function ModalNuevaExperiencia({ isOpen, onClose, onSave }: ModalNuevaExp
   };
 
   const handleSave = () => {
-    // CA1: Ignorar guardar experiencia vacía
-    if (!puesto.trim() && !institucion.trim() && !fechaInicio.trim() && !fechaFin.trim()) {
+    // CA1: Ignorar guardar experiencia vacía - sin mostrar errores
+    if (validarCamposVaciosExperiencia({ puesto, institucion, fechaInicio, fechaFin })) {
       return;
     }
 
