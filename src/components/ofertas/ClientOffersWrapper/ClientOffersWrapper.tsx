@@ -1,30 +1,99 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useMemo, useCallback } from 'react';
 import { OfertaEntity } from '@/interfaces/ofertas/OfertaEntity';
+import { OfertasResult } from '@/interfaces/ofertas/OfertasResult';
 import { PrecioFilterComponent } from '@/components/ofertas/PrecioFilterComponent/PrecioFilterComponent';
+import { filtrarOfertasAction } from '@/actions/ofertas/filtrarOfertasAction';
+import { debounce } from '@/utils/debounce';
 
 interface ClientOffersWrapperProps {
   initialOffers: OfertaEntity[];
   children: React.ReactNode;
 }
 
+// Constantes del rango de precio
+const ABSOLUTE_MIN = 0;
+const ABSOLUTE_MAX = 50;
+const DEFAULT_MIN = 5;
+const DEFAULT_MAX = 20;
+
 /**
  * ClientOffersWrapper - Client Component (HU27)
  * 
  * Gestiona el estado interactivo de las ofertas filtradas y
  * proporciona el layout de dos columnas (filtros + contenido).
- * Separa la lógica de estado del cliente de la renderización del servidor.
+ * Conecta el PrecioFilterComponent con filtrarOfertasAction.
  */
 export function ClientOffersWrapper({ initialOffers, children }: ClientOffersWrapperProps) {
   const [offers, setOffers] = useState<OfertaEntity[]>(initialOffers);
   const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
+  const [activeMinPrice, setActiveMinPrice] = useState<number | null>(null);
+  const [activeMaxPrice, setActiveMaxPrice] = useState<number | null>(null);
 
-  // Handler temporal para el price range change (se completará en T05)
-  const handlePriceRangeChange = (min: number, max: number) => {
-    // Se implementará la conexión con filtrarOfertasAction en Tarea 5
-    console.log(`Filtro de precio: $${min} - $${max}`);
-  };
+  // Determinar si hay un filtro de precio activo
+  const isPriceFilterActive = activeMinPrice !== null && activeMaxPrice !== null;
+
+  /**
+   * Handler que invoca filtrarOfertasAction con el rango de precio
+   */
+  const handlePriceRangeChange = useCallback(
+    (min: number, max: number) => {
+      // Si el rango es el total (absoluto), desactivar filtro
+      if (min === ABSOLUTE_MIN && max === ABSOLUTE_MAX) {
+        setActiveMinPrice(null);
+        setActiveMaxPrice(null);
+        setOffers(initialOffers);
+        setError(null);
+        return;
+      }
+
+      setActiveMinPrice(min);
+      setActiveMaxPrice(max);
+
+      startTransition(async () => {
+        const result = await filtrarOfertasAction(min, max);
+
+        if ('error' in result) {
+          setError(result.error);
+          setOffers([]);
+        } else {
+          setError(null);
+          setOffers((result as OfertasResult).ofertas);
+        }
+      });
+    },
+    [initialOffers, startTransition]
+  );
+
+  /**
+   * Handler con debounce para optimizar llamadas al mover el slider
+   */
+  const debouncedHandlePriceRangeChange = useMemo(
+    () => debounce(handlePriceRangeChange, 500),
+    [handlePriceRangeChange]
+  );
+
+  /**
+   * Limpiar filtro de precio individual (tag X)
+   */
+  const handleClearPriceFilter = useCallback(() => {
+    setActiveMinPrice(null);
+    setActiveMaxPrice(null);
+    setOffers(initialOffers);
+    setError(null);
+  }, [initialOffers]);
+
+  /**
+   * Limpiar todos los filtros
+   */
+  const handleClearAllFilters = useCallback(() => {
+    setActiveMinPrice(null);
+    setActiveMaxPrice(null);
+    setOffers(initialOffers);
+    setError(null);
+  }, [initialOffers]);
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-8">
@@ -36,6 +105,14 @@ export function ClientOffersWrapper({ initialOffers, children }: ClientOffersWra
               <h2 className="text-xl font-bold text-[var(--foreground)] font-inter">
                 Filtros
               </h2>
+              {isPriceFilterActive && (
+                <button
+                  onClick={handleClearAllFilters}
+                  className="text-sm font-medium text-[var(--error)] hover:text-[var(--error-light)] transition-colors cursor-pointer font-inter"
+                >
+                  Limpiar todo
+                </button>
+              )}
             </div>
 
             {/* Sección: Modalidad (placeholder visual) */}
@@ -82,11 +159,11 @@ export function ClientOffersWrapper({ initialOffers, children }: ClientOffersWra
 
             {/* Sección: Filtro de Precio (HU27 - funcional) */}
             <PrecioFilterComponent
-              initialMinPrice={5}
-              initialMaxPrice={20}
-              absoluteMin={0}
-              absoluteMax={50}
-              onPriceRangeChange={handlePriceRangeChange}
+              initialMinPrice={activeMinPrice ?? DEFAULT_MIN}
+              initialMaxPrice={activeMaxPrice ?? DEFAULT_MAX}
+              absoluteMin={ABSOLUTE_MIN}
+              absoluteMax={ABSOLUTE_MAX}
+              onPriceRangeChange={debouncedHandlePriceRangeChange}
             />
 
             {/* Separador */}
@@ -116,11 +193,47 @@ export function ClientOffersWrapper({ initialOffers, children }: ClientOffersWra
 
         {/* Contenido principal - Columna derecha */}
         <div className="flex-1 min-w-0">
+          {/* Etiquetas de filtros activos */}
+          {isPriceFilterActive && (
+            <div className="flex items-center gap-3 mb-4">
+              {/* Tag de precio activo (verde) */}
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium text-[var(--success)] bg-green-50 border border-green-200">
+                ${activeMinPrice} - ${activeMaxPrice}
+                <button
+                  onClick={handleClearPriceFilter}
+                  className="ml-0.5 hover:text-green-800 transition-colors cursor-pointer"
+                  aria-label="Remover filtro de precio"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </span>
+
+              {/* Botón Limpiar todos (gris) */}
+              <button
+                onClick={handleClearAllFilters}
+                className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium text-gray-600 bg-gray-100 border border-gray-200 hover:bg-gray-200 transition-colors cursor-pointer"
+              >
+                Limpiar todos
+              </button>
+            </div>
+          )}
+
+          {/* Estado de carga */}
           {isPending && (
             <div className="mb-4 text-sm text-[var(--text-secondary)] font-inter animate-pulse">
               Buscando ofertas...
             </div>
           )}
+
+          {/* Error del servidor */}
+          {error && (
+            <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-[var(--error)] font-inter">
+              {error}
+            </div>
+          )}
+
           {children}
         </div>
       </div>

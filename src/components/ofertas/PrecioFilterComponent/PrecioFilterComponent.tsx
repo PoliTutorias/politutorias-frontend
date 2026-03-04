@@ -28,6 +28,12 @@ export function PrecioFilterComponent({
   const [maxPrice, setMaxPrice] = useState<number>(initialMaxPrice);
   const rangeRef = useRef<HTMLDivElement>(null);
 
+  // Sincronizar estado interno cuando las props cambian externamente (ej. "Limpiar todo")
+  useEffect(() => {
+    setMinPrice(initialMinPrice);
+    setMaxPrice(initialMaxPrice);
+  }, [initialMinPrice, initialMaxPrice]);
+
   // Formatear precio como moneda
   const formatPrice = (value: number): string => {
     return `$${value.toFixed(2)}`;
