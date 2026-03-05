@@ -79,13 +79,19 @@ export function OfferCard({ offer }: OfferCardProps) {
 
       {/* Tutor */}
       <div className="flex items-center gap-2 min-w-0">
-        <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full">
-          <Image
-            src={offer.tutor.photo}
-            alt={offer.tutor.name}
-            fill
-            className="object-cover"
-          />
+        <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full bg-[#17253d] flex items-center justify-center">
+          {offer.tutor.photo ? (
+            <Image
+              src={offer.tutor.photo}
+              alt={offer.tutor.name}
+              fill
+              className="object-cover"
+            />
+          ) : (
+            <span className="text-white text-sm font-bold select-none">
+              {offer.tutor.name.charAt(0).toUpperCase()}
+            </span>
+          )}
         </div>
         <div className="min-w-0">
           <p className="truncate text-[13.2px] font-bold text-[#17253d]">{offer.tutor.name}</p>
