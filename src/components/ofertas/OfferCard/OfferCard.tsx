@@ -36,7 +36,7 @@ export function OfferCard({ offer }: OfferCardProps) {
   const remainingHorarios = horarios.length - 2;
 
   return (
-    <div className="flex h-full flex-col rounded-lg bg-white p-5 shadow-md transition-all cursor-pointer hover:shadow-lg hover:-translate-y-1 border-t-[3px] border-t-[var(--yellow)]">
+    <div data-testid="offer-card" className="flex h-full flex-col rounded-lg bg-white p-5 shadow-md transition-all cursor-pointer hover:shadow-lg hover:-translate-y-1 border-t-[3px] border-t-[var(--yellow)]">
       {/* Encabezado: Título y Precio */}
       <div className="mb-2 flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">

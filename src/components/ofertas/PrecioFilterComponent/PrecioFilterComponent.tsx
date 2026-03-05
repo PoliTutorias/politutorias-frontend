@@ -12,10 +12,12 @@ interface PrecioFilterComponentProps {
 
 /**
  * PrecioFilterComponent - Client Component (HU27)
- * 
+ *
  * Slider de rango dual para filtrar ofertas por precio.
  * Muestra valores formateados como moneda ($X.XX).
- * Inspirado en el prototipo "E. Inicio Estudiante 1".
+ *
+ * Los inputs de rango tienen `pointer-events: auto` en el thumb
+ * para permitir interacción con Playwright y usuarios.
  */
 export function PrecioFilterComponent({
   initialMinPrice = 5,
@@ -74,16 +76,16 @@ export function PrecioFilterComponent({
 
       {/* Valores de precio */}
       <div className="flex items-center justify-between mb-3">
-        <span className="text-sm font-medium text-[var(--foreground)] font-inter">
+        <span id="precio-min-label" data-testid="precio-min-label" className="text-sm font-medium text-[var(--foreground)] font-inter">
           {formatPrice(minPrice)}
         </span>
-        <span className="text-sm font-medium text-[var(--foreground)] font-inter">
+        <span id="precio-max-label" data-testid="precio-max-label" className="text-sm font-medium text-[var(--foreground)] font-inter">
           {formatPrice(maxPrice)}
         </span>
       </div>
 
       {/* Contenedor del slider dual */}
-      <div className="relative h-8 w-full">
+      <div className="relative h-8 w-full" id="precio-slider-container">
         {/* Track base (gris) */}
         <div className="absolute top-1/2 -translate-y-1/2 h-[3px] w-full rounded-full bg-gray-200" />
 
@@ -96,24 +98,30 @@ export function PrecioFilterComponent({
 
         {/* Input range mínimo */}
         <input
+          id="precio-slider-min"
+          data-testid="precio-slider-min"
           type="range"
           min={absoluteMin}
           max={absoluteMax}
           value={minPrice}
           onChange={handleMinChange}
-          className="precio-slider pointer-events-none absolute top-1/2 -translate-y-1/2 left-0 h-0 w-full appearance-none bg-transparent outline-none"
-          style={{ zIndex: minPrice > absoluteMax - 10 ? 5 : 3 }}
+          aria-label="Precio mínimo"
+          className="precio-slider absolute top-1/2 -translate-y-1/2 left-0 h-0 w-full appearance-none bg-transparent outline-none"
+          style={{ zIndex: minPrice > absoluteMax - 10 ? 5 : 3, pointerEvents: 'auto' }}
         />
 
         {/* Input range máximo */}
         <input
+          id="precio-slider-max"
+          data-testid="precio-slider-max"
           type="range"
           min={absoluteMin}
           max={absoluteMax}
           value={maxPrice}
           onChange={handleMaxChange}
-          className="precio-slider pointer-events-none absolute top-1/2 -translate-y-1/2 left-0 h-0 w-full appearance-none bg-transparent outline-none"
-          style={{ zIndex: 4 }}
+          aria-label="Precio máximo"
+          className="precio-slider absolute top-1/2 -translate-y-1/2 left-0 h-0 w-full appearance-none bg-transparent outline-none"
+          style={{ zIndex: 4, pointerEvents: 'auto' }}
         />
       </div>
 

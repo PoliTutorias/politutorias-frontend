@@ -3,64 +3,85 @@
 import { OfertaEntity } from '@/interfaces/ofertas/OfertaEntity';
 import { OfertasResult } from '@/interfaces/ofertas/OfertasResult';
 
-// Tipos que representa la respuesta cruda del backend para el mapeo
-interface BackendTutor {
-  id: string;
-  userId: string;
-  nombreCompleto: string;
-  numeroWhatsapp: string;
-  facultad: string;
-  semestreActual: string;
-  biografiaCorta: string;
-  createdAt: string;
-  updatedAt: string;
+/**
+ * Parámetros de filtro combinados para HU26+HU27+HU16
+ */
+export interface FiltrarOfertasParams {
+  minPrice?: number;
+  maxPrice?: number;
+  /** Modalidad en formato backend: 'PRESENCIAL' | 'VIRTUAL' | 'AMBOS' */
+  modalidad?: string;
+  /** Día de la semana en formato backend, e.g. 'LUNES', 'MARTES', etc. */
+  disponibilidad?: string;
 }
 
-interface BackendOferta {
+// Tipos que representan la respuesta cruda del backend GET /api/ofertas
+interface BackendTutor {
+  id: string;
+  nombre: string;
+  fotoUrl: string | null;
+}
+
+interface BackendOfertaItem {
   id: string;
   titulo: string;
-  carrera: string | null;
-  modalidad: string;
-  descripcion: string;
-  lugarReunion: string | null;
-  precio: number;
+  descripcion: string | null;
+  modalidad: string; // 'PRESENCIAL' | 'VIRTUAL' | 'AMBOS'
+  precioHora: number;
+  areaConocimiento: string | null;
+  nivel: string | null;
   tutor: BackendTutor;
-  imagenRepresentativaUrl: string | null;
-  createdAt: string;
-  updatedAt: string;
+  calificacionPromedio?: number;
+  numResenas?: number;
+  fechaCreacion: string;
 }
 
 interface BackendOfertasResponse {
-  ofertas: BackendOferta[];
+  data: BackendOfertaItem[];
   total: number;
 }
 
 /**
- * Server Action para filtrar ofertas por rango de precio (HU27)
+ * Mapea la modalidad del backend (PRESENCIAL/VIRTUAL/AMBOS) al formato del frontend
+ */
+function mapModalidad(backendModalidad: string): OfertaEntity['modalidad'] {
+  switch (backendModalidad) {
+    case 'PRESENCIAL':
+      return 'Presencial';
+    case 'VIRTUAL':
+      return 'Virtual';
+    case 'AMBOS':
+      return 'Virtual/Presencial';
+    default:
+      return 'Virtual/Presencial';
+  }
+}
+
+/**
+ * Server Action para filtrar ofertas con todos los criterios combinados (HU26+HU27+HU16)
  *
- * Acepta un rango de precios (minPrice, maxPrice), llama al endpoint
- * GET /api/ofertas del backend real, mapea la respuesta a OfertaEntity
- * y la retorna como OfertasResult.
+ * Envía los filtros activos al endpoint GET /api/ofertas del backend y
+ * mapea la respuesta al formato OfertaEntity del frontend.
  *
- * @param minPrice - Precio mínimo del rango
- * @param maxPrice - Precio máximo del rango
+ * @param params - Criterios de filtrado opcionales (precio, modalidad, disponibilidad)
  * @returns OfertasResult con ofertas filtradas o un objeto de error
  */
 export async function filtrarOfertasAction(
-  minPrice: number,
-  maxPrice: number
+  params: FiltrarOfertasParams = {}
 ): Promise<OfertasResult | { error: string }> {
-  // === Validaciones ===
-  if (Number.isNaN(minPrice) || Number.isNaN(maxPrice)) {
-    return { error: 'Los precios deben ser números válidos.' };
-  }
+  const { minPrice, maxPrice, modalidad, disponibilidad } = params;
 
-  if (minPrice < 0 || maxPrice < 0) {
-    return { error: 'Los precios no pueden ser negativos.' };
-  }
-
-  if (minPrice > maxPrice) {
-    return { error: 'El precio mínimo no puede ser mayor que el precio máximo.' };
+  // === Validaciones de precio ===
+  if (minPrice !== undefined && maxPrice !== undefined) {
+    if (Number.isNaN(minPrice) || Number.isNaN(maxPrice)) {
+      return { error: 'Los precios deben ser números válidos.' };
+    }
+    if (minPrice < 0 || maxPrice < 0) {
+      return { error: 'Los precios no pueden ser negativos.' };
+    }
+    if (minPrice > maxPrice) {
+      return { error: 'El precio mínimo no puede ser mayor que el precio máximo.' };
+    }
   }
 
   // === Integración con Backend Real ===
@@ -70,24 +91,34 @@ export async function filtrarOfertasAction(
       return { error: 'NEXT_PUBLIC_BACKEND_API_URL no está configurada.' };
     }
 
-    // Construir query parameters
+    // Construir query parameters dinámicamente
     const queryParams = new URLSearchParams();
-    queryParams.append('minPrice', minPrice.toString());
-    queryParams.append('maxPrice', maxPrice.toString());
+
+    if (minPrice !== undefined) {
+      queryParams.append('minPrice', minPrice.toString());
+    }
+    if (maxPrice !== undefined) {
+      queryParams.append('maxPrice', maxPrice.toString());
+    }
+    if (modalidad) {
+      queryParams.append('modalidad', modalidad);
+    }
+    if (disponibilidad) {
+      queryParams.append('disponibilidad', disponibilidad);
+    }
+
+    const queryString = queryParams.toString();
+    const url = `${apiBaseUrl}ofertas${queryString ? `?${queryString}` : ''}`;
 
     // Realizar petición al backend
-    // apiBaseUrl ya incluye /api/ con trailing slash (ej: "http://localhost:3000/api/")
-    const response = await fetch(
-      `${apiBaseUrl}ofertas?${queryParams.toString()}`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-        cache: 'no-store',
-      }
-    );
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      cache: 'no-store',
+    });
 
     // Manejar respuesta no exitosa
     if (!response.ok) {
@@ -99,29 +130,30 @@ export async function filtrarOfertasAction(
       };
     }
 
-    // Parsear y mapear respuesta del backend → OfertaEntity
-    const data: BackendOfertasResponse = await response.json();
+    // Parsear y mapear la respuesta del backend → OfertaEntity[]
+    const backendResponse: BackendOfertasResponse = await response.json();
 
-    const ofertas: OfertaEntity[] = data.ofertas.map((backendOferta) => ({
-      id: backendOferta.id,
-      titulo: backendOferta.titulo,
-      carrera: backendOferta.carrera ?? undefined,
-      modalidad: backendOferta.modalidad as OfertaEntity['modalidad'],
-      descripcion: backendOferta.descripcion,
-      lugarReunion: backendOferta.lugarReunion ?? undefined,
-      precio: backendOferta.precio,
+    const ofertas: OfertaEntity[] = backendResponse.data.map((item) => ({
+      id: item.id,
+      titulo: item.titulo,
+      descripcion: item.descripcion ?? '',
+      modalidad: mapModalidad(item.modalidad),
+      precio: typeof item.precioHora === 'string' ? parseFloat(item.precioHora) : item.precioHora,
       tutor: {
-        id: backendOferta.tutor?.id ?? '',
-        nombre: backendOferta.tutor?.nombreCompleto ?? 'Tutor',
-        fotoUrl: null,
-        contacto: backendOferta.tutor?.userId ?? '',
+        id: item.tutor?.id ?? '',
+        nombre: item.tutor?.nombre ?? 'Tutor',
+        fotoUrl: item.tutor?.fotoUrl ?? null,
+        contacto: '',
       },
-      imagenRepresentativaUrl: backendOferta.imagenRepresentativaUrl ?? undefined,
+      calificacionPromedio: item.calificacionPromedio,
+      totalReseñas: item.numResenas,
+      tags: item.areaConocimiento ? [item.areaConocimiento] : [],
+      imagenRepresentativaUrl: undefined,
     }));
 
     return {
       ofertas,
-      total: data.total,
+      total: backendResponse.total,
     };
   } catch (error) {
     console.error('Error en filtrarOfertasAction:', error);
