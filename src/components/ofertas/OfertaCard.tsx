@@ -11,6 +11,48 @@ interface OfertaCardProps {
  * Componente que renderiza una tarjeta de oferta de tutoría
  */
 export function OfertaCard({ offer }: OfertaCardProps) {
+  const getModalidadDisplay = () => {
+    // Si viene el campo modality del backend, usarlo
+    if (offer.modality) {
+      switch (offer.modality) {
+        case 'AMBOS':
+          return 'Virtual/Presencial';
+        case 'PRESENCIAL':
+          return 'Presencial';
+        case 'VIRTUAL':
+          return 'Virtual';
+        default:
+          return offer.modality;
+      }
+    }
+    
+    // Fallback al campo isPresencial si no hay modality
+    if (offer.isPresencial === undefined) {
+      return 'Virtual/Presencial';
+    }
+    return offer.isPresencial ? 'Presencial' : 'Virtual';
+  };
+
+  const getModalidadIcon = () => {
+    if (offer.modality === 'AMBOS') {
+      return <MdMonitor className="w-5 h-5" />;
+    }
+    if (offer.modality === 'PRESENCIAL') {
+      return <MdOutlinePerson className="w-5 h-5" />;
+    }
+    if (offer.modality === 'VIRTUAL') {
+      return <MdMonitor className="w-5 h-5" />;
+    }
+    if (offer.isPresencial === undefined) {
+      return <MdMonitor className="w-5 h-5" />;
+    }
+    return offer.isPresencial ? (
+      <MdOutlinePerson className="w-5 h-5" />
+    ) : (
+      <MdMonitor className="w-5 h-5" />
+    );
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
       {/* Header: Título y Precio */}
@@ -25,17 +67,8 @@ export function OfertaCard({ offer }: OfertaCardProps) {
 
       {/* Modalidad (Presencial/Virtual) - Icono con texto */}
       <div className="flex items-center gap-2 mb-2 text-gray-600">
-        {offer.isPresencial ? (
-          <>
-            <MdOutlinePerson className="w-5 h-5" />
-            <span className="text-[12.7px]">Presencial</span>
-          </>
-        ) : (
-          <>
-            <MdMonitor className="w-5 h-5" />
-            <span className="text-[12.7px]">Virtual</span>
-          </>
-        )}
+        {getModalidadIcon()}
+        <span className="text-[12.7px]">{getModalidadDisplay()}</span>
       </div>
 
       {/* Descripción */}

@@ -13,6 +13,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "randomuser.me",
       },
+      {
+        protocol: "https",
+        hostname: "politutorias-storage-staging.s3.us-east-1.amazonaws.com",
+      },
     ],
   },
 };
