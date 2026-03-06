@@ -12,10 +12,13 @@ interface TutorRegistroData {
 
 interface RegistroStore {
   datosBasicos: TutorRegistroData;
+  fotoPerfil: string | null;
   disponibilidad: AvailabilityBlock[];
   setDatosBasicos: (datos: Partial<TutorRegistroData>) => void;
   getDatosBasicos: () => TutorRegistroData;
   clearDatosBasicos: () => void;
+  setFotoPerfil: (foto: string | null) => void;
+  getFotoPerfil: () => string | null;
   setDisponibilidad: (blocks: AvailabilityBlock[]) => void;
   getDisponibilidad: () => AvailabilityBlock[];
   clearDisponibilidad: () => void;
@@ -31,6 +34,7 @@ export const useRegistroStore = create<RegistroStore>()(
         semestreActual: '',
         biografiaCorta: '',
       },
+      fotoPerfil: null,
       disponibilidad: [],
       setDatosBasicos: (datos) =>
         set((state) => ({
@@ -50,6 +54,11 @@ export const useRegistroStore = create<RegistroStore>()(
             biografiaCorta: '',
           },
         }),
+      setFotoPerfil: (foto) =>
+        set({
+          fotoPerfil: foto,
+        }),
+      getFotoPerfil: () => get().fotoPerfil,
       setDisponibilidad: (blocks) =>
         set({
           disponibilidad: blocks,

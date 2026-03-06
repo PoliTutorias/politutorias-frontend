@@ -1,12 +1,7 @@
 'use server';
 
+import { cookies } from 'next/headers';
 import { AvailabilityBlock } from '@/interfaces/tutor/AvailabilityBlock';
-import { availabilitySuccessSeed } from '@/seed/AvailabilitySuccessResponseSeed';
-
-interface CreateAvailabilityDto {
-  tutorId: string;
-  blocks: AvailabilityBlock[];
-}
 
 interface AvailabilityResponse {
   message: string;
@@ -19,33 +14,88 @@ interface AvailabilityResponse {
  * @returns Respuesta exitosa o error
  */
 export async function guardarDisponibilidadAction(
-  dto: CreateAvailabilityDto
+  blocks: AvailabilityBlock[]
 ): Promise<AvailabilityResponse | { error: string }> {
   try {
+    // Obtener tutorId de las cookies (guardado en HU34)
+    const cookieStore = await cookies();
+    const tutorId = cookieStore.get('tutor-id')?.value;
+    
+    // Usar TEMPORARY_TOKEN del .env para disponibilidad
+    const token = process.env.TEMPORARY_TOKEN;
+
+    // Log de la petición completa
+    console.log('=== PETICIÓN GUARDAR DISPONIBILIDAD ===');
+    console.log('TutorId (de cookies):', tutorId);
+    console.log('Blocks cantidad:', blocks?.length);
+    console.log('Token: TEMPORARY_TOKEN del .env');
+    console.log('========================================');
+
     // Validación: Al menos un bloque debe estar seleccionado
-    if (!dto.blocks || dto.blocks.length === 0) {
+    if (!blocks || blocks.length === 0) {
       return {
         error: 'Se debe seleccionar al menos un horario disponible.',
       };
     }
 
-    // Validación: tutorId debe estar presente
-    if (!dto.tutorId) {
+    // Validación: tutorId debe estar presente en cookies
+    if (!tutorId) {
       return {
-        error: 'El ID del tutor es requerido.',
+        error: 'ID del tutor no encontrado. Completa primero el paso 1.',
       };
     }
 
-    // TODO: Reemplazar con llamada real al endpoint
-    // const response = await fetch('/api/disponibilidad', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify(dto),
-    // });
+    if (!token) {
+      console.error('No se encontró TEMPORARY_TOKEN en .env');
+      return {
+        error: 'Token de autenticación no configurado en .env',
+      };
+    }
 
-    // Por ahora, retornamos el seed de respuesta exitosa
-    return availabilitySuccessSeed;
+    console.log('Token obtenido del .env para disponibilidad');
+
+    // Hacer petición real al backend
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL || 'http://localhost:3000/api/';
+    const endpoint = `${backendUrl}disponibilidad`;
+
+    const requestBody = {
+      tutorId,
+      blocks,
+    };
+
+    console.log('Endpoint:', endpoint);
+    console.log('Request body:', JSON.stringify(requestBody, null, 2));
+    console.log('Headers: Content-Type: application/json, Authorization: Bearer [TEMPORARY_TOKEN]');
+
+    try {
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      // Parsear respuesta del backend
+      const result = await response.json();
+
+      console.log('Respuesta del servidor:', result);
+      console.log('Status:', response.status);
+
+      if (!response.ok) {
+        return {
+          error: result.message || 'Error al guardar la disponibilidad',
+        };
+      }
+
+      return result;
+    } catch (error) {
+      console.error('Error en guardarDisponibilidadAction:', error);
+      throw error;
+    }
   } catch (error) {
+    console.error('Error en guardarDisponibilidadAction:', error);
     return {
       error: 'Error al guardar la disponibilidad. Intenta nuevamente.',
     };

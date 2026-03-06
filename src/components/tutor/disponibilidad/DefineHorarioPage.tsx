@@ -45,10 +45,9 @@ export function DefineHorarioPage({
     // Simular guardado con Server Action
     setIsLoading(true);
     try {
-      const result = await guardarDisponibilidadAction({
-        tutorId: 'a1b2c3d4e5f6g7h8i9j0', // TODO: Obtener tutorId del contexto de autenticación
-        blocks: disponibilidad,
-      });
+      console.log('Enviando disponibilidad al servidor...');
+
+      const result = await guardarDisponibilidadAction(disponibilidad);
 
       if ('error' in result) {
         setErrorMessage(result.error);

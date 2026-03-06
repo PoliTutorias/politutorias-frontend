@@ -130,15 +130,21 @@ export async function filtrarOfertasAction(
       };
     }
 
-    // Parsear y mapear la respuesta del backend → OfertaEntity[]
-    const backendResponse: BackendOfertasResponse = await response.json();
+    // Parsear y mapear respuesta del backend → OfertaEntity
+    const data: BackendOfertasResponse | BackendOferta[] = await response.json();
 
-    const ofertas: OfertaEntity[] = backendResponse.data.map((item) => ({
-      id: item.id,
-      titulo: item.titulo,
-      descripcion: item.descripcion ?? '',
-      modalidad: mapModalidad(item.modalidad),
-      precio: typeof item.precioHora === 'string' ? parseFloat(item.precioHora) : item.precioHora,
+    // Manejar ambas estructuras: array directo o objeto con propiedad ofertas
+    const ofertasArray = Array.isArray(data) ? data : (data.ofertas || []);
+    const total = Array.isArray(data) ? ofertasArray.length : (data.total || 0);
+
+    const ofertas: OfertaEntity[] = ofertasArray.map((backendOferta) => ({
+      id: backendOferta.id,
+      titulo: backendOferta.titulo,
+      carrera: backendOferta.carrera ?? undefined,
+      modalidad: backendOferta.modalidad as OfertaEntity['modalidad'],
+      descripcion: backendOferta.descripcion,
+      lugarReunion: backendOferta.lugarReunion ?? undefined,
+      precio: backendOferta.precio,
       tutor: {
         id: item.tutor?.id ?? '',
         nombre: item.tutor?.nombre ?? 'Tutor',
@@ -153,7 +159,7 @@ export async function filtrarOfertasAction(
 
     return {
       ofertas,
-      total: backendResponse.total,
+      total,
     };
   } catch (error) {
     console.error('Error en filtrarOfertasAction:', error);
