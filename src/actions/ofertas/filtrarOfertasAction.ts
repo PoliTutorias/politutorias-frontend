@@ -131,29 +131,29 @@ export async function filtrarOfertasAction(
     }
 
     // Parsear y mapear respuesta del backend → OfertaEntity
-    const data: BackendOfertasResponse | BackendOferta[] = await response.json();
+    const data: BackendOfertasResponse | BackendOfertaItem[] = await response.json();
 
-    // Manejar ambas estructuras: array directo o objeto con propiedad ofertas
-    const ofertasArray = Array.isArray(data) ? data : (data.ofertas || []);
+    // Manejar ambas estructuras: array directo o objeto con propiedad data
+    const ofertasArray = Array.isArray(data) ? data : (data.data || []);
     const total = Array.isArray(data) ? ofertasArray.length : (data.total || 0);
 
     const ofertas: OfertaEntity[] = ofertasArray.map((backendOferta) => ({
       id: backendOferta.id,
       titulo: backendOferta.titulo,
-      carrera: backendOferta.carrera ?? undefined,
-      modalidad: backendOferta.modalidad as OfertaEntity['modalidad'],
-      descripcion: backendOferta.descripcion,
-      lugarReunion: backendOferta.lugarReunion ?? undefined,
-      precio: backendOferta.precio,
+      carrera: backendOferta.areaConocimiento ?? undefined,
+      modalidad: mapModalidad(backendOferta.modalidad),
+      descripcion: backendOferta.descripcion || '',
+      lugarReunion: undefined,
+      precio: backendOferta.precioHora,
       tutor: {
-        id: item.tutor?.id ?? '',
-        nombre: item.tutor?.nombre ?? 'Tutor',
-        fotoUrl: item.tutor?.fotoUrl ?? null,
+        id: backendOferta.tutor?.id ?? '',
+        nombre: backendOferta.tutor?.nombre ?? 'Tutor',
+        fotoUrl: backendOferta.tutor?.fotoUrl ?? null,
         contacto: '',
       },
-      calificacionPromedio: item.calificacionPromedio,
-      totalReseñas: item.numResenas,
-      tags: item.areaConocimiento ? [item.areaConocimiento] : [],
+      calificacionPromedio: backendOferta.calificacionPromedio,
+      totalReseñas: backendOferta.numResenas,
+      tags: backendOferta.areaConocimiento ? [backendOferta.areaConocimiento] : [],
       imagenRepresentativaUrl: undefined,
     }));
 
