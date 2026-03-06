@@ -90,6 +90,7 @@ export function OfertaForm({
         />
         <SelectModalidad
           {...register('modality')}
+          value={formValues.modality}
           error={errors.modality?.message}
         />
       </div>

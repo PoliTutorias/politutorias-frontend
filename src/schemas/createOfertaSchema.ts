@@ -22,7 +22,7 @@ export const createOfertaSchema = z.object({
     .refine((val) => val >= 5, 'El precio mínimo por hora es de $5')
     .refine((val) => val <= 20, 'El precio máximo es $20/h'),
   modality: z
-    .enum(['Presencial', 'Virtual', 'Ambos']),
+    .enum(['Presencial', 'Virtual', 'Virtual/Presencial']),
   categories: z
     .array(z.string())
     .min(1, 'Selecciona al menos una categoría')
