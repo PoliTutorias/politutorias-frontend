@@ -2,17 +2,26 @@
 
 import { ApiResponse } from '@/interfaces/api/ApiResponse';
 import { OfertaDto } from '@/interfaces/oferta/OfertaDto';
-
-// ID del tutor - Constante configurada inicialmente
-const TUTOR_ID = '550e8400-e29b-41d4-a716-446655440000';
+import { cookies } from 'next/headers';
 
 /**
  * Obtiene el listado de ofertas de tutoría de un tutor específico
+ * Usa el tutorId guardado en cookies durante el registro (HU34)
  * @returns ApiResponse con un array de OfertaDto
  */
 export async function getTutorOffersAction(): Promise<ApiResponse<OfertaDto[]>> {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL || 'http://localhost:3000/api/';
+    const cookieStore = await cookies();
+    
+    // Obtener tutorId de las cookies (guardado en HU34)
+    const tutorIdFromCookie = cookieStore.get('tutor-id')?.value;
+    
+    // Usar tutorId de cookies, fallback a NEXT_PUBLIC_TUTOR_ID
+    const TUTOR_ID = tutorIdFromCookie || process.env.NEXT_PUBLIC_TUTOR_ID || '550e8400-e29b-41d4-a716-446655440000';
+
+    console.log('Obteniendo ofertas para tutorId:', TUTOR_ID);
+    console.log('Fuente de tutorId:', tutorIdFromCookie ? 'Cookies (HU34)' : 'NEXT_PUBLIC_TUTOR_ID');
 
     const response = await fetch(`${baseUrl}tutor/${TUTOR_ID}/ofertas`, {
       method: 'GET',
@@ -39,10 +48,6 @@ export async function getTutorOffersAction(): Promise<ApiResponse<OfertaDto[]>> 
     };
   } catch (error) {
     console.error('Error en getTutorOffersAction:', error);
-    return {
-      statusCode: 500,
-      message: 'Error interno del servidor al obtener ofertas.',
-      error: error instanceof Error ? error.message : 'Unknown error',
-    };
+    throw error;
   }
 }

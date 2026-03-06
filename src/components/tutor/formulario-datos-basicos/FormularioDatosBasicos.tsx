@@ -92,6 +92,8 @@ export function FormularioDatosBasicos({
       // Llamar a la Server Action
       const result = await registrarDatosBasicosAction(formData);
 
+      console.log('Resultado de registrarDatosBasicosAction:', result);
+
       if (!result.success) {
         // Si hay errores de validación del servidor, mostrarlos
         if (result.errors) {
@@ -106,7 +108,7 @@ export function FormularioDatosBasicos({
             }
           });
 
-          toast.error('Revisa los campos', {
+          toast.error(result.message || 'Revisa los campos', {
             position: 'bottom-center',
             duration: 4000,
             unstyled: true,
@@ -125,7 +127,7 @@ export function FormularioDatosBasicos({
             },
           });
         } else {
-          toast.error('Revisa los campos', {
+          toast.error(result.message || 'Revisa los campos', {
             position: 'bottom-center',
             duration: 4000,
             unstyled: true,
@@ -144,15 +146,18 @@ export function FormularioDatosBasicos({
             },
           });
         }
+        setIsLoading(false);
         return;
       }
 
-      // Guardar datos y continuar
+      // Guardar datos y continuar al siguiente paso
       if (onSaveData) onSaveData(data);
-      if (onStepComplete) onStepComplete();
+      if (onStepComplete) {
+        onStepComplete();
+      }
     } catch (error) {
       console.error('Error al enviar formulario:', error);
-      toast.error('Revisa los campos', {
+      toast.error('Error al enviar el formulario. Intenta nuevamente.', {
         position: 'bottom-center',
         duration: 4000,
         unstyled: true,
@@ -170,7 +175,6 @@ export function FormularioDatosBasicos({
           whiteSpace: 'nowrap',
         },
       });
-    } finally {
       setIsLoading(false);
     }
   };

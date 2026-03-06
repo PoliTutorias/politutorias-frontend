@@ -1,13 +1,14 @@
 'use server';
 
+import { cookies } from 'next/headers';
 import { TutorBasicosInput, tutorBasicosSchema } from '@/lib/validations/tutor-basicos-schema';
-import { TUTOR_REGISTRO_RESPONSE_SEED } from '@/lib/seeds/tutor-registro-response';
 
 interface ServerActionResponse<T = unknown> {
   success: boolean;
   message: string;
   data?: T;
   errors?: Record<string, string>;
+  token?: string;
 }
 
 export async function registrarDatosBasicosAction(
@@ -30,6 +31,15 @@ export async function registrarDatosBasicosAction(
       biografiaCorta,
     };
 
+    // Log de los datos extraídos (para debugging)
+    console.log('Datos extraídos del form:', {
+      nombreCompleto,
+      numeroWhatsapp,
+      facultad,
+      semestreActual,
+      biografiaCorta,
+    });
+
     // Validar datos con Zod
     const validationResult = tutorBasicosSchema.safeParse(datosFormulario);
 
@@ -49,66 +59,94 @@ export async function registrarDatosBasicosAction(
       };
     }
 
-    // MODO DE DESARROLLO: Retornar seed data simulada
-    // En producción, descomentar el bloque fetch abajo y eliminar este segmento
-
-    return {
-      success: true,
-      message: 'Datos guardados con éxito',
-      data: TUTOR_REGISTRO_RESPONSE_SEED,
-    };
-
-    /* INTEGRACIÓN CON BACKEND REAL (Comentado para desarrollo)
-    
+    // Hacer petición real al backend
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
-      const endpoint = `${backendUrl}/api/tutor/datos-basicos`;
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL || 'http://localhost:3000/api/';
+      const token = process.env.TEMPORARY_TOKEN;
+      const endpoint = `${backendUrl}tutor/datos-basicos`;
+
+      console.log('Enviando datos a:', endpoint);
+
+      // Crear FormData para enviar multipart/form-data
+      const requestFormData = new FormData();
+      requestFormData.append('nombreCompleto', validationResult.data.nombreCompleto);
+      requestFormData.append('numeroWhatsapp', validationResult.data.numeroWhatsapp);
+      requestFormData.append('facultad', validationResult.data.facultad);
+      requestFormData.append('semestreActual', validationResult.data.semestreActual);
+      requestFormData.append('biografiaCorta', validationResult.data.biografiaCorta);
 
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          // 'Authorization': `Bearer ${token}` // Descomentar cuando se implemente autenticación
+          'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          nombreCompleto: validationResult.data.nombreCompleto,
-          numeroWhatsapp: validationResult.data.numeroWhatsapp,
-          facultad: validationResult.data.facultad,
-          semestreActual: validationResult.data.semestreActual,
-          biografiaCorta: validationResult.data.biografiaCorta,
-        }),
+        body: requestFormData,
       });
 
+      // Parsear respuesta del backend
+      const result = await response.json();
+
+      console.log('Respuesta del servidor:', result, 'Status:', response.status);
+
       if (!response.ok) {
-        const result = await response.json();
+        // Manejar errores del backend
+        if (result.message) {
+          // Si es un array, tomar el primer mensaje
+          const errorMessage = Array.isArray(result.message) 
+            ? result.message[0] 
+            : result.message;
+          
+          return {
+            success: false,
+            message: errorMessage,
+            errors: {
+              general: errorMessage,
+            },
+          };
+        }
+
         return {
           success: false,
-          message: result.message || 'Error al guardar los datos',
+          message: result.error || 'Error al guardar los datos',
           errors: result.errors || {},
         };
       }
 
-      const result = await response.json();
-
-      // Aquí irá el redirect a la siguiente pantalla del wizard
-      // redirect('/tutor/disponibilidad');
+      // Extraer el token y tutorId de la respuesta y guardarlos en cookies
+      if (result.token || result.data?.id) {
+        const cookieStore = await cookies();
+        
+        if (result.token) {
+          cookieStore.set('tutor-auth-token', result.token, {
+            httpOnly: true,
+            secure: false,
+            sameSite: 'lax',
+            maxAge: 24 * 60 * 60, // 24 horas
+          });
+          console.log('Token guardado en cookies');
+        }
+        
+        if (result.data?.id) {
+          cookieStore.set('tutor-id', result.data.id, {
+            httpOnly: true,
+            secure: false,
+            sameSite: 'lax',
+            maxAge: 24 * 60 * 60, // 24 horas
+          });
+          console.log('TutorId guardado en cookies:', result.data.id);
+        }
+      }
 
       return {
         success: true,
         message: 'Datos guardados con éxito',
-        data: result.data,
+        data: result,
+        token: result.token,
       };
     } catch (fetchError) {
-      return {
-        success: false,
-        message: 'Error de conexión con el servidor',
-        errors: {
-          general: 'No se pudo conectar con el servidor',
-        },
-      };
+      console.error('Error de conexión:', fetchError);
+      throw fetchError;
     }
-    
-    */
   } catch (error) {
     console.error('Error en registrarDatosBasicosAction:', error);
     return {

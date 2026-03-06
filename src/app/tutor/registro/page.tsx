@@ -3,13 +3,26 @@
 import { montserrat, dancingScript } from '@/lib/fonts';
 import { FormularioDatosBasicos } from '@/components/tutor/formulario-datos-basicos/FormularioDatosBasicos';
 import { DefineHorarioPage } from '@/components/tutor/disponibilidad/DefineHorarioPage';
+import { FormDetallesProfesionales } from '@/components/registro/form-detalles-profesionales/FormDetallesProfesionales';
+import { completeRegistrationAction } from '@/actions/registro/completeRegistrationAction';
+import { useRegistroStore } from '@/lib/stores/registroStore';
 import Link from 'next/link';
-import { useState } from 'react';
-import { FiUser, FiCheckCircle } from 'react-icons/fi';
+import { useState, useRef, useEffect } from 'react';
+import { FiUser, FiArrowLeft, FiCamera } from 'react-icons/fi';
+import { Experiencia } from '@/interfaces/experiencia-tipo/Experiencia';
+import { toast } from 'sonner';
 
 export default function RegistrarTutorPage() {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({});
+  const [isFinalizando, setIsFinalizando] = useState(false);
+  const [experienciasStep3, setExperienciasStep3] = useState<Experiencia[]>([]);
+  const [materiasStep3, setMateriasStep3] = useState<string[]>([]);
+  const [fotoPerfil, setFotoPerfil] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Obtener datos del store
+  const { datosBasicos, disponibilidad, setFotoPerfil: storeFotoPerfil, fotoPerfil: fotoFromStore } = useRegistroStore();
 
   const steps = [
     { number: 1, label: 'Datos Básicos' },
@@ -17,9 +30,109 @@ export default function RegistrarTutorPage() {
     { number: 3, label: 'Perfil Profesional' },
   ];
 
+  // Cargar foto del store al montar el componente
+  useEffect(() => {
+    if (fotoFromStore) {
+      setFotoPerfil(fotoFromStore);
+    }
+  }, [fotoFromStore]);
+
   const handleStepClick = (stepNumber: number) => {
     if (stepNumber < currentStep) {
       setCurrentStep(stepNumber);
+    }
+  };
+
+  const handleFotoPerfilClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFotoPerfilChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validar que sea una imagen
+    if (!file.type.startsWith('image/')) {
+      toast.error('Por favor selecciona una imagen válida', {
+        position: 'bottom-center',
+      });
+      return;
+    }
+
+    // Validar tamaño (máx 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('La imagen debe ser menor a 5MB', {
+        position: 'bottom-center',
+      });
+      return;
+    }
+
+    // Convertir a base64
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64String = reader.result as string;
+      setFotoPerfil(base64String);
+      storeFotoPerfil(base64String);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleFinalizarRegistro = async (experiencias: Experiencia[], materias: string[]) => {
+    setIsFinalizando(true);
+    try {
+      // Llamar a la acción que SOLO finaliza con /perfil/finalizar (HU42)
+      // Los endpoints HU34 y HU41 ya fueron llamados en sus pasos
+      const result = await completeRegistrationAction({
+        experiencias,
+        materias,
+      });
+
+      // Si la acción no redirige (hay error), mostrar toast
+      if (!result.success) {
+        toast.error(result.message, {
+          position: 'bottom-center',
+          duration: 4000,
+          unstyled: true,
+          style: {
+            backgroundColor: '#e53935',
+            color: '#ffffff',
+            fontSize: '18px',
+            fontWeight: 'bold',
+            padding: '16px 32px',
+            borderRadius: '8px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+          },
+        });
+        setIsFinalizando(false);
+      }
+    } catch (error) {
+      // NEXT_REDIRECT es una excepción especial de Next.js que se lanza cuando redirect() es exitoso
+      // No es un error real, es parte del flujo normal de redirección
+      const isNextRedirect = (error as any)?.digest?.includes('NEXT_REDIRECT');
+      
+      if (isNextRedirect) {
+        // Si es un NEXT_REDIRECT, significa que el registro fue exitoso y la redirección está en proceso
+        console.log('Redirecciones hacia dashboard/tutor...');
+        return;
+      }
+      
+      // Si es un error real, mostrar el toast
+      console.error('Error finalizando registro:', error);
+      toast.error('Error al completar el registro', {
+        position: 'bottom-center',
+        duration: 4000,
+        unstyled: true,
+        style: {
+          backgroundColor: '#e53935',
+          color: '#ffffff',
+          fontSize: '18px',
+          fontWeight: 'bold',
+          padding: '16px 32px',
+          borderRadius: '8px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+        },
+      });
+      setIsFinalizando(false);
     }
   };
 
@@ -94,17 +207,51 @@ export default function RegistrarTutorPage() {
 
               {/* Profile Photo Upload */}
               <div className="mt-8 mb-8 flex justify-center">
-                <button className="w-32 h-32 rounded-full border-2 border-dashed hover:bg-gray-50 transition-colors flex items-center justify-center group" style={{ borderColor: '#d1d5db' }}>
-                  <div className="text-center">
-                    <FiUser className="w-10 h-10 mx-auto mb-2" style={{ color: '#9ca3af' }} />
-                    <p className="text-xs" style={{ color: '#6b7280' }}>
-                      Subir Foto
-                    </p>
-                    <p className="text-xs" style={{ color: '#9ca3af' }}>
-                      (Opcional)
-                    </p>
-                  </div>
-                </button>
+                <div className="relative w-32 h-32">
+                  <button
+                    onClick={handleFotoPerfilClick}
+                    className="w-full h-full rounded-full border-2 border-dashed hover:bg-gray-50 transition-colors flex items-center justify-center overflow-hidden"
+                    style={{ borderColor: '#d1d5db' }}
+                  >
+                    {fotoPerfil ? (
+                      <img
+                        src={fotoPerfil}
+                        alt="Foto de perfil"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="text-center">
+                        <FiUser className="w-10 h-10 mx-auto mb-2" style={{ color: '#9ca3af' }} />
+                        <p className="text-xs" style={{ color: '#6b7280' }}>
+                          Subir Foto
+                        </p>
+                        <p className="text-xs" style={{ color: '#9ca3af' }}>
+                          (Opcional)
+                        </p>
+                      </div>
+                    )}
+                  </button>
+                  
+                  {/* Icono de cámara superpuesto */}
+                  {fotoPerfil && (
+                    <button
+                      onClick={handleFotoPerfilClick}
+                      className="absolute bottom-0 right-0 w-10 h-10 rounded-full flex items-center justify-center text-white transition-all hover:scale-110"
+                      style={{ backgroundColor: 'var(--primary)' }}
+                    >
+                      <FiCamera size={18} />
+                    </button>
+                  )}
+                </div>
+
+                {/* Input file oculto */}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFotoPerfilChange}
+                  className="hidden"
+                />
               </div>
             </div>
           )}
@@ -124,8 +271,42 @@ export default function RegistrarTutorPage() {
             />
           )}
           {currentStep === 3 && (
-            <div className="text-center py-12 text-gray-500">
-              Sección 3 - Perfil Profesional (Por implementar)
+            <FormDetallesProfesionales 
+              onExperienciasChange={setExperienciasStep3}
+              onMateriasChange={setMateriasStep3}
+            />
+          )}
+          
+          {/* Navigation Buttons - Only show on Step 3 */}
+          {currentStep === 3 && (
+            <div className="flex justify-between items-center mt-12 gap-6">
+              {/* Back Button */}
+              <button
+                onClick={() => setCurrentStep(2)}
+                className="flex items-center gap-3 px-6 py-3 font-semibold transition-colors rounded-lg"
+                style={{
+                  backgroundColor: 'transparent',
+                  color: '#6b7280',
+                  cursor: 'pointer',
+                  border: 'none',
+                }}
+              >
+                <span>←</span>
+                <div className="flex flex-col items-start">
+                  <div className="font-bold">Atrás</div>
+                  <div className="text-sm font-normal">Disponibilidad</div>
+                </div>
+              </button>
+
+              {/* Finalizar Registro Button */}
+              <button
+                onClick={() => handleFinalizarRegistro(experienciasStep3, materiasStep3)}
+                disabled={isFinalizando}
+                className="px-8 py-3 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ backgroundColor: 'var(--primary)' }}
+              >
+                {isFinalizando ? 'Finalizando...' : 'Finalizar Registro'}
+              </button>
             </div>
           )}
         </div>
