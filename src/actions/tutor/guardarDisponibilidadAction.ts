@@ -3,11 +3,6 @@
 import { cookies } from 'next/headers';
 import { AvailabilityBlock } from '@/interfaces/tutor/AvailabilityBlock';
 
-interface CreateAvailabilityDto {
-  tutorId: string;
-  blocks: AvailabilityBlock[];
-}
-
 interface AvailabilityResponse {
   message: string;
   tutorId: string;

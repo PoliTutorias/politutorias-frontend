@@ -100,9 +100,13 @@ export async function filtrarOfertasAction(
     }
 
     // Parsear y mapear respuesta del backend → OfertaEntity
-    const data: BackendOfertasResponse = await response.json();
+    const data: BackendOfertasResponse | BackendOferta[] = await response.json();
 
-    const ofertas: OfertaEntity[] = data.ofertas.map((backendOferta) => ({
+    // Manejar ambas estructuras: array directo o objeto con propiedad ofertas
+    const ofertasArray = Array.isArray(data) ? data : (data.ofertas || []);
+    const total = Array.isArray(data) ? ofertasArray.length : (data.total || 0);
+
+    const ofertas: OfertaEntity[] = ofertasArray.map((backendOferta) => ({
       id: backendOferta.id,
       titulo: backendOferta.titulo,
       carrera: backendOferta.carrera ?? undefined,
@@ -121,7 +125,7 @@ export async function filtrarOfertasAction(
 
     return {
       ofertas,
-      total: data.total,
+      total,
     };
   } catch (error) {
     console.error('Error en filtrarOfertasAction:', error);

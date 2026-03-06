@@ -16,66 +16,61 @@ interface FormDetallesProfesionalesProps {
 const LS_KEY_EXPERIENCIAS = 'tutor_registro_experiencias';
 const LS_KEY_MATERIAS = 'tutor_registro_materias';
 
+// Función para cargar experiencias desde localStorage o usar seed data
+const loadExperiencias = (): Experiencia[] => {
+  if (typeof window === 'undefined') return experienciaSeedData;
+  try {
+    const experienciasLS = localStorage.getItem(LS_KEY_EXPERIENCIAS);
+    if (experienciasLS) {
+      return JSON.parse(experienciasLS);
+    }
+    return experienciaSeedData;
+  } catch (error) {
+    console.error('Error cargando experiencias:', error);
+    return experienciaSeedData;
+  }
+};
+
+// Función para cargar materias desde localStorage
+const loadMaterias = (): string[] => {
+  if (typeof window === 'undefined') return [];
+  try {
+    const materiasLS = localStorage.getItem(LS_KEY_MATERIAS);
+    if (materiasLS) {
+      return JSON.parse(materiasLS);
+    }
+    return [];
+  } catch (error) {
+    console.error('Error cargando materias:', error);
+    return [];
+  }
+};
+
 export function FormDetallesProfesionales({ onExperienciasChange, onMateriasChange }: FormDetallesProfesionalesProps) {
-  const [experiencias, setExperiencias] = useState<Experiencia[]>([]);
-  const [materias, setMaterias] = useState<string[]>([]);
+  const [experiencias, setExperiencias] = useState<Experiencia[]>(() => loadExperiencias());
+  const [materias, setMaterias] = useState<string[]>(() => loadMaterias());
   const [materiaInput, setMateriaInput] = useState('');
   const [showFormExperiencia, setShowFormExperiencia] = useState(false);
-  const [isLoaded, setIsLoaded] = useState(false);
-
-  // Cargar desde localStorage al montar
-  useEffect(() => {
-    try {
-      const experienciasLS = localStorage.getItem(LS_KEY_EXPERIENCIAS);
-      const materiasLS = localStorage.getItem(LS_KEY_MATERIAS);
-
-      if (experienciasLS) {
-        const experienciasParseadas = JSON.parse(experienciasLS);
-        setExperiencias(experienciasParseadas);
-        onExperienciasChange?.(experienciasParseadas);
-      } else {
-        // Usar seed data como fallback
-        setExperiencias(experienciaSeedData);
-        onExperienciasChange?.(experienciaSeedData);
-      }
-
-      if (materiasLS) {
-        const materiasParseadas = JSON.parse(materiasLS);
-        setMaterias(materiasParseadas);
-        onMateriasChange?.(materiasParseadas);
-      }
-    } catch (error) {
-      console.error('Error cargando datos de localStorage:', error);
-      // Fallback a seed data
-      setExperiencias(experienciaSeedData);
-      onExperienciasChange?.(experienciaSeedData);
-    }
-    setIsLoaded(true);
-  }, []);
 
   // Guardar experiencias en localStorage cuando cambien
   useEffect(() => {
-    if (isLoaded) {
-      try {
-        localStorage.setItem(LS_KEY_EXPERIENCIAS, JSON.stringify(experiencias));
-        onExperienciasChange?.(experiencias);
-      } catch (error) {
-        console.error('Error guardando experiencias en localStorage:', error);
-      }
+    try {
+      localStorage.setItem(LS_KEY_EXPERIENCIAS, JSON.stringify(experiencias));
+      onExperienciasChange?.(experiencias);
+    } catch (error) {
+      console.error('Error guardando experiencias en localStorage:', error);
     }
-  }, [experiencias, isLoaded, onExperienciasChange]);
+  }, [experiencias, onExperienciasChange]);
 
   // Guardar materias en localStorage cuando cambien
   useEffect(() => {
-    if (isLoaded) {
-      try {
-        localStorage.setItem(LS_KEY_MATERIAS, JSON.stringify(materias));
-        onMateriasChange?.(materias);
-      } catch (error) {
-        console.error('Error guardando materias en localStorage:', error);
-      }
+    try {
+      localStorage.setItem(LS_KEY_MATERIAS, JSON.stringify(materias));
+      onMateriasChange?.(materias);
+    } catch (error) {
+      console.error('Error guardando materias en localStorage:', error);
     }
-  }, [materias, isLoaded, onMateriasChange]);
+  }, [materias, onMateriasChange]);
 
   const handleExperienciaGuardada = (experiencia: Experiencia) => {
     setExperiencias([...experiencias, experiencia]);

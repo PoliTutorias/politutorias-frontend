@@ -7,7 +7,7 @@ import { FormDetallesProfesionales } from '@/components/registro/form-detalles-p
 import { completeRegistrationAction } from '@/actions/registro/completeRegistrationAction';
 import { useRegistroStore } from '@/lib/stores/registroStore';
 import Link from 'next/link';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { FiUser, FiArrowLeft, FiCamera } from 'react-icons/fi';
 import { Experiencia } from '@/interfaces/experiencia-tipo/Experiencia';
 import { toast } from 'sonner';
@@ -18,10 +18,9 @@ export default function RegistrarTutorPage() {
   const [isFinalizando, setIsFinalizando] = useState(false);
   const [experienciasStep3, setExperienciasStep3] = useState<Experiencia[]>([]);
   const [materiasStep3, setMateriasStep3] = useState<string[]>([]);
-  const [fotoPerfil, setFotoPerfil] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-  // Obtener datos del store
+  // Obtener datos del store (fotoPerfil viene del store, no necesita estado local duplicado)
   const { datosBasicos, disponibilidad, setFotoPerfil: storeFotoPerfil, fotoPerfil: fotoFromStore } = useRegistroStore();
 
   const steps = [
@@ -29,13 +28,6 @@ export default function RegistrarTutorPage() {
     { number: 2, label: 'Disponibilidad' },
     { number: 3, label: 'Perfil Profesional' },
   ];
-
-  // Cargar foto del store al montar el componente
-  useEffect(() => {
-    if (fotoFromStore) {
-      setFotoPerfil(fotoFromStore);
-    }
-  }, [fotoFromStore]);
 
   const handleStepClick = (stepNumber: number) => {
     if (stepNumber < currentStep) {
@@ -71,7 +63,6 @@ export default function RegistrarTutorPage() {
     const reader = new FileReader();
     reader.onloadend = () => {
       const base64String = reader.result as string;
-      setFotoPerfil(base64String);
       storeFotoPerfil(base64String);
     };
     reader.readAsDataURL(file);
@@ -108,7 +99,7 @@ export default function RegistrarTutorPage() {
     } catch (error) {
       // NEXT_REDIRECT es una excepción especial de Next.js que se lanza cuando redirect() es exitoso
       // No es un error real, es parte del flujo normal de redirección
-      const isNextRedirect = (error as any)?.digest?.includes('NEXT_REDIRECT');
+      const isNextRedirect = (error as Error & { digest?: string })?.digest?.includes('NEXT_REDIRECT');
       
       if (isNextRedirect) {
         // Si es un NEXT_REDIRECT, significa que el registro fue exitoso y la redirección está en proceso
@@ -213,9 +204,9 @@ export default function RegistrarTutorPage() {
                     className="w-full h-full rounded-full border-2 border-dashed hover:bg-gray-50 transition-colors flex items-center justify-center overflow-hidden"
                     style={{ borderColor: '#d1d5db' }}
                   >
-                    {fotoPerfil ? (
+                    {fotoFromStore ? (
                       <img
-                        src={fotoPerfil}
+                        src={fotoFromStore}
                         alt="Foto de perfil"
                         className="w-full h-full object-cover"
                       />
@@ -233,7 +224,7 @@ export default function RegistrarTutorPage() {
                   </button>
                   
                   {/* Icono de cámara superpuesto */}
-                  {fotoPerfil && (
+                  {fotoFromStore && (
                     <button
                       onClick={handleFotoPerfilClick}
                       className="absolute bottom-0 right-0 w-10 h-10 rounded-full flex items-center justify-center text-white transition-all hover:scale-110"
