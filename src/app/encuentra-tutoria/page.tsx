@@ -47,7 +47,7 @@ async function OffersContent({ params }: { params: Awaited<Awaited<PageProps['se
   const { data, meta } = offersData;
 
   // Obtener ofertas iniciales del backend para el filtro de precio (HU27)
-  const filtrarResult = await filtrarOfertasAction(5, 20);
+  const filtrarResult = await filtrarOfertasAction({ minPrice: 5, maxPrice: 20 });
   const initialOffers: OfertaEntity[] = 'error' in filtrarResult ? [] : filtrarResult.ofertas;
 
   return (
