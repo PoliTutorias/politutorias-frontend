@@ -43,6 +43,20 @@ export async function createOfertaAction(
       return category?.name || categoryId;
     });
 
+    // Mapear modalidad al formato que espera el backend
+    const mapModalidadToBackend = (modality: string): string => {
+      switch (modality) {
+        case 'Virtual/Presencial':
+          return 'AMBOS';
+        case 'Presencial':
+          return 'PRESENCIAL';
+        case 'Virtual':
+          return 'VIRTUAL';
+        default:
+          return modality;
+      }
+    };
+
     const response = await fetch(`${backendUrl}ofertas`, {
       method: 'POST',
       headers: {
@@ -51,7 +65,7 @@ export async function createOfertaAction(
       body: JSON.stringify({
         title: data.title,
         price: data.price,
-        modality: data.modality,
+        modality: mapModalidadToBackend(data.modality),
         categories: categoryNames,
         description: data.description,
       }),

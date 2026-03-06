@@ -10,14 +10,30 @@ interface OfferCardProps {
 }
 
 export function OfferCard({ offer }: OfferCardProps) {
+  // Mapear modalidad del backend al display
+  const getModalityDisplay = (modality: string): string => {
+    switch (modality) {
+      case 'AMBOS':
+        return 'Virtual/Presencial';
+      case 'PRESENCIAL':
+        return 'Presencial';
+      case 'VIRTUAL':
+        return 'Virtual';
+      default:
+        return modality;
+    }
+  };
+
   // Renderizar icono de modalidad
   const renderModalityIcon = (modality: string) => {
     const iconProps = { className: 'w-4 h-4' };
 
-    if (modality === 'Virtual') {
+    if (modality === 'VIRTUAL' || modality === 'Virtual') {
       return <MdComputer {...iconProps} />;
-    } else if (modality === 'Presencial') {
+    } else if (modality === 'PRESENCIAL' || modality === 'Presencial') {
       return <MdPerson {...iconProps} />;
+    } else if (modality === 'AMBOS') {
+      return <MdComputer {...iconProps} />;
     } else {
       return <IoLocationOutline {...iconProps} />;
     }
@@ -47,7 +63,7 @@ export function OfferCard({ offer }: OfferCardProps) {
       {/* Modalidad */}
       <div className="mb-3 flex items-center gap-1.5 text-[11px] text-gray-600">
         {renderModalityIcon(offer.modality)}
-        <span className="text-[11px]">{offer.modality}</span>
+        <span className="text-[11px]">{getModalityDisplay(offer.modality)}</span>
       </div>
 
       {/* Descripción */}

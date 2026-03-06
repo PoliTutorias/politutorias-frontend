@@ -3,6 +3,7 @@ export interface OfertaDto {
   title: string;
   description: string;
   isPresencial: boolean;
+  modality?: string;
   pricePerHour: number;
   tags: string[];
 }
