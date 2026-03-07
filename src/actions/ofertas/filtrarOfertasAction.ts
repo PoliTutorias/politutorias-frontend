@@ -13,6 +13,8 @@ export interface FiltrarOfertasParams {
   modalidad?: string;
   /** Día de la semana en formato backend, e.g. 'LUNES', 'MARTES', etc. */
   disponibilidad?: string;
+  /** Término de búsqueda para filtrar por título o nombre de tutor */
+  searchTerm?: string;
 }
 
 // Tipos que representan la respuesta cruda del backend GET /api/ofertas
@@ -106,6 +108,10 @@ export async function filtrarOfertasAction(
     }
     if (disponibilidad) {
       queryParams.append('disponibilidad', disponibilidad);
+    }
+    const trimmedSearch = params.searchTerm?.trim();
+    if (trimmedSearch && trimmedSearch.length > 0) {
+      queryParams.append('searchTerm', trimmedSearch);
     }
 
     const queryString = queryParams.toString();

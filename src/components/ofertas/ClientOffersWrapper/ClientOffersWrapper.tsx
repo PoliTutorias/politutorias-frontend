@@ -14,6 +14,8 @@ interface ClientOffersWrapperProps {
   initialOffers: OfertaEntity[];
   header: React.ReactNode;
   children: React.ReactNode;
+  /** Initial search term from the URL (if any) */
+  initialSearchTerm?: string;
 }
 
 // Constantes del rango de precio
@@ -70,7 +72,7 @@ const DAY_TO_SAFE_ID: Record<DayLabel, string> = {
  * Cada cambio de filtro re-dispara la consulta al backend enviando
  * todos los criterios activos combinados.
  */
-export function ClientOffersWrapper({ initialOffers, header, children }: ClientOffersWrapperProps) {
+export function ClientOffersWrapper({ initialOffers, header, children, initialSearchTerm }: ClientOffersWrapperProps) {
   const [offers, setOffers] = useState<OfertaEntity[]>(initialOffers);
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -85,11 +87,15 @@ export function ClientOffersWrapper({ initialOffers, header, children }: ClientO
   // Estado de filtro de disponibilidad (HU16)
   const [activeDay, setActiveDay] = useState<DayLabel | null>(null);
 
+  // Estado de búsqueda (HU17)
+  const [activeSearchTerm, setActiveSearchTerm] = useState<string>(initialSearchTerm ?? '');
+
   // Determinar si hay algún filtro activo
   const isPriceFilterActive = activeMinPrice !== null && activeMaxPrice !== null;
   const isModalidadFilterActive = activeModalidad !== 'Todas';
   const isDayFilterActive = activeDay !== null;
-  const isAnyFilterActive = isPriceFilterActive || isModalidadFilterActive || isDayFilterActive;
+  const isSearchActive = activeSearchTerm.trim().length > 0;
+  const isAnyFilterActive = isPriceFilterActive || isModalidadFilterActive || isDayFilterActive || isSearchActive;
 
   /**
    * Construye los parámetros de filtro actuales y dispara la consulta al backend
@@ -100,18 +106,21 @@ export function ClientOffersWrapper({ initialOffers, header, children }: ClientO
       minPrice?: number | null;
       maxPrice?: number | null;
       day?: DayLabel | null;
+      searchTerm?: string;
     } = {}) => {
       const currentModalidad = overrides.modalidad ?? activeModalidad;
       const currentMinPrice = overrides.minPrice !== undefined ? overrides.minPrice : activeMinPrice;
       const currentMaxPrice = overrides.maxPrice !== undefined ? overrides.maxPrice : activeMaxPrice;
       const currentDay = overrides.day !== undefined ? overrides.day : activeDay;
+      const currentSearch = overrides.searchTerm !== undefined ? overrides.searchTerm : activeSearchTerm;
 
       // Si no hay ningún filtro activo, volver a los datos iniciales
       const hasPrice = currentMinPrice !== null && currentMaxPrice !== null;
       const hasModalidad = currentModalidad !== 'Todas';
       const hasDay = currentDay !== null;
+      const hasSearch = currentSearch.trim().length > 0;
 
-      if (!hasPrice && !hasModalidad && !hasDay) {
+      if (!hasPrice && !hasModalidad && !hasDay && !hasSearch) {
         setOffers(initialOffers);
         setError(null);
         return;
@@ -133,6 +142,10 @@ export function ClientOffersWrapper({ initialOffers, header, children }: ClientO
         params.disponibilidad = DAY_TO_BACKEND[currentDay!];
       }
 
+      if (hasSearch) {
+        params.searchTerm = currentSearch.trim();
+      }
+
       startTransition(async () => {
         const result = await filtrarOfertasAction(params);
 
@@ -145,7 +158,7 @@ export function ClientOffersWrapper({ initialOffers, header, children }: ClientO
         }
       });
     },
-    [activeModalidad, activeMinPrice, activeMaxPrice, activeDay, initialOffers, startTransition]
+    [activeModalidad, activeMinPrice, activeMaxPrice, activeDay, activeSearchTerm, initialOffers, startTransition]
   );
 
   /**
@@ -225,6 +238,33 @@ export function ClientOffersWrapper({ initialOffers, header, children }: ClientO
   }, [executeFilter]);
 
   /**
+   * Handler de búsqueda (HU17)
+   */
+  const handleSearchChange = useCallback(
+    (term: string) => {
+      setActiveSearchTerm(term);
+      executeFilter({ searchTerm: term });
+    },
+    [executeFilter]
+  );
+
+  /**
+   * Handler con debounce para la búsqueda
+   */
+  const debouncedHandleSearchChange = useMemo(
+    () => debounce(handleSearchChange, 300),
+    [handleSearchChange]
+  );
+
+  /**
+   * Limpiar filtro de búsqueda
+   */
+  const handleClearSearchFilter = useCallback(() => {
+    setActiveSearchTerm('');
+    executeFilter({ searchTerm: '' });
+  }, [executeFilter]);
+
+  /**
    * Limpiar todos los filtros
    */
   const handleClearAllFilters = useCallback(() => {
@@ -232,6 +272,7 @@ export function ClientOffersWrapper({ initialOffers, header, children }: ClientO
     setActiveMaxPrice(null);
     setActiveModalidad('Todas');
     setActiveDay(null);
+    setActiveSearchTerm('');
     setOffers(initialOffers);
     setError(null);
   }, [initialOffers]);
@@ -344,11 +385,43 @@ export function ClientOffersWrapper({ initialOffers, header, children }: ClientO
 
         {/* Contenido principal - Columna derecha */}
         <div className="flex-1 min-w-0">
-          {header}
+          {/* Barra de búsqueda integrada + contador */}
+          <div className="flex items-start justify-between mb-6">
+            <SearchBarIntegrated
+              value={activeSearchTerm}
+              onSearchChange={debouncedHandleSearchChange}
+            />
+            <div className="text-right shrink-0 ml-4 pt-3">
+              <p className="font-inter text-sm text-[var(--text-muted)]">
+                {offers.length} {offers.length === 1 ? 'resultado' : 'resultados'}
+              </p>
+            </div>
+          </div>
 
           {/* Etiquetas de filtros activos */}
           {isAnyFilterActive && (
             <div className="flex items-center gap-3 mb-4 flex-wrap" id="active-filters-tags" data-testid="active-filters-tags">
+              {/* Tag de búsqueda (azul) — HU17 */}
+              {isSearchActive && (
+                <span
+                  data-testid="tag-search"
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200"
+                >
+                  &ldquo;{activeSearchTerm.trim()}&rdquo;
+                  <button
+                    id="clear-search-tag"
+                    data-testid="clear-search-tag"
+                    onClick={handleClearSearchFilter}
+                    className="ml-0.5 hover:text-blue-900 transition-colors cursor-pointer"
+                    aria-label="Remover filtro de búsqueda"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </span>
+              )}
+
               {/* Tag de modalidad (morado) — HU26 */}
               {isModalidadFilterActive && (
                 <span
@@ -441,13 +514,6 @@ export function ClientOffersWrapper({ initialOffers, header, children }: ClientO
           {/* Renderizado condicional */}
           {isAnyFilterActive ? (
             <>
-              {/* Contador de resultados filtrados */}
-              <div className="text-right mb-6">
-                <p className="font-inter text-sm text-[var(--text-muted)]">
-                  {offers.length} {offers.length === 1 ? 'resultado' : 'resultados'}
-                </p>
-              </div>
-
               {!isPending && offers.length > 0 && (
                 <OfertasListComponent offers={offers} />
               )}
@@ -461,6 +527,45 @@ export function ClientOffersWrapper({ initialOffers, header, children }: ClientO
           )}
         </div>
       </div>
+    </div>
+  );
+}
+
+/**
+ * SearchBarIntegrated — Input de búsqueda integrado al sistema de filtros
+ * No navega por URL, sino que comunica directamente con el ClientOffersWrapper.
+ */
+function SearchBarIntegrated({
+  value,
+  onSearchChange,
+}: {
+  value: string;
+  onSearchChange: (term: string) => void;
+}) {
+  const [inputValue, setInputValue] = useState(value);
+
+  const handleChange = (newValue: string) => {
+    setInputValue(newValue);
+    onSearchChange(newValue);
+  };
+
+  return (
+    <div className="relative w-1/2">
+      <svg
+        className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[var(--text-secondary)] w-5 h-5"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+      </svg>
+      <input
+        type="text"
+        placeholder="Buscar por materia, tutor..."
+        value={inputValue}
+        onChange={(e) => handleChange(e.target.value)}
+        className="w-full pl-12 pr-4 py-3 border border-[var(--input-border)] rounded-lg focus:outline-none focus:border-[var(--input-border-focus)] focus:ring-1 focus:ring-[var(--input-border-focus)] font-inter text-base text-[var(--foreground)]"
+      />
     </div>
   );
 }

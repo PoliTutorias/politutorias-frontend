@@ -1,10 +1,5 @@
 import { Suspense } from 'react';
-import { getOffersAction } from '@/actions/offers/getOffersAction';
-import { OfferList } from '@/components/offers/OfferList/OfferList';
-import { PaginationControls } from '@/components/offers/PaginationControls/PaginationControls';
-import { SearchBar } from '@/components/ofertas-ui/SearchBar/SearchBar';
-import { ResultsCounter } from '@/components/ofertas-ui/ResultsCounter/ResultsCounter';
-import { NoResultsMessage } from '@/components/ofertas-ui/NoResultsMessage/NoResultsMessage';
+import { OfertasListComponent } from '@/components/ofertas/OfertasListComponent/OfertasListComponent';
 import { Navbar } from '@/components/navbar/Navbar';
 import { ClientOffersWrapper } from '@/components/ofertas/ClientOffersWrapper/ClientOffersWrapper';
 import { filtrarOfertasAction } from '@/actions/ofertas/filtrarOfertasAction';
@@ -16,68 +11,29 @@ interface PageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
-async function OffersContent({ params }: { params: Awaited<Awaited<PageProps['searchParams']>> }) {
-  // Extraer searchTerm
-  const searchTerm = params.searchTerm
-    ? Array.isArray(params.searchTerm)
-      ? params.searchTerm[0]
-      : params.searchTerm
-    : '';
-
-  // Obtener parámetros de paginación de la URL
-  const page = params.page
-    ? parseInt(Array.isArray(params.page) ? params.page[0] : params.page)
-    : 1;
-  const limit = params.limit
-    ? parseInt(Array.isArray(params.limit) ? params.limit[0] : params.limit)
-    : 10;
-
-  // Validar que los parámetros sean válidos
-  const validPage = isNaN(page) || page < 1 ? 1 : page;
-  const validLimit = isNaN(limit) || limit < 1 ? 10 : limit;
-
-  // Obtener datos de ofertas con searchTerm
-  const offersData = await getOffersAction({
-    page: validPage,
-    limit: validLimit,
-    searchTerm: searchTerm || undefined,
-  });
-
-  // Desestructurar datos para pasar a componentes hijos
-  const { data, meta } = offersData;
-
-  // Obtener ofertas iniciales del backend para el filtro de precio (HU27)
-  const filtrarResult = await filtrarOfertasAction({ minPrice: 5, maxPrice: 20 });
+async function OffersContent() {
+  // Obtener ofertas iniciales del backend (sin filtros)
+  const filtrarResult = await filtrarOfertasAction({});
   const initialOffers: OfertaEntity[] = 'error' in filtrarResult ? [] : filtrarResult.ofertas;
 
   return (
     <ClientOffersWrapper
       initialOffers={initialOffers}
-      header={(
-        <div key="offers-header" className="flex items-start justify-between mb-6">
-          <Suspense fallback={<div className="w-1/2 h-12 bg-gray-100 animate-pulse rounded-lg"></div>}>
-            <SearchBar />
-          </Suspense>
-          <ResultsCounter totalResults={meta.totalResults} />
-        </div>
-      )}
+      header={<></>}
     >
       <>
-        {/* Contenido condicional */}
-        {meta.totalResults > 0 ? (
-          <>
-            {/* Lista de ofertas */}
-            <OfferList offers={data} />
-
-            {/* Controles de paginación */}
-            <PaginationControls
-              currentPage={meta.currentPage}
-              totalPages={meta.totalPages}
-            />
-          </>
+        {/* Contenido sin filtros: lista completa de ofertas */}
+        {initialOffers.length > 0 ? (
+          <OfertasListComponent offers={initialOffers} />
         ) : (
-          /* Mensaje de sin resultados */
-          <NoResultsMessage />
+          <div className="rounded-lg bg-white p-8 text-center shadow-sm">
+            <h2 className="mb-2 text-lg font-semibold text-gray-800">
+              No hay ofertas disponibles
+            </h2>
+            <p className="text-gray-600">
+              Vuelve a intentar más tarde
+            </p>
+          </div>
         )}
       </>
     </ClientOffersWrapper>
@@ -87,14 +43,6 @@ async function OffersContent({ params }: { params: Awaited<Awaited<PageProps['se
 function ErrorContent() {
   return (
     <div className="max-w-7xl mx-auto px-6 py-8">
-      {/* Barra de búsqueda */}
-      <div className="mb-8">
-        <Suspense fallback={<div className="w-1/2 h-12 bg-gray-100 animate-pulse rounded-lg"></div>}>
-          <SearchBar />
-        </Suspense>
-      </div>
-
-      {/* Mensaje de error */}
       <div className="rounded-lg bg-white p-8 text-center shadow-sm">
         <h2 className="mb-2 text-lg font-semibold text-gray-800">
           Error al cargar las ofertas
@@ -122,7 +70,7 @@ export default async function PoliTutoriasPage({ searchParams }: PageProps) {
   let hasError = false;
 
   try {
-    const params = await searchParams;
+    await searchParams;
   } catch (error) {
     console.error('Error al procesar parámetros de búsqueda:', error);
     hasError = true;
@@ -138,7 +86,20 @@ export default async function PoliTutoriasPage({ searchParams }: PageProps) {
 
   return (
     <PageLayout>
-      <OffersContent params={await searchParams} />
+      <Suspense fallback={
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          <div className="animate-pulse space-y-4">
+            <div className="h-12 bg-gray-200 rounded-lg w-1/2" />
+            <div className="grid grid-cols-2 gap-6">
+              {[1, 2, 3, 4].map(i => (
+                <div key={i} className="h-48 bg-gray-200 rounded-xl" />
+              ))}
+            </div>
+          </div>
+        </div>
+      }>
+        <OffersContent />
+      </Suspense>
     </PageLayout>
   );
 }
