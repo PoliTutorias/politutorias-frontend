@@ -106,7 +106,7 @@ export function TutorDashboardContent() {
               {/* Name & Email */}
               <div className="text-center">
                 <p className="text-base font-bold text-gray-900">Daniel Valdiviezo</p>
-                <p className="text-sm text-gray-500 mt-0.5">culito@epn.edu.ec</p>
+                <p className="text-sm text-gray-500 mt-0.5">daniel.v@epn.edu.ec</p>
               </div>
             </div>
           </div>
