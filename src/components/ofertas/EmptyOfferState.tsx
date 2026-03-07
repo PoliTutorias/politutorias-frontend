@@ -10,19 +10,21 @@ interface EmptyOfferStateProps {
  */
 export function EmptyOfferState({ onCreateClick, showButton = false }: EmptyOfferStateProps) {
   return (
-    <div className="bg-white rounded-lg shadow-sm p-12 text-center flex-grow flex flex-col items-center justify-center">
+    <div className="border-2 border-dashed border-gray-200 rounded-xl p-12 text-center flex-grow flex flex-col items-center justify-center">
       <svg
-        className="h-12 w-12 text-[var(--text-secondary)] mb-4"
-        fill="none"
-        stroke="currentColor"
+        xmlns="http://www.w3.org/2000/svg"
+        width="40"
+        height="40"
         viewBox="0 0 24 24"
+        fill="none"
+        stroke="#A0AEC0"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="mb-4"
       >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={1.5}
-          d="M12 6.253v13m0-13C6.5 6.253 2 10.753 2 16.25s4.5 10 10 10 10-4.5 10-10S17.5 6.253 12 6.253z"
-        />
+        <path d="M12 7v14" />
+        <path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z" />
       </svg>
       <h3 className="text-lg font-semibold text-foreground mb-2">
         No tienes ofertas activas
