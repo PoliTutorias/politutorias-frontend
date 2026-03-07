@@ -24,7 +24,7 @@ const ofertasSeed: OfertaEntity[] = [
     tags: ['Matemática', 'Formación Básica'],
     calificacionPromedio: 4.8,
     totalReseñas: 15,
-    horarios: ['Lunes 14:00', 'Lunes 15:00'],
+    horarios: [{ day: 'Lunes', hour: '14:00' }, { day: 'Lunes', hour: '15:00' }],
   },
   {
     id: 'clx4v7m7e0002y1nkhm2k8s2b',
@@ -44,7 +44,7 @@ const ofertasSeed: OfertaEntity[] = [
     tags: ['Física', 'Formación Básica'],
     calificacionPromedio: 4.8,
     totalReseñas: 15,
-    horarios: ['Lunes 14:00', 'Lunes 15:00'],
+    horarios: [{ day: 'Lunes', hour: '14:00' }, { day: 'Lunes', hour: '15:00' }],
   },
   {
     id: 'clx4v7m7e0003y1nkhm2k8s2c',
@@ -64,7 +64,7 @@ const ofertasSeed: OfertaEntity[] = [
     tags: ['Mecánica', 'FIM - Mecánica'],
     calificacionPromedio: 4.8,
     totalReseñas: 15,
-    horarios: ['Lunes 14:00', 'Lunes 15:00'],
+    horarios: [{ day: 'Lunes', hour: '14:00' }, { day: 'Lunes', hour: '15:00' }],
   },
   {
     id: 'clx4v7m7e0004y1nkhm2k8s2d',
@@ -84,7 +84,7 @@ const ofertasSeed: OfertaEntity[] = [
     tags: ['Programación', 'FIS - Sistemas'],
     calificacionPromedio: 5,
     totalReseñas: 8,
-    horarios: ['Sábado 09:00', 'Sábado 10:00'],
+    horarios: [{ day: 'Sábado', hour: '09:00' }, { day: 'Sábado', hour: '10:00' }],
   },
   {
     id: 'clx4v7m7e0005y1nkhm2k8s2e',
@@ -104,7 +104,7 @@ const ofertasSeed: OfertaEntity[] = [
     tags: ['Matemática', 'Formación Básica'],
     calificacionPromedio: 4.5,
     totalReseñas: 20,
-    horarios: ['Martes 10:00', 'Jueves 14:00'],
+    horarios: [{ day: 'Martes', hour: '10:00' }, { day: 'Jueves', hour: '14:00' }],
   },
   {
     id: 'clx4v7m7e0006y1nkhm2k8s2f',
@@ -124,7 +124,7 @@ const ofertasSeed: OfertaEntity[] = [
     tags: ['Química', 'Ciencias Naturales'],
     calificacionPromedio: 4.7,
     totalReseñas: 12,
-    horarios: ['Miércoles 16:00', 'Viernes 10:00'],
+    horarios: [{ day: 'Miércoles', hour: '16:00' }, { day: 'Viernes', hour: '10:00' }],
   },
   {
     id: 'clx4v7m7e0007y1nkhm2k8s2g',
@@ -144,7 +144,7 @@ const ofertasSeed: OfertaEntity[] = [
     tags: ['Matemática', 'Ingeniería'],
     calificacionPromedio: 4.9,
     totalReseñas: 25,
-    horarios: ['Lunes 18:00', 'Miércoles 18:00'],
+    horarios: [{ day: 'Lunes', hour: '18:00' }, { day: 'Miércoles', hour: '18:00' }],
   },
 ];
 
