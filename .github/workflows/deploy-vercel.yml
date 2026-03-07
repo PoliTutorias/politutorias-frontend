@@ -29,7 +29,7 @@ env:
   VERCEL_ORG_ID: "team_rFjZG0SVqdEif7MINfBqAoiJ"
 
   # Variables de Entorno de la Aplicación
-  NEXT_PUBLIC_BACKEND_URL: "http://politutorias-backend-staging.eba-qnyktbf8.us-east-1.elasticbeanstalk.com/api"
+  NEXT_PUBLIC_BACKEND_API_URL: "http://politutorias-backend-staging.eba-qnyktbf8.us-east-1.elasticbeanstalk.com/api/"
   IMAGE_PROTOCOL: "https"
   IMAGE_HOSTNAME: "politutorias-storage-staging.s3.amazonaws.com"
 
@@ -127,7 +127,7 @@ jobs:
           echo "Iniciando despliegue a Vercel..."
 
           # Construimos las variables de entorno para inyectarlas en el deploy
-          VARS="--env NEXT_PUBLIC_BACKEND_URL=${{ env.NEXT_PUBLIC_BACKEND_URL }} --env IMAGE_PROTOCOL=${{ env.IMAGE_PROTOCOL }} --env IMAGE_HOSTNAME=${{ env.IMAGE_HOSTNAME }}"
+          VARS="--env NEXT_PUBLIC_BACKEND_API_URL=${{ env.NEXT_PUBLIC_BACKEND_API_URL }} --env IMAGE_PROTOCOL=${{ env.IMAGE_PROTOCOL }} --env IMAGE_HOSTNAME=${{ env.IMAGE_HOSTNAME }}"
 
           # Ejecutamos el deploy con Vercel CLI
           # --prod: Producción
