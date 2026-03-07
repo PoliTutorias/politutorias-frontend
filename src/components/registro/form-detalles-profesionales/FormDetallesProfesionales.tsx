@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { FiInfo } from 'react-icons/fi';
 import { Experiencia } from '@/interfaces/experiencia-tipo/Experiencia';
-import { experienciaSeedData } from '@/seed/ExperienciaSeedData';
 import { FormNuevaExperienciaInline } from '@/components/registro/form-nueva-experiencia-inline/FormNuevaExperienciaInline';
 import { TarjetaExperiencia } from '@/components/registro/tarjeta-experiencia/TarjetaExperiencia';
 
@@ -16,18 +15,18 @@ interface FormDetallesProfesionalesProps {
 const LS_KEY_EXPERIENCIAS = 'tutor_registro_experiencias';
 const LS_KEY_MATERIAS = 'tutor_registro_materias';
 
-// Función para cargar experiencias desde localStorage o usar seed data
+// Función para cargar experiencias desde localStorage (vacío por defecto)
 const loadExperiencias = (): Experiencia[] => {
-  if (typeof window === 'undefined') return experienciaSeedData;
+  if (typeof window === 'undefined') return [];
   try {
     const experienciasLS = localStorage.getItem(LS_KEY_EXPERIENCIAS);
     if (experienciasLS) {
       return JSON.parse(experienciasLS);
     }
-    return experienciaSeedData;
+    return [];
   } catch (error) {
     console.error('Error cargando experiencias:', error);
-    return experienciaSeedData;
+    return [];
   }
 };
 
