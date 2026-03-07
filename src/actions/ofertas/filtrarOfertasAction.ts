@@ -33,6 +33,7 @@ interface BackendOfertaItem {
   tutor: BackendTutor;
   calificacionPromedio?: number;
   numResenas?: number;
+  horarios?: { day: string; hour: string }[];
   fechaCreacion: string;
 }
 
@@ -154,6 +155,7 @@ export async function filtrarOfertasAction(
       calificacionPromedio: backendOferta.calificacionPromedio,
       totalReseñas: backendOferta.numResenas,
       tags: backendOferta.areaConocimiento ? [backendOferta.areaConocimiento] : [],
+      horarios: backendOferta.horarios ?? [],
       imagenRepresentativaUrl: undefined,
     }));
 

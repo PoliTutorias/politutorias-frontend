@@ -13,6 +13,7 @@ export interface OfferResponseDto {
   tags: string[]; // Ej. ['Matemática', 'Formación Básica']
   rating: number; // Ej. 4.8
   reviewsCount: number; // Ej. 15
+  availability?: { day: string; hour: string }[]; // Horarios del tutor
   tutor: TutorResponseDto;
   createdAt?: string; // ISO 8601 timestamp del backend
 }
