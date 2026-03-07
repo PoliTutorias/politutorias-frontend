@@ -30,10 +30,15 @@ export function OfferCard({ offer }: OfferCardProps) {
   const displayTags = tags.slice(0, 2);
   const remainingTags = tags.length - 2;
 
-  // Horarios a mostrar (máximo 2)
-  const horarios = offer.horarios ?? [];
-  const displayHorarios = horarios.slice(0, 2);
-  const remainingHorarios = horarios.length - 2;
+  // Horarios a mostrar (máximo 2) — nombre completo del día
+  const dayFullName: Record<string, string> = {
+    Lun: 'Lunes', Mar: 'Martes', Mié: 'Miércoles', Jue: 'Jueves',
+    Vie: 'Viernes', Sáb: 'Sábado', Dom: 'Domingo',
+  };
+  const horariosRaw = offer.horarios ?? [];
+  const slots = horariosRaw.map((h) => `${dayFullName[h.day] ?? h.day} ${h.hour}`);
+  const displayHorarios = slots.slice(0, 2);
+  const remainingHorarios = slots.length - 2;
 
   return (
     <div data-testid="offer-card" className="flex h-full flex-col rounded-lg bg-white p-5 shadow-md transition-all cursor-pointer hover:shadow-lg hover:-translate-y-1 border-t-[3px] border-t-[var(--yellow)]">
@@ -66,31 +71,40 @@ export function OfferCard({ offer }: OfferCardProps) {
       </div>
 
       {/* Tags */}
-      <div className="mb-3 flex flex-wrap gap-1.5">
-        {displayTags.map((tag, index) => (
-          <span
-            key={`tag-${index}`}
-            className="inline-block rounded-full bg-gray-100 px-2.5 py-0.5 text-xs text-gray-700 font-inter"
-          >
-            {tag}
-          </span>
-        ))}
-        {remainingTags > 0 && (
-          <span className="inline-block rounded-full bg-gray-100 px-2.5 py-0.5 text-xs text-gray-700">
-            +{remainingTags}
-          </span>
-        )}
-      </div>
+      {displayTags.length > 0 && (
+        <div className="mb-3 flex flex-wrap gap-1.5">
+          {displayTags.map((tag, index) => (
+            <span
+              key={`tag-${index}`}
+              className="inline-block rounded-full bg-gray-100 px-2.5 py-0.5 text-xs text-gray-700 font-inter"
+            >
+              {tag}
+            </span>
+          ))}
+          {remainingTags > 0 && (
+            <span className="inline-block rounded-full bg-gray-100 px-2.5 py-0.5 text-xs text-gray-700">
+              +{remainingTags}
+            </span>
+          )}
+        </div>
+      )}
 
-      {/* Horarios */}
+      {/* Horarios de Disponibilidad */}
       {displayHorarios.length > 0 && (
-        <div className="mb-3 flex items-center gap-2 text-[11px] text-gray-500">
-          <FiClock className="w-3.5 h-3.5" />
-          {displayHorarios.map((horario, index) => (
-            <span key={`horario-${index}`} className="font-inter">{horario}</span>
+        <div className="mb-3 flex items-center gap-2 flex-wrap">
+          <FiClock className="w-4 h-4 text-gray-400 shrink-0" />
+          {displayHorarios.map((slot, index) => (
+            <span
+              key={`slot-${index}`}
+              className="inline-block rounded-md bg-gray-100 px-2.5 py-1 text-[12px] text-gray-700 font-medium font-inter"
+            >
+              {slot}
+            </span>
           ))}
           {remainingHorarios > 0 && (
-            <span className="text-gray-400">+{remainingHorarios} más</span>
+            <p className="text-[12px] text-gray-400 font-inter">
+              +{remainingHorarios} más
+            </p>
           )}
         </div>
       )}

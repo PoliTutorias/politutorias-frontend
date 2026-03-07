@@ -1,6 +1,6 @@
 'use client';
 
-import React, { TextareaHTMLAttributes, useState } from 'react';
+import React, { TextareaHTMLAttributes, useCallback } from 'react';
 import { FiCheckCircle } from 'react-icons/fi';
 
 interface TextareaProps extends Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'maxLength'> {
@@ -27,44 +27,39 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
       success = false,
       successMessage,
       className = '',
-      value: initialValue = '',
       onChange,
       onPaste,
+      value,
       ...rest
     },
     ref
   ) => {
-    const [value, setValue] = useState<string | number | readonly string[]>(initialValue);
-
-    const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const handleChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
       let newValue = e.target.value;
 
       // Limitar a maxLength
       if (maxLength && newValue.length > maxLength) {
         newValue = newValue.slice(0, maxLength);
+        e.target.value = newValue;
       }
 
-      setValue(newValue);
-      e.target.value = newValue;
+      // Propagar al handler de react-hook-form
       onChange?.(e);
-    };
+    }, [maxLength, onChange]);
 
-    const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const handlePaste = useCallback((e: React.ClipboardEvent<HTMLTextAreaElement>) => {
       e.preventDefault();
       const pastedText = e.clipboardData.getData('text');
-      const currentValue = (e.target as HTMLTextAreaElement).value;
+      const textareaElement = e.target as HTMLTextAreaElement;
+      const currentValue = textareaElement.value;
 
       let newValue = currentValue + pastedText;
 
-      // Limitar a maxLength
       if (maxLength && newValue.length > maxLength) {
         newValue = newValue.slice(0, maxLength);
       }
 
-      setValue(newValue);
-
-      // Trigger onChange event
-      const textareaElement = e.target as HTMLTextAreaElement;
+      // Usar nativeTextareaValueSetter para que react-hook-form detecte el cambio
       const nativeTextareaValueSetter = Object.getOwnPropertyDescriptor(
         window.HTMLTextAreaElement.prototype,
         'value'
@@ -74,11 +69,13 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
         nativeTextareaValueSetter.call(textareaElement, newValue);
       }
 
-      const event = new Event('change', { bubbles: true });
+      const event = new Event('input', { bubbles: true });
       textareaElement.dispatchEvent(event);
-    };
+    }, [maxLength]);
 
-    const charCount = String(value).length;
+    // Para el char count, usamos el valor del prop (react-hook-form watch)
+    const displayValue = value ?? '';
+    const charCount = String(displayValue).length;
     const isOverLimit = maxLength && charCount > maxLength;
 
     return (
@@ -95,7 +92,6 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
           <textarea
             ref={ref}
             placeholder={placeholder}
-            value={value}
             onChange={handleChange}
             onPaste={handlePaste}
             className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 resize-none transition-colors ${className}`}

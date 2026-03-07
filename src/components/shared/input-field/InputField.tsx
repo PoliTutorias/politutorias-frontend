@@ -1,6 +1,6 @@
 'use client';
 
-import React, { InputHTMLAttributes, useState } from 'react';
+import React, { InputHTMLAttributes, useCallback } from 'react';
 import { FiCheckCircle } from 'react-icons/fi';
 
 interface InputFieldProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'maxLength'> {
@@ -29,37 +29,31 @@ export const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
       successMessage,
       pattern = 'text',
       className = '',
-      value: initialValue = '',
       onChange,
       onKeyPress,
       onPaste,
+      value,
       ...rest
     },
     ref
   ) => {
-    const [value, setValue] = useState<string | number | readonly string[]>(initialValue);
-
-    const validateInput = (inputValue: string): boolean => {
+    const validateInput = useCallback((inputValue: string): boolean => {
       switch (pattern) {
         case 'letters-only':
-          // Solo letras y espacios
           return /^[a-zA-ZáéíóúñÁÉÍÓÚÑ\s]*$/.test(inputValue);
         case 'numbers-only':
-          // Solo números
           return /^\d*$/.test(inputValue);
         case 'email':
-          return true; // El navegador valida emails nativamente
+          return true;
         case 'tel':
           return /^\d*$/.test(inputValue);
         default:
           return true;
       }
-    };
+    }, [pattern]);
 
-    const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    const handleKeyPress = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
       const inputChar = String.fromCharCode(e.which);
-
-      // Validar el carácter antes de permitir su entrada
       const currentValue = (e.target as HTMLInputElement).value;
       const newValue = currentValue + inputChar;
 
@@ -73,48 +67,45 @@ export const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
       }
 
       onKeyPress?.(e);
-    };
+    }, [maxLength, validateInput, onKeyPress]);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
       let newValue = e.target.value;
 
       // Validar el valor completo
       if (!validateInput(newValue)) {
-        // Si no es válido, remover el último carácter
+        // Si no es válido, remover caracteres inválidos
         newValue = newValue.slice(0, -1);
+        e.target.value = newValue;
       }
 
       // Limitar a maxLength
       if (maxLength && newValue.length > maxLength) {
         newValue = newValue.slice(0, maxLength);
+        e.target.value = newValue;
       }
 
-      setValue(newValue);
-      e.target.value = newValue;
+      // Propagar al handler de react-hook-form
       onChange?.(e);
-    };
+    }, [maxLength, validateInput, onChange]);
 
-    const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    const handlePaste = useCallback((e: React.ClipboardEvent<HTMLInputElement>) => {
       e.preventDefault();
       const pastedText = e.clipboardData.getData('text');
-      const currentValue = (e.target as HTMLInputElement).value;
 
-      // Validar el texto pegado
       if (!validateInput(pastedText)) {
         return;
       }
 
+      const inputElement = e.target as HTMLInputElement;
+      const currentValue = inputElement.value;
       let newValue = currentValue + pastedText;
 
-      // Limitar a maxLength
       if (maxLength && newValue.length > maxLength) {
         newValue = newValue.slice(0, maxLength);
       }
 
-      setValue(newValue);
-
-      // Trigger onChange event
-      const inputElement = e.target as HTMLInputElement;
+      // Usar nativeInputValueSetter para que react-hook-form detecte el cambio
       const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
         window.HTMLInputElement.prototype,
         'value'
@@ -124,11 +115,13 @@ export const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
         nativeInputValueSetter.call(inputElement, newValue);
       }
 
-      const event = new Event('change', { bubbles: true });
+      const event = new Event('input', { bubbles: true });
       inputElement.dispatchEvent(event);
-    };
+    }, [maxLength, validateInput]);
 
-    const charCount = String(value).length;
+    // Para el char count, usamos el valor del DOM leído via value prop (react-hook-form watch)
+    const displayValue = value ?? '';
+    const charCount = String(displayValue).length;
     const isOverLimit = maxLength && charCount > maxLength;
 
     return (
@@ -146,7 +139,6 @@ export const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
             ref={ref}
             type="text"
             placeholder={placeholder}
-            value={value}
             onChange={handleChange}
             onKeyPress={handleKeyPress}
             onPaste={handlePaste}

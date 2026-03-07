@@ -4,10 +4,11 @@ import { AvailabilityBlock } from '@/interfaces/tutor/AvailabilityBlock';
 
 interface HorarioGridProps {
   selectedBlocks: AvailabilityBlock[];
-  onBlocksChange: (blocks: AvailabilityBlock[]) => void;
+  onBlocksChange?: (blocks: AvailabilityBlock[]) => void;
+  readOnly?: boolean;
 }
 
-export function HorarioGrid({ selectedBlocks, onBlocksChange }: HorarioGridProps) {
+export function HorarioGrid({ selectedBlocks, onBlocksChange, readOnly = false }: HorarioGridProps) {
   const days = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
   const hours = Array.from({ length: 14 }, (_, i) => {
     const hour = 7 + i;
@@ -15,6 +16,8 @@ export function HorarioGrid({ selectedBlocks, onBlocksChange }: HorarioGridProps
   });
 
   const toggleBlock = (day: string, hour: string) => {
+    if (readOnly || !onBlocksChange) return;
+
     const blockExists = selectedBlocks.some(
       (block) => block.day === day && block.hour === hour
     );
@@ -75,18 +78,30 @@ export function HorarioGrid({ selectedBlocks, onBlocksChange }: HorarioGridProps
                   className="min-w-20 p-0"
                   style={{ borderRight: '1px solid #e5e7eb' }}
                 >
-                  <button
-                    onClick={() => toggleBlock(day, hour)}
-                    className="w-full h-12 transition-colors font-semibold border-0 flex items-center justify-center"
-                    style={{
-                      backgroundColor: isSelected(day, hour) ? 'var(--primary)' : 'white',
-                      color: isSelected(day, hour) ? 'white' : '#d1d5db',
-                      cursor: 'pointer',
-                    }}
-                    aria-label={`Disponibilidad ${day} ${hour}`}
-                  >
-                    {isSelected(day, hour) && <span className="text-base font-bold">✓</span>}
-                  </button>
+                  {readOnly ? (
+                    <div
+                      className="w-full h-12 flex items-center justify-center"
+                      style={{
+                        backgroundColor: isSelected(day, hour) ? 'var(--primary)' : 'white',
+                        color: isSelected(day, hour) ? 'white' : '#d1d5db',
+                      }}
+                    >
+                      {isSelected(day, hour) && <span className="text-base font-bold">✓</span>}
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => toggleBlock(day, hour)}
+                      className="w-full h-12 transition-colors font-semibold border-0 flex items-center justify-center"
+                      style={{
+                        backgroundColor: isSelected(day, hour) ? 'var(--primary)' : 'white',
+                        color: isSelected(day, hour) ? 'white' : '#d1d5db',
+                        cursor: 'pointer',
+                      }}
+                      aria-label={`Disponibilidad ${day} ${hour}`}
+                    >
+                      {isSelected(day, hour) && <span className="text-base font-bold">✓</span>}
+                    </button>
+                  )}
                 </td>
               ))}
             </tr>

@@ -26,5 +26,5 @@ export interface OfertaEntity {
   tags?: string[];
   calificacionPromedio?: number;
   totalReseñas?: number;
-  horarios?: string[];
+  horarios?: { day: string; hour: string }[];
 }

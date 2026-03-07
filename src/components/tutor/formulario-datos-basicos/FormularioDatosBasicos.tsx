@@ -28,7 +28,7 @@ export function FormularioDatosBasicos({
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const { datosBasicos, setDatosBasicos } = useRegistroStore();
+  const { setDatosBasicos } = useRegistroStore();
 
   const {
     register,
@@ -49,10 +49,11 @@ export function FormularioDatosBasicos({
     },
   });
 
-  // Cargar datos del store al montar el componente
+  // Cargar datos del store SOLO al montar el componente (una vez)
+  // Usar getState() para leer sin suscribirse reactivamente al store
   useEffect(() => {
     setMounted(true);
-    const storedData = datosBasicos;
+    const storedData = useRegistroStore.getState().datosBasicos;
     if (storedData.nombreCompleto || storedData.numeroWhatsapp) {
       reset({
         nombreCompleto: storedData.nombreCompleto,
@@ -62,7 +63,7 @@ export function FormularioDatosBasicos({
         biografiaCorta: storedData.biografiaCorta,
       });
     }
-  }, [reset, datosBasicos]);
+  }, [reset]);
 
   const formValues = watch();
 
@@ -224,6 +225,7 @@ export function FormularioDatosBasicos({
               : 'Solo letras y espacios'
           }
           {...register('nombreCompleto')}
+          value={formValues.nombreCompleto}
           pattern="letters-only"
         />
       </div>
@@ -285,6 +287,7 @@ export function FormularioDatosBasicos({
               : 'Describe tu experiencia, materias fuertes y estilo de enseñanza'
           }
           {...register('biografiaCorta')}
+          value={formValues.biografiaCorta}
           rows={4}
         />
       </div>
