@@ -1,12 +1,10 @@
-import { DollarSign } from 'lucide-react';
-
 interface PricingContactSectionProps {
   pricePerHour: number;
 }
 
 export default function PricingContactSection({ pricePerHour }: PricingContactSectionProps) {
   return (
-    <div className="bg-white rounded-lg p-6 sticky top-8">
+    <div className="bg-white rounded-lg p-6 sticky top-8 mt-8 lg:mt-0">
       {/* Precio por hora */}
       <div>
         <p className="text-text-secondary text-sm mb-2">Precio por hora</p>

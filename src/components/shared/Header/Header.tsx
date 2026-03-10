@@ -1,3 +1,6 @@
+'use client';
+
+import { montserrat, dancingScript } from '@/lib/fonts';
 import BackButton from '@/components/shared/BackButton/BackButton';
 
 export default function HeaderComponent() {
@@ -10,10 +13,13 @@ export default function HeaderComponent() {
         </div>
 
         {/* Logo PoliTutorias */}
-        <div className="text-right">
-          <h1 className="text-xl md:text-2xl font-bold text-white">
-            Poli<span className="text-yellow">tutorias</span>
-          </h1>
+        <div className="text-right flex items-center gap-1">
+          <span className={`${montserrat.className} antialiased font-extrabold text-white text-3xl`}>
+            Poli
+          </span>
+          <span className={`${dancingScript.className} antialiased text-lg`} style={{ color: 'var(--yellow)' }}>
+            Tutorías
+          </span>
         </div>
       </div>
     </header>

@@ -1,4 +1,4 @@
-import { BookOpen, MapPin, Clock } from 'lucide-react';
+import { BookOpen, MapPin, Clock, Tag } from 'lucide-react';
 import { CategoryDto, AvailabilityDto } from '@/interfaces/offers/DetallesOfertaDto';
 
 interface OfferInfoSectionProps {
@@ -16,6 +16,15 @@ export default function OfferInfoSection({
   categories,
   availability,
 }: OfferInfoSectionProps) {
+  // Agrupar disponibilidad por día
+  const availabilityByDay: Record<string, string[]> = {};
+  availability.forEach((slot) => {
+    if (!availabilityByDay[slot.day]) {
+      availabilityByDay[slot.day] = [];
+    }
+    availabilityByDay[slot.day].push(slot.time);
+  });
+  const days = Object.keys(availabilityByDay);
   return (
     <div className="bg-white rounded-lg p-6">
       {/* Título con icono */}
@@ -26,8 +35,11 @@ export default function OfferInfoSection({
         </div>
       </div>
 
-      {/* Modalidad */}
-      <p className="text-text-secondary mb-6 ml-11 font-medium">{modality}</p>
+      {/* Modalidad con icono */}
+      <p className="text-text-secondary mb-6 ml-11 font-medium flex items-center gap-2">
+        <MapPin size={18} className="text-primary flex-shrink-0" />
+        {modality}
+      </p>
 
       {/* Descripción */}
       <div className="mb-8">
@@ -37,13 +49,14 @@ export default function OfferInfoSection({
       {/* Categorías */}
       <div className="mb-10">
         <h3 className="text-lg font-semibold text-primary mb-4 flex items-center gap-2">
+          <Tag size={20} className="text-primary" />
           <span>Categorías</span>
         </h3>
         <div className="flex flex-wrap gap-3">
           {categories.map((category, index) => (
             <span
               key={index}
-              className="px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-medium"
+              className="px-4 py-2 bg-bg-gray text-primary rounded-full text-sm font-medium border border-border"
             >
               {category.name}
             </span>
@@ -51,20 +64,27 @@ export default function OfferInfoSection({
         </div>
       </div>
 
-      {/* Disponibilidad */}
+      {/* Disponibilidad Semanal - Formato Tabla */}
       <div>
         <h3 className="text-lg font-semibold text-primary mb-6 flex items-center gap-2">
-          <Clock size={20} />
+          <Clock size={20} className="text-primary" />
           <span>Disponibilidad Semanal</span>
         </h3>
-        <div className="space-y-4">
-          {availability.map((slot, index) => (
-            <div key={index} className="border-b border-border pb-4 last:border-b-0 last:pb-0">
-              <p className="font-semibold text-foreground mb-2">{slot.day}</p>
-              <div className="flex gap-2 flex-wrap">
-                <span className="px-3 py-1 bg-blue-100 text-blue-600 rounded text-sm font-medium">
-                  {slot.time}
-                </span>
+        <div className="border border-border rounded-lg overflow-hidden">
+          {days.map((day, dayIndex) => (
+            <div key={dayIndex} className={`border-b border-border last:border-b-0`}>
+              <div className="bg-bg-gray p-4 min-h-[60px] flex flex-col justify-center">
+                <p className="font-semibold text-foreground text-base">{day}</p>
+              </div>
+              <div className="bg-white p-4 flex flex-wrap gap-2">
+                {availabilityByDay[day].map((time, timeIndex) => (
+                  <span
+                    key={timeIndex}
+                    className="px-3 py-1 bg-blue-100 text-blue-600 rounded text-sm font-medium"
+                  >
+                    {time}
+                  </span>
+                ))}
               </div>
             </div>
           ))}
