@@ -16,15 +16,27 @@ export const offerDetailsSeed: DetallesOfertaDto = {
   availability: [
     {
       day: 'Lunes',
-      time: '14:00 - 15:00',
+      time: '14:00',
+    },
+    {
+      day: 'Lunes',
+      time: '15:00',
     },
     {
       day: 'Miércoles',
-      time: '14:00 - 15:00',
+      time: '14:00',
+    },
+    {
+      day: 'Miércoles',
+      time: '15:00',
     },
     {
       day: 'Viernes',
-      time: '09:00 - 10:00',
+      time: '09:00',
+    },
+    {
+      day: 'Viernes',
+      time: '10:00',
     },
   ],
   pricePerHour: 10,
