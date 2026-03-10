@@ -52,7 +52,8 @@ async function getOfferDetails(offerId: string): Promise<DetallesOfertaDto | nul
 export default async function DetallesOfertaPage({
   params,
 }: OfferDetailsPageProps) {
-  const offerDetails = await getOfferDetails(params.id);
+  const resolvedParams = await params;
+  const offerDetails = await getOfferDetails(resolvedParams.id);
 
   if (!offerDetails) {
     notFound();
@@ -61,7 +62,7 @@ export default async function DetallesOfertaPage({
   return (
     <div className="min-h-screen bg-white">
       <HeaderComponent />
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-6 lg:px-12 py-8">
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           {/* Sección principal de información de la oferta */}
           <div className="lg:col-span-2">

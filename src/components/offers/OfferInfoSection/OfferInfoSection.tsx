@@ -24,7 +24,25 @@ export default function OfferInfoSection({
     }
     availabilityByDay[slot.day].push(slot.time);
   });
-  const days = Object.keys(availabilityByDay);
+
+  // Días de la semana con fechas
+  const daysOfWeek = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+  const today = new Date();
+  const dayOfWeekToday = today.getDay();
+  const mondayDate = new Date(today);
+  mondayDate.setDate(today.getDate() - (dayOfWeekToday === 0 ? 6 : dayOfWeekToday - 1));
+
+  // Crear mapa de fechas para cada día
+  const datesMap: Record<string, string> = {};
+  daysOfWeek.forEach((day, index) => {
+    const date = new Date(mondayDate);
+    date.setDate(mondayDate.getDate() + index);
+    const day_num = date.getDate();
+    datesMap[day] = day_num.toString();
+  });
+
+  // Obtener los días que tienen disponibilidad ordenados
+  const availableDays = Object.keys(availabilityByDay);
   return (
     <div className="bg-white rounded-lg p-6">
       {/* Título con icono */}
@@ -64,30 +82,41 @@ export default function OfferInfoSection({
         </div>
       </div>
 
-      {/* Disponibilidad Semanal - Formato Tabla */}
+      {/* Disponibilidad Semanal - Formato Tabla 2 Columnas */}
       <div>
         <h3 className="text-lg font-semibold text-primary mb-6 flex items-center gap-2">
           <Clock size={20} className="text-primary" />
           <span>Disponibilidad Semanal</span>
         </h3>
         <div className="border border-border rounded-lg overflow-hidden">
-          {days.map((day, dayIndex) => (
-            <div key={dayIndex} className={`border-b border-border last:border-b-0`}>
-              <div className="bg-bg-gray p-4 min-h-[60px] flex flex-col justify-center">
-                <p className="font-semibold text-foreground text-base">{day}</p>
-              </div>
-              <div className="bg-white p-4 flex flex-wrap gap-2">
-                {availabilityByDay[day].map((time, timeIndex) => (
-                  <span
-                    key={timeIndex}
-                    className="px-3 py-1 bg-blue-100 text-blue-600 rounded text-sm font-medium"
-                  >
-                    {time}
-                  </span>
-                ))}
-              </div>
-            </div>
-          ))}
+          <div className="grid grid-cols-2 gap-0">
+            {/* Iterar solo sobre los días que tienen disponibilidad */}
+            {availableDays.map((day, dayIndex) => {
+              const times = availabilityByDay[day] || [];
+
+              return (
+                <div key={dayIndex} className="contents">
+                  {/* Columna 1: Día y Fecha */}
+                  <div className={`border-b border-r border-border p-4 bg-bg-gray ${dayIndex === availableDays.length - 1 ? 'border-b-0' : ''}`}>
+                    <p className="font-semibold text-foreground text-base">{day}</p>
+                    <p className="text-xs text-text-secondary">{datesMap[day]} mar</p>
+                  </div>
+
+                  {/* Columna 2: Horarios */}
+                  <div className={`border-b border-border p-4 flex flex-wrap gap-2 items-start ${dayIndex === availableDays.length - 1 ? 'border-b-0' : ''}`}>
+                    {times.map((time, timeIndex) => (
+                      <span
+                        key={timeIndex}
+                        className="px-3 py-1 bg-blue-100 text-blue-600 rounded text-sm font-medium"
+                      >
+                        {time}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>
