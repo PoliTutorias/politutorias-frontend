@@ -2,6 +2,8 @@ import { notFound } from 'next/navigation';
 import HeaderComponent from '@/components/shared/Header/Header';
 import OfferInfoSection from '@/components/offers/OfferInfoSection/OfferInfoSection';
 import PricingContactSection from '@/components/offers/PricingContactSection/PricingContactSection';
+import TutorSection from '@/components/tutor/TutorSection/TutorSection';
+import ExperienceSection from '@/components/tutor/ExperienceSection/ExperienceSection';
 import { DetallesOfertaDto } from '@/interfaces/offers/DetallesOfertaDto';
 import { offerDetailsSeed } from '@/seed/OfferDetailsSeedData';
 
@@ -78,6 +80,16 @@ export default async function DetallesOfertaPage({
           {/* Panel lateral con precio */}
           <div className="lg:col-span-1">
             <PricingContactSection pricePerHour={offerDetails.pricePerHour} />
+          </div>
+        </div>
+
+        {/* Sección Sobre el Tutor con fondo gris azulado */}
+        <div className="mt-12 -mx-12 lg:-mx-32 bg-gray-100 px-12 lg:px-32 py-8">
+          <div className="lg:max-w-4xl lg:mx-auto">
+            <div className="grid grid-cols-1 gap-6">
+              <TutorSection tutor={offerDetails.tutor} />
+              <ExperienceSection experiences={offerDetails.tutor.experience} />
+            </div>
           </div>
         </div>
       </main>

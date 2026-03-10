@@ -11,7 +11,7 @@ export default function PricingContactSection({ pricePerHour }: PricingContactSe
       <div>
         <p className="text-text-secondary text-xs mb-2">Precio por hora</p>
         <div className="flex items-baseline gap-1 mb-5">
-          <span className="text-4xl font-bold text-yellow">${pricePerHour}</span>
+          <span className="text-4xl font-bold text-(--yellow)">${pricePerHour}</span>
         </div>
       </div>
 
