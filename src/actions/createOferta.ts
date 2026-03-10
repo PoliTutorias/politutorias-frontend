@@ -2,6 +2,7 @@
 
 import { CreateOfertaInput } from '@/schemas/createOfertaSchema';
 import { getCategoriesSeed } from '@/seed/CategoriesSeedData';
+import { cookies } from 'next/headers';
 
 export interface CreateOfertaResponse {
   success: boolean;
@@ -26,6 +27,13 @@ export interface CreateOfertaResponse {
  * @param data - Datos de la oferta validados con Zod
  * @returns Respuesta con el resultado de la operación
  */
+
+async function getTutorIdFromCookies(): Promise<string> {
+  const cookieStore = await cookies();
+  const tutorIdFromCookie = cookieStore.get('tutor-id')?.value;
+  return tutorIdFromCookie || process.env.NEXT_PUBLIC_TUTOR_ID || '550e8400-e29b-41d4-a716-446655440000';
+}
+
 export async function createOfertaAction(
   data: CreateOfertaInput
 ): Promise<CreateOfertaResponse> {
@@ -61,6 +69,7 @@ export async function createOfertaAction(
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'X-Tutor-Id': await getTutorIdFromCookies(),
       },
       body: JSON.stringify({
         title: data.title,

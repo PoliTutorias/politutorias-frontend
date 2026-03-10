@@ -1,14 +1,14 @@
 'use client';
 
-import { useState, useTransition, useMemo, useCallback } from 'react';
+import type { FiltrarOfertasParams } from '@/actions/ofertas/filtrarOfertasAction';
+import { filtrarOfertasAction } from '@/actions/ofertas/filtrarOfertasAction';
+import { NoOffersMessageComponent } from '@/components/ofertas/NoOffersMessageComponent/NoOffersMessageComponent';
+import { OfertasListComponent } from '@/components/ofertas/OfertasListComponent/OfertasListComponent';
+import { PrecioFilterComponent } from '@/components/ofertas/PrecioFilterComponent/PrecioFilterComponent';
 import { OfertaEntity } from '@/interfaces/ofertas/OfertaEntity';
 import { OfertasResult } from '@/interfaces/ofertas/OfertasResult';
-import { PrecioFilterComponent } from '@/components/ofertas/PrecioFilterComponent/PrecioFilterComponent';
-import { OfertasListComponent } from '@/components/ofertas/OfertasListComponent/OfertasListComponent';
-import { NoOffersMessageComponent } from '@/components/ofertas/NoOffersMessageComponent/NoOffersMessageComponent';
-import { filtrarOfertasAction } from '@/actions/ofertas/filtrarOfertasAction';
-import type { FiltrarOfertasParams } from '@/actions/ofertas/filtrarOfertasAction';
 import { debounce } from '@/utils/debounce';
+import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
 
 interface ClientOffersWrapperProps {
   initialOffers: OfertaEntity[];
@@ -96,6 +96,7 @@ export function ClientOffersWrapper({ initialOffers, header, children, initialSe
   const isDayFilterActive = activeDay !== null;
   const isSearchActive = activeSearchTerm.trim().length > 0;
   const isAnyFilterActive = isPriceFilterActive || isModalidadFilterActive || isDayFilterActive || isSearchActive;
+  const hasNonSearchFilterActive = isPriceFilterActive || isModalidadFilterActive || isDayFilterActive;
 
   /**
    * Construye los parámetros de filtro actuales y dispara la consulta al backend
@@ -398,30 +399,9 @@ export function ClientOffersWrapper({ initialOffers, header, children, initialSe
             </div>
           </div>
 
-          {/* Etiquetas de filtros activos */}
-          {isAnyFilterActive && (
+          {/* Etiquetas de filtros activos (solo filtros, no búsqueda) */}
+          {hasNonSearchFilterActive && (
             <div className="flex items-center gap-3 mb-4 flex-wrap" id="active-filters-tags" data-testid="active-filters-tags">
-              {/* Tag de búsqueda (azul) — HU17 */}
-              {isSearchActive && (
-                <span
-                  data-testid="tag-search"
-                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200"
-                >
-                  &ldquo;{activeSearchTerm.trim()}&rdquo;
-                  <button
-                    id="clear-search-tag"
-                    data-testid="clear-search-tag"
-                    onClick={handleClearSearchFilter}
-                    className="ml-0.5 hover:text-blue-900 transition-colors cursor-pointer"
-                    aria-label="Remover filtro de búsqueda"
-                  >
-                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </span>
-              )}
-
               {/* Tag de modalidad (morado) — HU26 */}
               {isModalidadFilterActive && (
                 <span
@@ -543,6 +523,11 @@ function SearchBarIntegrated({
   onSearchChange: (term: string) => void;
 }) {
   const [inputValue, setInputValue] = useState(value);
+
+  // Sync internal state when parent clears the value
+  useEffect(() => {
+    setInputValue(value);
+  }, [value]);
 
   const handleChange = (newValue: string) => {
     setInputValue(newValue);
