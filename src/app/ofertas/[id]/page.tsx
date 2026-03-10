@@ -102,9 +102,8 @@ async function getOfferDetails(offerId: string): Promise<DetallesOfertaDto | nul
       return null;
     }
 
-    // Manejar respuesta 400 - Validación fallida
+    // Manejar respuesta 400 - Validación fallida (UUID inválido)
     if (response.status === 400) {
-      console.error('Bad Request: Invalid UUID format');
       return null;
     }
 
