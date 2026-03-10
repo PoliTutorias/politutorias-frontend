@@ -8,7 +8,7 @@ import { PrecioFilterComponent } from '@/components/ofertas/PrecioFilterComponen
 import { OfertaEntity } from '@/interfaces/ofertas/OfertaEntity';
 import { OfertasResult } from '@/interfaces/ofertas/OfertasResult';
 import { debounce } from '@/utils/debounce';
-import { useCallback, useMemo, useState, useTransition } from 'react';
+import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
 
 interface ClientOffersWrapperProps {
   initialOffers: OfertaEntity[];
@@ -523,6 +523,11 @@ function SearchBarIntegrated({
   onSearchChange: (term: string) => void;
 }) {
   const [inputValue, setInputValue] = useState(value);
+
+  // Sync internal state when parent clears the value
+  useEffect(() => {
+    setInputValue(value);
+  }, [value]);
 
   const handleChange = (newValue: string) => {
     setInputValue(newValue);
