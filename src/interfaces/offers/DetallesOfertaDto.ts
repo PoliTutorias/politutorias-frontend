@@ -23,7 +23,7 @@ export interface TutorDetailDto {
   masteredSubjects: CategoryDto[];
   experience: ExperienceDto[];
   phoneNumber: string;
-  profileImageUrl?: string;
+  profileImageUrl?: string | null;
 }
 
 export interface ExperienceDto {

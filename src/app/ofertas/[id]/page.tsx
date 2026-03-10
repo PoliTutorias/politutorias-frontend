@@ -5,6 +5,7 @@ import PricingContactSection from '@/components/offers/PricingContactSection/Pri
 import TutorSection from '@/components/tutor/TutorSection/TutorSection';
 import ExperienceSection from '@/components/tutor/ExperienceSection/ExperienceSection';
 import { DetallesOfertaDto } from '@/interfaces/offers/DetallesOfertaDto';
+import { OfertaBackendDto } from '@/interfaces/offers/OfertaBackendDto';
 import { offerDetailsSeed } from '@/seed/OfferDetailsSeedData';
 
 interface OfferDetailsPageProps {
@@ -13,42 +14,93 @@ interface OfferDetailsPageProps {
   };
 }
 
+/**
+ * Mapea la respuesta del backend (OfertaBackendDto) a nuestro DTO interno (DetallesOfertaDto)
+ */
+function mapBackendOfertaToDetallesOferta(
+  backendOferta: OfertaBackendDto
+): DetallesOfertaDto {
+  return {
+    id: backendOferta.id,
+    title: backendOferta.title,
+    modality: backendOferta.modality,
+    description: backendOferta.description,
+    categories: backendOferta.categories.map((name) => ({
+      name,
+    })),
+    availability: backendOferta.availability.map((av) => ({
+      day: av.day,
+      time: av.hour,
+    })),
+    pricePerHour: backendOferta.price,
+    tutor: {
+      id: backendOferta.tutor.id,
+      name: backendOferta.tutor.nombreCompleto,
+      profileImageUrl: backendOferta.tutor.fotoPerfil,
+      career: backendOferta.tutor.semestreActual,
+      semester: backendOferta.tutor.semestreActual,
+      rating: backendOferta.tutor.calificacionPromedio,
+      reviewsCount: backendOferta.tutor.numResenas,
+      description: backendOferta.tutor.biografiaCorta,
+      phoneNumber: backendOferta.tutor.numeroWhatsapp,
+      masteredSubjects: backendOferta.tutor.materias.map((materia) => ({
+        name: materia.nombre,
+      })),
+      experience: backendOferta.tutor.experiencias.map((exp) => ({
+        position: exp.puesto,
+        institution: exp.institucion,
+        period: `${exp.fechaInicio} — ${exp.fechaFin}`,
+      })),
+    },
+  };
+}
+
 async function getOfferDetails(offerId: string): Promise<DetallesOfertaDto | null> {
-  // Simular latencia de red
-  await new Promise((resolve) => setTimeout(resolve, 500));
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
 
-  // Por ahora, retornamos el seed data
-  // En el futuro, aquí iría el fetch real al backend:
-  /*
+  if (!backendUrl) {
+    console.error('NEXT_PUBLIC_BACKEND_API_URL is not defined');
+    return offerDetailsSeed;
+  }
+
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/ofertas/${offerId}`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        cache: 'no-store',
-      }
-    );
+    const response = await fetch(`${backendUrl}ofertas/${offerId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      cache: 'no-store',
+    });
 
+    // Manejar respuesta 404 - Oferta no encontrada
+    if (response.status === 404) {
+      return null;
+    }
+
+    // Manejar respuesta 400 - Validación fallida
+    if (response.status === 400) {
+      console.error('Bad Request: Invalid UUID format');
+      return null;
+    }
+
+    // Manejar otras respuestas con error
     if (!response.ok) {
-      if (response.status === 404) {
-        return null;
-      }
+      console.error(
+        `Error fetching offer details: ${response.status} ${response.statusText}`
+      );
       throw new Error(`Error fetching offer details: ${response.statusText}`);
     }
 
-    const data: DetallesOfertaDto = await response.json();
-    return data;
+    const backendData: OfertaBackendDto = await response.json();
+    const mappedOferta = mapBackendOfertaToDetallesOferta(backendData);
+
+    return mappedOferta;
   } catch (error) {
     console.error('Error in getOfferDetails:', error);
-    throw error;
+    // En caso de error, retornar seed data si está disponible
+    return offerDetailsSeed;
   }
-  */
-
-  // Retornar el seed data para desarrollo
-  return offerDetailsSeed;
 }
 
 export default async function DetallesOfertaPage({
