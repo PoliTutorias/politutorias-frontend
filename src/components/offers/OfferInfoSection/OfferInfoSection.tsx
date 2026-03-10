@@ -47,7 +47,7 @@ export default function OfferInfoSection({
     <div className="bg-white rounded-lg p-4">
       {/* Título con icono */}
       <div className="flex items-start gap-2 mb-1">
-        <BookOpen size={24} className="text-primary flex-shrink-0 mt-0.5" />
+        <BookOpen size={24} className="text-yellow flex-shrink-0 mt-0.5" />
         <div>
           <h1 className="text-2xl font-bold text-primary">{title}</h1>
         </div>

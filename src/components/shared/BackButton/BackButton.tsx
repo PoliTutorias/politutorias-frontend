@@ -1,23 +1,17 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 
 export default function BackButton() {
-  const router = useRouter();
-
-  const handleBack = () => {
-    router.back();
-  };
-
   return (
-    <button
-      onClick={handleBack}
-      className="flex items-center gap-2 text-primary hover:text-primary-dark transition-colors"
-      aria-label="Volver a la página anterior"
+    <Link
+      href="/encuentra-tutoria"
+      className="flex items-center gap-2 text-white hover:opacity-80 transition-opacity"
+      aria-label="Volver a la búsqueda de tutorías"
     >
       <ArrowLeft size={20} />
       <span className="font-medium">Volver</span>
-    </button>
+    </Link>
   );
 }
