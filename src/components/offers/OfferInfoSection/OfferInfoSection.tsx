@@ -9,6 +9,59 @@ interface OfferInfoSectionProps {
   availability: AvailabilityDto[];
 }
 
+/**
+ * Obtiene el mapa de fechas dinámicas para la semana actual
+ * Comienza desde el lunes de la semana actual
+ */
+function getDynamicWeekDates() {
+  const today = new Date();
+  const dayOfWeek = today.getDay(); // 0 = domingo, 1 = lunes, etc.
+
+  // Calcular el lunes de esta semana
+  const mondayDate = new Date(today);
+  const daysToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // domingo = -6, lunes = 0, etc.
+  mondayDate.setDate(today.getDate() + daysToMonday);
+
+  // Traducción de días
+  const daysOfWeek = [
+    'Lunes',
+    'Martes',
+    'Miércoles',
+    'Jueves',
+    'Viernes',
+    'Sábado',
+    'Domingo',
+  ];
+
+  // Traducción de meses abreviados
+  const monthsAbbr = [
+    'ene',
+    'feb',
+    'mar',
+    'abr',
+    'may',
+    'jun',
+    'jul',
+    'ago',
+    'sep',
+    'oct',
+    'nov',
+    'dic',
+  ];
+
+  // Crear mapa de día → fecha formateada (ej: "8 mar")
+  const datesMap: Record<string, string> = {};
+  daysOfWeek.forEach((day, index) => {
+    const date = new Date(mondayDate);
+    date.setDate(mondayDate.getDate() + index);
+    const dayNum = date.getDate();
+    const monthAbbr = monthsAbbr[date.getMonth()];
+    datesMap[day] = `${dayNum} ${monthAbbr}`;
+  });
+
+  return datesMap;
+}
+
 export default function OfferInfoSection({
   title,
   modality,
@@ -25,24 +78,24 @@ export default function OfferInfoSection({
     availabilityByDay[slot.day].push(slot.time);
   });
 
-  // Días de la semana con fechas
-  const daysOfWeek = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
-  const today = new Date();
-  const dayOfWeekToday = today.getDay();
-  const mondayDate = new Date(today);
-  mondayDate.setDate(today.getDate() - (dayOfWeekToday === 0 ? 6 : dayOfWeekToday - 1));
+  // Obtener fechas dinámicas para esta semana
+  const datesMap = getDynamicWeekDates();
 
-  // Crear mapa de fechas para cada día
-  const datesMap: Record<string, string> = {};
-  daysOfWeek.forEach((day, index) => {
-    const date = new Date(mondayDate);
-    date.setDate(mondayDate.getDate() + index);
-    const day_num = date.getDate();
-    datesMap[day] = day_num.toString();
-  });
+  // Orden de días de la semana
+  const daysOrder = [
+    'Lunes',
+    'Martes',
+    'Miércoles',
+    'Jueves',
+    'Viernes',
+    'Sábado',
+    'Domingo',
+  ];
 
-  // Obtener los días que tienen disponibilidad ordenados
-  const availableDays = Object.keys(availabilityByDay);
+  // Obtener los días que tienen disponibilidad en orden
+  const availableDays = daysOrder.filter((day) =>
+    availabilityByDay.hasOwnProperty(day)
+  );
   return (
     <div className="bg-white rounded-lg p-4">
       {/* Título con icono */}
@@ -90,20 +143,28 @@ export default function OfferInfoSection({
         </h3>
         <div className="border border-border rounded-lg overflow-hidden">
           <div className="grid gap-0" style={{ gridTemplateColumns: '1fr 2fr' }}>
-            {/* Iterar solo sobre los días que tienen disponibilidad */}
+            {/* Iterar solo sobre los días que tienen disponibilidad, en orden */}
             {availableDays.map((day, dayIndex) => {
               const times = availabilityByDay[day] || [];
 
               return (
                 <div key={dayIndex} className="contents">
                   {/* Columna 1: Día y Fecha (más pequeña) */}
-                  <div className={`border-b border-r border-border p-3 bg-bg-gray ${dayIndex === availableDays.length - 1 ? 'border-b-0' : ''}`}>
+                  <div
+                    className={`border-b border-r border-border p-3 bg-bg-gray ${
+                      dayIndex === availableDays.length - 1 ? 'border-b-0' : ''
+                    }`}
+                  >
                     <p className="font-semibold text-foreground text-sm">{day}</p>
-                    <p className="text-xs text-text-secondary">{datesMap[day]} mar</p>
+                    <p className="text-xs text-text-secondary">{datesMap[day]}</p>
                   </div>
 
                   {/* Columna 2: Horarios (más grande) */}
-                  <div className={`border-b border-border p-3 flex flex-wrap gap-1.5 items-start ${dayIndex === availableDays.length - 1 ? 'border-b-0' : ''}`}>
+                  <div
+                    className={`border-b border-border p-3 flex flex-wrap gap-1.5 items-start ${
+                      dayIndex === availableDays.length - 1 ? 'border-b-0' : ''
+                    }`}
+                  >
                     {times.map((time, timeIndex) => (
                       <span
                         key={timeIndex}

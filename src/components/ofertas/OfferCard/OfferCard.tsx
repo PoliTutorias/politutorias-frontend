@@ -2,6 +2,7 @@
 
 import { OfertaEntity } from '@/interfaces/ofertas/OfertaEntity';
 import Image from 'next/image';
+import Link from 'next/link';
 import { IoLocationOutline } from 'react-icons/io5';
 import { MdComputer, MdPerson } from 'react-icons/md';
 import { FiStar, FiClock } from 'react-icons/fi';
@@ -41,7 +42,8 @@ export function OfferCard({ offer }: OfferCardProps) {
   const remainingHorarios = slots.length - 2;
 
   return (
-    <div data-testid="offer-card" className="flex h-full flex-col rounded-lg bg-white p-5 shadow-md transition-all cursor-pointer hover:shadow-lg hover:-translate-y-1 border-t-[3px] border-t-[var(--yellow)]">
+    <Link href={`/ofertas/${offer.id}`}>
+      <div data-testid="offer-card" className="flex h-full flex-col rounded-lg bg-white p-5 shadow-md transition-all cursor-pointer hover:shadow-lg hover:-translate-y-1 border-t-[3px] border-t-[var(--yellow)]">
       {/* Encabezado: Título y Precio */}
       <div className="mb-2 flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
@@ -145,6 +147,7 @@ export function OfferCard({ offer }: OfferCardProps) {
           </div>
         )}
       </div>
-    </div>
+      </div>
+    </Link>
   );
 }
