@@ -62,8 +62,8 @@ export default async function DetallesOfertaPage({
   return (
     <div className="min-h-screen bg-white">
       <HeaderComponent />
-      <main className="container mx-auto px-6 lg:px-12 py-8">
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+      <main className="container mx-auto px-12 lg:px-32 py-8">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3 lg:max-w-4xl lg:mx-auto">
           {/* Sección principal de información de la oferta */}
           <div className="lg:col-span-2">
             <OfferInfoSection
