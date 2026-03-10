@@ -82,9 +82,11 @@ export default async function DetallesOfertaPage({
             <PricingContactSection pricePerHour={offerDetails.pricePerHour} />
           </div>
         </div>
+      </main>
 
-        {/* Sección Sobre el Tutor con fondo gris azulado */}
-        <div className="mt-12 -mx-12 lg:-mx-32 bg-gray-100 px-12 lg:px-32 py-8">
+      {/* Sección Sobre el Tutor con fondo gris azulado - ancho completo */}
+      <section className="w-full bg-gray-100 py-8">
+        <div className="container mx-auto px-12 lg:px-32">
           <div className="lg:max-w-4xl lg:mx-auto">
             <div className="grid grid-cols-1 gap-6">
               <TutorSection tutor={offerDetails.tutor} />
@@ -92,7 +94,7 @@ export default async function DetallesOfertaPage({
             </div>
           </div>
         </div>
-      </main>
+      </section>
     </div>
   );
 }
