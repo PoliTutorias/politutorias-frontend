@@ -15,6 +15,30 @@ interface OfferDetailsPageProps {
 }
 
 /**
+ * Mapea abreviaturas de días del backend a nombres completos en español
+ */
+function mapDayAbbreviationToFull(dayAbbr: string): string {
+  const dayMap: Record<string, string> = {
+    'Lun': 'Lunes',
+    'Mar': 'Martes',
+    'Mié': 'Miércoles',
+    'Jue': 'Jueves',
+    'Vie': 'Viernes',
+    'Sáb': 'Sábado',
+    'Dom': 'Domingo',
+    // Manejar también nombres completos si vienen así
+    'Lunes': 'Lunes',
+    'Martes': 'Martes',
+    'Miércoles': 'Miércoles',
+    'Jueves': 'Jueves',
+    'Viernes': 'Viernes',
+    'Sábado': 'Sábado',
+    'Domingo': 'Domingo',
+  };
+  return dayMap[dayAbbr] || dayAbbr;
+}
+
+/**
  * Mapea la respuesta del backend (OfertaBackendDto) a nuestro DTO interno (DetallesOfertaDto)
  */
 function mapBackendOfertaToDetallesOferta(
@@ -29,7 +53,7 @@ function mapBackendOfertaToDetallesOferta(
       name,
     })),
     availability: backendOferta.availability.map((av) => ({
-      day: av.day,
+      day: mapDayAbbreviationToFull(av.day),
       time: av.hour,
     })),
     pricePerHour: backendOferta.price,
