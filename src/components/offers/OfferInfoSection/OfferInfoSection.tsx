@@ -172,27 +172,59 @@ export default function OfferInfoSection({
         </div>
       </div>
 
-      {/* Disponibilidad Semanal */}
+      {/* Disponibilidad Semanal - Tabla */}
       <div>
         <h3 className="text-base font-semibold text-primary mb-4 flex items-center gap-2">
           <Clock size={18} className="text-primary" />
-          <span>Disponibilidad Semanal</span>
+          <span>Disponibilidad Semanal (Selecciona los horarios que deseas)</span>
         </h3>
-        <div className="space-y-4">
+        <div className="border border-border rounded-lg overflow-hidden">
+          {/* Header de tabla */}
+          <div className="grid grid-cols-4 gap-0 border-b border-border bg-bg-gray">
+            <div className="col-span-1 px-4 py-3 font-semibold text-sm text-primary border-r border-border">
+              Día
+            </div>
+            <div className="col-span-3 px-4 py-3 font-semibold text-sm text-primary">
+              Horarios disponibles
+            </div>
+          </div>
+          
+          {/* Filas de disponibilidad */}
           {availableDays.map((day) => {
             const times = availabilityByDay[day] || [];
             const dayDate = dateObjectsMap[day];
             const isPassed = isDayPassed(dayDate);
+            const dateStr = datesMap[day];
 
             return (
-              <div key={day}>
-                <h4 className={clsx(
-                  'text-sm font-medium mb-2',
-                  isPassed ? 'text-gray-500' : 'text-gray-700'
+              <div key={day} className="grid grid-cols-4 gap-0 border-b border-border last:border-b-0">
+                {/* Columna 1: Día y fecha */}
+                <div className={clsx(
+                  'col-span-1 px-4 py-4 border-r border-border flex flex-col justify-center',
+                  isPassed ? 'bg-gray-100' : 'bg-white'
                 )}>
-                  {day}
-                </h4>
-                <div className="flex flex-wrap gap-2">
+                  <p className={clsx(
+                    'font-semibold text-sm',
+                    isPassed ? 'text-gray-500 line-through' : 'text-gray-800'
+                  )}>
+                    {day}
+                  </p>
+                  <p className={clsx(
+                    'text-xs',
+                    isPassed ? 'text-gray-400' : 'text-gray-600'
+                  )}>
+                    {dateStr}
+                  </p>
+                  {isPassed && (
+                    <p className="text-xs text-gray-500 mt-1">Día pasado</p>
+                  )}
+                </div>
+
+                {/* Columna 2: Horarios */}
+                <div className={clsx(
+                  'col-span-3 px-4 py-4 flex flex-wrap items-center gap-2',
+                  isPassed ? 'bg-gray-100' : 'bg-white'
+                )}>
                   {times.map((time) => {
                     const horario: HorarioDisponibleDto = { day, time };
                     const isSelected = selectedHorarios.some(
