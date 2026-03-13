@@ -142,19 +142,21 @@ export default function ModalSolicitarTutoria({
 
           {/* Horarios seleccionados */}
           <div className="space-y-3">
-            <label className="block text-sm font-semibold text-gray-900">
-              Horarios seleccionados
-              <span className="text-gray-600 font-normal ml-2">
-                ({selectedHorarios.length} seleccionados)
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-semibold text-gray-900">
+                Horarios seleccionados
+              </label>
+              <span className="text-sm font-semibold text-gray-600">
+                {selectedHorarios.length} seleccionados
               </span>
-            </label>
+            </div>
             <div className="flex flex-wrap gap-2">
               {selectedHorarios.map((horario, idx) => {
                 const dateStr = getDateForDay(horario.day);
                 return (
                   <div
                     key={idx}
-                    className="bg-yellow px-3 py-2 rounded-full flex items-center gap-2 text-sm font-medium border border-yellow-600 text-blue-900"
+                    className="bg-orange-100 px-3 py-2 rounded-full flex items-center gap-2 text-sm font-medium border border-orange-200 text-blue-900"
                   >
                     <Calendar size={16} className="flex-shrink-0" />
                     <span>
@@ -168,7 +170,7 @@ export default function ModalSolicitarTutoria({
                           onRemoveHorario(horario);
                         }
                       }}
-                      className="ml-1 hover:bg-yellow-600 rounded-full p-0.5 transition-colors flex-shrink-0"
+                      className="ml-1 hover:bg-orange-200 rounded-full p-0.5 transition-colors flex-shrink-0"
                       title="Remover horario"
                     >
                       <X size={14} />
