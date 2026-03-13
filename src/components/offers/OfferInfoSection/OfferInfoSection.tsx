@@ -203,21 +203,12 @@ export default function OfferInfoSection({
                   'col-span-1 px-4 py-4 border-r border-border flex flex-col justify-center',
                   isPassed ? 'bg-gray-100' : 'bg-white'
                 )}>
-                  <p className={clsx(
-                    'font-semibold text-sm',
-                    isPassed ? 'text-gray-500 line-through' : 'text-gray-800'
-                  )}>
+                  <p className="font-semibold text-sm text-gray-400">
                     {day}
                   </p>
-                  <p className={clsx(
-                    'text-xs',
-                    isPassed ? 'text-gray-400' : 'text-gray-600'
-                  )}>
+                  <p className="text-xs text-gray-400">
                     {dateStr}
                   </p>
-                  {isPassed && (
-                    <p className="text-xs text-gray-500 mt-1">Día pasado</p>
-                  )}
                 </div>
 
                 {/* Columna 2: Horarios */}
@@ -225,22 +216,27 @@ export default function OfferInfoSection({
                   'col-span-3 px-4 py-4 flex flex-wrap items-center gap-2',
                   isPassed ? 'bg-gray-100' : 'bg-white'
                 )}>
-                  {times.map((time) => {
-                    const horario: HorarioDisponibleDto = { day, time };
-                    const isSelected = selectedHorarios.some(
-                      (h) => h.day === day && h.time === time
-                    );
+                  <div className="flex flex-wrap items-center gap-2">
+                    {times.map((time) => {
+                      const horario: HorarioDisponibleDto = { day, time };
+                      const isSelected = selectedHorarios.some(
+                        (h) => h.day === day && h.time === time
+                      );
 
-                    return (
-                      <ChipHorario
-                        key={`${day}-${time}`}
-                        horario={horario}
-                        isSelected={isSelected}
-                        isDayPassed={isPassed}
-                        onSelect={() => handleHorarioClick(day, time)}
-                      />
-                    );
-                  })}
+                      return (
+                        <ChipHorario
+                          key={`${day}-${time}`}
+                          horario={horario}
+                          isSelected={isSelected}
+                          isDayPassed={isPassed}
+                          onSelect={() => handleHorarioClick(day, time)}
+                        />
+                      );
+                    })}
+                  </div>
+                  {isPassed && (
+                    <p className="text-xs text-gray-500 ml-auto">Día pasado</p>
+                  )}
                 </div>
               </div>
             );
