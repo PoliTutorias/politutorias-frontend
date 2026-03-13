@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { notFound } from 'next/navigation';
+import { toast } from 'sonner';
 import HeaderComponent from '@/components/shared/Header/Header';
 import OfferInfoSection from '@/components/offers/OfferInfoSection/OfferInfoSection';
 import PricingContactSection from '@/components/offers/PricingContactSection/PricingContactSection';
@@ -36,6 +37,35 @@ export default function DetallesOfertaPage({
   const [notificacionMessage, setNotificacionMessage] = useState('');
   const [isLoadingSubmit, setIsLoadingSubmit] = useState(false);
 
+  const getDateForDay = (day: string): string => {
+    const daysOfWeek = [
+      'Domingo',
+      'Lunes',
+      'Martes',
+      'Miércoles',
+      'Jueves',
+      'Viernes',
+      'Sábado',
+    ];
+
+    const dayIndex = daysOfWeek.indexOf(day);
+    const today = new Date();
+    const currentDayIndex = today.getDay();
+
+    if (dayIndex < 0) {
+      return today.toISOString().slice(0, 10);
+    }
+
+    let daysToAdd = dayIndex - currentDayIndex;
+    if (daysToAdd < 0) {
+      daysToAdd += 7;
+    }
+
+    const targetDate = new Date(today);
+    targetDate.setDate(today.getDate() + daysToAdd);
+    return targetDate.toISOString().slice(0, 10);
+  };
+
   useEffect(() => {
     const loadOfferDetails = async () => {
       const p = await resolvedParams;
@@ -69,13 +99,51 @@ export default function DetallesOfertaPage({
     notFound();
   }
 
-  const handleHorarioSelect = (horario: HorarioDisponibleDto) => {
+  const handleHorarioSelect = async (horario: HorarioDisponibleDto) => {
+    if (!offerDetails) {
+      return;
+    }
+
     const isDuplicate = selectedHorarios.some(
       (h) => h.day === horario.day && h.time === horario.time
     );
-    if (!isDuplicate) {
-      setSelectedHorarios([...selectedHorarios, horario]);
+
+    if (isDuplicate) {
+      return;
     }
+
+    const checkResult = await verificarSolicitudPreviaAction({
+      ofertaId: offerDetails.id,
+      horarios: [
+        {
+          fecha: getDateForDay(horario.day),
+          hora: horario.time,
+        },
+      ],
+    });
+
+    const hasSolicitudPrevia =
+      checkResult.existe || Boolean(checkResult.mensaje && checkResult.mensaje.trim().length > 0);
+
+    if (hasSolicitudPrevia) {
+      toast('Horario ya solicitado', {
+        description: `Ya tienes una solicitud activa para ${horario.day} ${horario.time}`,
+        position: 'bottom-center',
+        duration: 3500,
+        unstyled: true,
+        style: {
+          backgroundColor: '#c65a22',
+          color: '#ffffff',
+          borderRadius: '10px',
+          padding: '14px 18px',
+          boxShadow: '0 8px 24px rgba(0,0,0,0.18)',
+          border: '1px solid rgba(255,255,255,0.25)',
+        },
+      });
+      return;
+    }
+
+    setSelectedHorarios((prev) => [...prev, horario]);
   };
 
   const handleHorarioRemove = (horario: HorarioDisponibleDto) => {
@@ -86,22 +154,6 @@ export default function DetallesOfertaPage({
 
   const handleOpenModal = async () => {
     if (selectedHorarios.length === 0) {
-      return;
-    }
-
-    // Verificar solicitud previa
-    const checkResult = await verificarSolicitudPreviaAction({
-      estudianteId: 'b1c2d3e4-f5a6-7890-1234-567890fedcba',
-      tutorId: offerDetails.tutor.id,
-      horarios: selectedHorarios.map((h) => ({
-        fecha: '2026-03-13',
-        hora: h.time,
-      })),
-    });
-
-    if (checkResult.existe) {
-      setAlertaMessage(checkResult.mensaje || 'Solicitud ya realizada');
-      setAlertaVisible(true);
       return;
     }
 
@@ -121,10 +173,8 @@ export default function DetallesOfertaPage({
     try {
       const result = await enviarSolicitudTutoriaAction({
         ofertaId: offerDetails.id,
-        tutorId: offerDetails.tutor.id,
-        estudianteId: 'b1c2d3e4-f5a6-7890-1234-567890fedcba',
         horarios: selectedHorarios.map((h) => ({
-          fecha: '2026-03-13',
+          fecha: getDateForDay(h.day),
           hora: h.time,
         })),
         mensaje: data.mensaje,
@@ -196,7 +246,12 @@ export default function DetallesOfertaPage({
         onClose={handleModalClose}
         tutorInfo={offerDetails.tutor}
         selectedHorarios={selectedHorarios}
-        ofertaModalidad={offerDetails.modality as 'virtual' | 'presencial' | 'virtual/presencial'}
+        ofertaModalidad={
+          (offerDetails.modality || '').toLowerCase() as
+            | 'virtual'
+            | 'presencial'
+            | 'virtual/presencial'
+        }
         ofertaTitle={offerDetails.title}
         pricePerHour={offerDetails.pricePerHour}
         onRemoveHorario={handleHorarioRemove}

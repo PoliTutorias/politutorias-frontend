@@ -18,14 +18,14 @@ export async function verificarSolicitudPreviaAction(
   if (!backendUrl || !token) {
     const msg = '❌ Backend URL or token not configured';
     console.error(msg);
-    // En desarrollo sin backend, simular que NO existe solicitud previa
-    return { existe: false };
+    return { existe: false, mensaje: null };
   }
 
   try {
     console.log('🔍 Verificando solicitud previa...');
+    const normalizedBackendUrl = backendUrl.replace(/\/+$/, '');
 
-    const response = await fetch(`${backendUrl}/api/solicitudes/verificar-previa`, {
+    const response = await fetch(`${normalizedBackendUrl}/solicitudes/verificar-previa`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -40,7 +40,7 @@ export async function verificarSolicitudPreviaAction(
       console.error(
         `❌ Error verifying solicitud previa: ${response.status} ${response.statusText}`
       );
-      return { existe: false };
+      return { existe: false, mensaje: null };
     }
 
     const data: VerificarSolicitudPreviaResponseDto = await response.json();
@@ -52,6 +52,6 @@ export async function verificarSolicitudPreviaAction(
     return data;
   } catch (error) {
     console.error('❌ Error in verificarSolicitudPreviaAction:', error);
-    return { existe: false };
+    return { existe: false, mensaje: null };
   }
 }

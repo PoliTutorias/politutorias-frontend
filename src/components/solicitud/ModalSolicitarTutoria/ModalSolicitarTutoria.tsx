@@ -40,7 +40,8 @@ export default function ModalSolicitarTutoria({
   const [modalidad, setModalidad] = useState<'virtual' | 'presencial'>();
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const isDualModalidad = ofertaModalidad === 'virtual/presencial';
+  const normalizedOfertaModalidad = ofertaModalidad?.toLowerCase();
+  const isDualModalidad = normalizedOfertaModalidad === 'virtual/presencial';
 
   /**
    * Calcula la fecha para un día específico de la semana actual/próxima
@@ -79,7 +80,7 @@ export default function ModalSolicitarTutoria({
       newErrors.mensaje = 'El mensaje es obligatorio.';
     }
 
-    // Validar modalidad si es dual
+    // Validar modalidad solo si es dual
     if (isDualModalidad && !modalidad) {
       newErrors.modalidad = 'Selecciona la modalidad';
     }
@@ -129,13 +130,13 @@ export default function ModalSolicitarTutoria({
                 'https://via.placeholder.com/50'
               }
               alt={tutorInfo.name}
-              className="w-12 h-12 rounded-full object-cover flex-shrink-0"
+              className="w-12 h-12 rounded-full object-cover shrink-0"
             />
             <div className="flex-1 min-w-0">
               <h3 className="font-semibold text-gray-900 text-xs">{tutorInfo.name}</h3>
               <p className="text-xs text-gray-600 truncate">{ofertaTitle}</p>
             </div>
-            <div className="text-right flex-shrink-0">
+            <div className="text-right shrink-0">
               <p className="text-xs font-semibold text-gray-700">${pricePerHour}/h</p>
             </div>
           </div>
@@ -158,7 +159,7 @@ export default function ModalSolicitarTutoria({
                     key={idx}
                     className="bg-orange-100 px-2 py-1 rounded-full flex items-center gap-1.5 text-xs font-medium border border-orange-200 text-primary"
                   >
-                    <Calendar size={12} className="flex-shrink-0" />
+                    <Calendar size={12} className="shrink-0" />
                     <span>
                       {horario.day} {dateStr} • {horario.time}
                     </span>
@@ -170,7 +171,7 @@ export default function ModalSolicitarTutoria({
                           onRemoveHorario(horario);
                         }
                       }}
-                      className="ml-0.5 hover:bg-orange-200 rounded-full p-0.5 transition-colors flex-shrink-0"
+                      className="ml-0.5 hover:bg-orange-200 rounded-full p-0.5 transition-colors shrink-0"
                       title="Remover horario"
                     >
                       <X size={10} />
@@ -222,7 +223,7 @@ export default function ModalSolicitarTutoria({
               )}
             >
               <Send size={14} />
-              {isLoading ? 'Enviando...' : 'Enviar'}
+              {isLoading ? 'Enviando...' : 'Enviar Solicitud'}
             </button>
           </div>
         </form>
