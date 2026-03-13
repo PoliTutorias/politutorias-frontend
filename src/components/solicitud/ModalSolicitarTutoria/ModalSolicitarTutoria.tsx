@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { X } from 'lucide-react';
+import { X, Calendar } from 'lucide-react';
 import { HorarioDisponibleDto } from '@/interfaces/offers/DetallesOfertaDto';
 import { TutorDetailDto } from '@/interfaces/offers/DetallesOfertaDto';
 import InputMensaje from '@/components/common/InputMensaje/InputMensaje';
@@ -16,6 +16,7 @@ interface ModalSolicitarTutoriaProps {
   ofertaModalidad: 'virtual' | 'presencial' | 'virtual/presencial';
   ofertaTitle: string;
   pricePerHour: number;
+  onRemoveHorario?: (horario: HorarioDisponibleDto) => void;
   onSubmit: (data: {
     mensaje: string;
     modalidad?: 'virtual' | 'presencial';
@@ -31,6 +32,7 @@ export default function ModalSolicitarTutoria({
   ofertaModalidad,
   ofertaTitle,
   pricePerHour,
+  onRemoveHorario,
   onSubmit,
   isLoading = false,
 }: ModalSolicitarTutoriaProps) {
@@ -39,6 +41,30 @@ export default function ModalSolicitarTutoria({
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const isDualModalidad = ofertaModalidad === 'virtual/presencial';
+
+  /**
+   * Calcula la fecha para un día específico de la semana actual/próxima
+   */
+  function getDateForDay(day: string): string {
+    const today = new Date();
+    const dayOfWeek = today.getDay();
+    const daysOfWeek = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    const dayIndex = daysOfWeek.indexOf(day);
+    
+    let daysToAdd = dayIndex - dayOfWeek;
+    if (daysToAdd < 0) {
+      daysToAdd += 7;
+    }
+    
+    const targetDate = new Date(today);
+    targetDate.setDate(today.getDate() + daysToAdd);
+    
+    const monthNames = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+    const dayNum = targetDate.getDate();
+    const monthAbbr = monthNames[targetDate.getMonth()];
+    
+    return `${dayNum} ${monthAbbr}`;
+  }
 
   const handleRemoveHorario = (index: number) => {
     // Esta funcionalidad será manejada por el parent component
@@ -118,18 +144,38 @@ export default function ModalSolicitarTutoria({
           <div className="space-y-3">
             <label className="block text-sm font-semibold text-gray-900">
               Horarios seleccionados
+              <span className="text-gray-600 font-normal ml-2">
+                ({selectedHorarios.length} seleccionados)
+              </span>
             </label>
             <div className="flex flex-wrap gap-2">
-              {selectedHorarios.map((horario, idx) => (
-                <div
-                  key={idx}
-                  className="bg-yellow-100 text-blue-900 px-3 py-1 rounded-full flex items-center gap-2 text-sm font-medium"
-                >
-                  <span>
-                    {horario.day} • {horario.time}
-                  </span>
-                </div>
-              ))}
+              {selectedHorarios.map((horario, idx) => {
+                const dateStr = getDateForDay(horario.day);
+                return (
+                  <div
+                    key={idx}
+                    className="bg-yellow px-3 py-2 rounded-full flex items-center gap-2 text-sm font-medium border border-yellow-600 text-blue-900"
+                  >
+                    <Calendar size={16} className="flex-shrink-0" />
+                    <span>
+                      {horario.day} {dateStr} • {horario.time}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        if (onRemoveHorario) {
+                          onRemoveHorario(horario);
+                        }
+                      }}
+                      className="ml-1 hover:bg-yellow-600 rounded-full p-0.5 transition-colors flex-shrink-0"
+                      title="Remover horario"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                );
+              })}
             </div>
           </div>
 

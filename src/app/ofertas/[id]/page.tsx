@@ -199,6 +199,7 @@ export default function DetallesOfertaPage({
         ofertaModalidad={offerDetails.modality as 'virtual' | 'presencial' | 'virtual/presencial'}
         ofertaTitle={offerDetails.title}
         pricePerHour={offerDetails.pricePerHour}
+        onRemoveHorario={handleHorarioRemove}
         onSubmit={handleSubmitSolicitud}
         isLoading={isLoadingSubmit}
       />
