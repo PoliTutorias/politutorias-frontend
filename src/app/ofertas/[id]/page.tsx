@@ -1,140 +1,201 @@
+'use client';
+
+import { useState, useEffect } from 'react';
 import { notFound } from 'next/navigation';
+import { toast } from 'sonner';
 import HeaderComponent from '@/components/shared/Header/Header';
 import OfferInfoSection from '@/components/offers/OfferInfoSection/OfferInfoSection';
 import PricingContactSection from '@/components/offers/PricingContactSection/PricingContactSection';
 import TutorSection from '@/components/tutor/TutorSection/TutorSection';
 import ExperienceSection from '@/components/tutor/ExperienceSection/ExperienceSection';
-import { DetallesOfertaDto } from '@/interfaces/offers/DetallesOfertaDto';
-import { OfertaBackendDto } from '@/interfaces/offers/OfertaBackendDto';
-import { offerDetailsSeed } from '@/seed/OfferDetailsSeedData';
+import ModalSolicitarTutoria from '@/components/solicitud/ModalSolicitarTutoria/ModalSolicitarTutoria';
+import AlertaSolicitudPrevia from '@/components/common/AlertaSolicitudPrevia/AlertaSolicitudPrevia';
+import NotificacionExito from '@/components/common/NotificacionExito/NotificacionExito';
+import { DetallesOfertaDto, HorarioDisponibleDto } from '@/interfaces/offers/DetallesOfertaDto';
+import { getOfferDetailsAction } from '@/actions/ofertas/getOfferDetailsAction';
+import { verificarSolicitudPreviaAction } from '@/actions/solicitudes/verificarSolicitudPreviaAction';
+import { enviarSolicitudTutoriaAction } from '@/actions/solicitudes/enviarSolicitudTutoriaAction';
 
-interface OfferDetailsPageProps {
-  params: {
+interface DetallesOfertaPageProps {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
-/**
- * Mapea abreviaturas de días del backend a nombres completos en español
- */
-function mapDayAbbreviationToFull(dayAbbr: string): string {
-  const dayMap: Record<string, string> = {
-    'Lun': 'Lunes',
-    'Mar': 'Martes',
-    'Mié': 'Miércoles',
-    'Jue': 'Jueves',
-    'Vie': 'Viernes',
-    'Sáb': 'Sábado',
-    'Dom': 'Domingo',
-    // Manejar también nombres completos si vienen así
-    'Lunes': 'Lunes',
-    'Martes': 'Martes',
-    'Miércoles': 'Miércoles',
-    'Jueves': 'Jueves',
-    'Viernes': 'Viernes',
-    'Sábado': 'Sábado',
-    'Domingo': 'Domingo',
-  };
-  return dayMap[dayAbbr] || dayAbbr;
-}
 
-/**
- * Mapea la respuesta del backend (OfertaBackendDto) a nuestro DTO interno (DetallesOfertaDto)
- */
-function mapBackendOfertaToDetallesOferta(
-  backendOferta: OfertaBackendDto
-): DetallesOfertaDto {
-  return {
-    id: backendOferta.id,
-    title: backendOferta.title,
-    modality: backendOferta.modality,
-    description: backendOferta.description,
-    categories: backendOferta.categories.map((name) => ({
-      name,
-    })),
-    availability: backendOferta.availability.map((av) => ({
-      day: mapDayAbbreviationToFull(av.day),
-      time: av.hour,
-    })),
-    pricePerHour: backendOferta.price,
-    tutor: {
-      id: backendOferta.tutor.id,
-      name: backendOferta.tutor.nombreCompleto,
-      profileImageUrl: backendOferta.tutor.fotoPerfil,
-      career: backendOferta.tutor.semestreActual,
-      semester: backendOferta.tutor.semestreActual,
-      rating: backendOferta.tutor.calificacionPromedio,
-      reviewsCount: backendOferta.tutor.numResenas,
-      description: backendOferta.tutor.biografiaCorta,
-      phoneNumber: backendOferta.tutor.numeroWhatsapp,
-      masteredSubjects: backendOferta.tutor.materias.map((materia) => ({
-        name: materia.nombre,
-      })),
-      experience: backendOferta.tutor.experiencias.map((exp) => ({
-        position: exp.puesto,
-        institution: exp.institucion,
-        period: `${exp.fechaInicio} — ${exp.fechaFin}`,
-      })),
-    },
-  };
-}
-
-async function getOfferDetails(offerId: string): Promise<DetallesOfertaDto | null> {
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
-
-  if (!backendUrl) {
-    console.error('NEXT_PUBLIC_BACKEND_API_URL is not defined');
-    return offerDetailsSeed;
-  }
-
-  try {
-    const response = await fetch(`${backendUrl}ofertas/${offerId}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-      cache: 'no-store',
-    });
-
-    // Manejar respuesta 404 - Oferta no encontrada
-    if (response.status === 404) {
-      return null;
-    }
-
-    // Manejar respuesta 400 - Validación fallida (UUID inválido)
-    if (response.status === 400) {
-      return null;
-    }
-
-    // Manejar otras respuestas con error
-    if (!response.ok) {
-      console.error(
-        `Error fetching offer details: ${response.status} ${response.statusText}`
-      );
-      throw new Error(`Error fetching offer details: ${response.statusText}`);
-    }
-
-    const backendData: OfertaBackendDto = await response.json();
-    const mappedOferta = mapBackendOfertaToDetallesOferta(backendData);
-
-    return mappedOferta;
-  } catch (error) {
-    console.error('Error in getOfferDetails:', error);
-    // En caso de error, retornar seed data si está disponible
-    return offerDetailsSeed;
-  }
-}
-
-export default async function DetallesOfertaPage({
+export default function DetallesOfertaPage({
   params,
-}: OfferDetailsPageProps) {
-  const resolvedParams = await params;
-  const offerDetails = await getOfferDetails(resolvedParams.id);
+}: DetallesOfertaPageProps) {
+  const resolvedParams = params instanceof Promise ? params : Promise.resolve(params);
+  const [offerDetails, setOfferDetails] = useState<DetallesOfertaDto | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [selectedHorarios, setSelectedHorarios] = useState<HorarioDisponibleDto[]>([]);
+  const [showModal, setShowModal] = useState(false);
+  const [alertaVisible, setAlertaVisible] = useState(false);
+  const [alertaMessage, setAlertaMessage] = useState('');
+  const [notificacionVisible, setNotificacionVisible] = useState(false);
+  const [notificacionMessage, setNotificacionMessage] = useState('');
+  const [isLoadingSubmit, setIsLoadingSubmit] = useState(false);
+
+  const getDateForDay = (day: string): string => {
+    const daysOfWeek = [
+      'Domingo',
+      'Lunes',
+      'Martes',
+      'Miércoles',
+      'Jueves',
+      'Viernes',
+      'Sábado',
+    ];
+
+    const dayIndex = daysOfWeek.indexOf(day);
+    const today = new Date();
+    const currentDayIndex = today.getDay();
+
+    if (dayIndex < 0) {
+      return today.toISOString().slice(0, 10);
+    }
+
+    let daysToAdd = dayIndex - currentDayIndex;
+    if (daysToAdd < 0) {
+      daysToAdd += 7;
+    }
+
+    const targetDate = new Date(today);
+    targetDate.setDate(today.getDate() + daysToAdd);
+    return targetDate.toISOString().slice(0, 10);
+  };
+
+  useEffect(() => {
+    const loadOfferDetails = async () => {
+      const p = await resolvedParams;
+      const result = await getOfferDetailsAction(p.id);
+      
+      if (result.success && result.data) {
+        setOfferDetails(result.data);
+      } else {
+        console.error('Failed to load offer:', result.error);
+        setOfferDetails(null);
+      }
+      
+      setLoading(false);
+    };
+
+    loadOfferDetails();
+  }, [resolvedParams]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white">
+        <HeaderComponent />
+        <div className="flex items-center justify-center h-96">
+          <p className="text-gray-600">Cargando oferta...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!offerDetails) {
     notFound();
   }
+
+  const handleHorarioSelect = async (horario: HorarioDisponibleDto) => {
+    if (!offerDetails) {
+      return;
+    }
+
+    const isDuplicate = selectedHorarios.some(
+      (h) => h.day === horario.day && h.time === horario.time
+    );
+
+    if (isDuplicate) {
+      return;
+    }
+
+    const checkResult = await verificarSolicitudPreviaAction({
+      ofertaId: offerDetails.id,
+      horarios: [
+        {
+          fecha: getDateForDay(horario.day),
+          hora: horario.time,
+        },
+      ],
+    });
+
+    const hasSolicitudPrevia =
+      checkResult.existe || Boolean(checkResult.mensaje && checkResult.mensaje.trim().length > 0);
+
+    if (hasSolicitudPrevia) {
+      toast('Horario ya solicitado', {
+        description: `Ya tienes una solicitud activa para ${horario.day} ${horario.time}`,
+        position: 'bottom-center',
+        duration: 3500,
+        unstyled: true,
+        style: {
+          backgroundColor: '#c65a22',
+          color: '#ffffff',
+          borderRadius: '10px',
+          padding: '14px 18px',
+          boxShadow: '0 8px 24px rgba(0,0,0,0.18)',
+          border: '1px solid rgba(255,255,255,0.25)',
+        },
+      });
+      return;
+    }
+
+    setSelectedHorarios((prev) => [...prev, horario]);
+  };
+
+  const handleHorarioRemove = (horario: HorarioDisponibleDto) => {
+    setSelectedHorarios(
+      selectedHorarios.filter((h) => !(h.day === horario.day && h.time === horario.time))
+    );
+  };
+
+  const handleOpenModal = async () => {
+    if (selectedHorarios.length === 0) {
+      return;
+    }
+
+    setShowModal(true);
+  };
+
+  const handleModalClose = () => {
+    setShowModal(false);
+  };
+
+  const handleSubmitSolicitud = async (data: {
+    mensaje: string;
+    modalidad?: 'virtual' | 'presencial';
+  }) => {
+    setIsLoadingSubmit(true);
+    
+    try {
+      const result = await enviarSolicitudTutoriaAction({
+        ofertaId: offerDetails.id,
+        horarios: selectedHorarios.map((h) => ({
+          fecha: getDateForDay(h.day),
+          hora: h.time,
+        })),
+        mensaje: data.mensaje,
+        modalidad: data.modalidad,
+      });
+
+      if (result.success) {
+        setNotificacionMessage(
+          result.message || '¡Solicitud enviada! 1 horario propuesto. El tutor revisará tu solicitud pronto.'
+        );
+        setNotificacionVisible(true);
+        setShowModal(false);
+        setSelectedHorarios([]);
+      } else {
+        setAlertaMessage(result.message || 'Error al enviar la solicitud');
+        setAlertaVisible(true);
+      }
+    } finally {
+      setIsLoadingSubmit(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -149,12 +210,19 @@ export default async function DetallesOfertaPage({
               description={offerDetails.description}
               categories={offerDetails.categories}
               availability={offerDetails.availability}
+              selectedHorarios={selectedHorarios}
+              onHorarioSelect={handleHorarioSelect}
+              onHorarioRemove={handleHorarioRemove}
             />
           </div>
 
           {/* Panel lateral con precio */}
           <div className="lg:col-span-1">
-            <PricingContactSection pricePerHour={offerDetails.pricePerHour} />
+            <PricingContactSection
+              pricePerHour={offerDetails.pricePerHour}
+              cantidadHorariosSeleccionados={selectedHorarios.length}
+              onSolicitarClick={handleOpenModal}
+            />
           </div>
         </div>
       </main>
@@ -171,6 +239,39 @@ export default async function DetallesOfertaPage({
           </div>
         </div>
       </section>
+
+      {/* Modal de Solicitar Tutoría */}
+      <ModalSolicitarTutoria
+        isOpen={showModal}
+        onClose={handleModalClose}
+        tutorInfo={offerDetails.tutor}
+        selectedHorarios={selectedHorarios}
+        ofertaModalidad={
+          (offerDetails.modality || '').toLowerCase() as
+            | 'virtual'
+            | 'presencial'
+            | 'virtual/presencial'
+        }
+        ofertaTitle={offerDetails.title}
+        pricePerHour={offerDetails.pricePerHour}
+        onRemoveHorario={handleHorarioRemove}
+        onSubmit={handleSubmitSolicitud}
+        isLoading={isLoadingSubmit}
+      />
+
+      {/* Alerta de Solicitud Previa */}
+      <AlertaSolicitudPrevia
+        message={alertaMessage}
+        isVisible={alertaVisible}
+        onClose={() => setAlertaVisible(false)}
+      />
+
+      {/* Notificación de Éxito */}
+      <NotificacionExito
+        message={notificacionMessage}
+        isVisible={notificacionVisible}
+        onClose={() => setNotificacionVisible(false)}
+      />
     </div>
   );
 }

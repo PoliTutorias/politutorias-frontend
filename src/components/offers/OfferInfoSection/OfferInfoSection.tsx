@@ -1,5 +1,9 @@
+'use client';
+
 import { BookOpen, MapPin, Clock, Tag } from 'lucide-react';
-import { CategoryDto, AvailabilityDto } from '@/interfaces/offers/DetallesOfertaDto';
+import { CategoryDto, AvailabilityDto, HorarioDisponibleDto } from '@/interfaces/offers/DetallesOfertaDto';
+import ChipHorario from '@/components/offers/ChipHorario/ChipHorario';
+import clsx from 'clsx';
 
 interface OfferInfoSectionProps {
   title: string;
@@ -7,6 +11,9 @@ interface OfferInfoSectionProps {
   description: string;
   categories: CategoryDto[];
   availability: AvailabilityDto[];
+  selectedHorarios: HorarioDisponibleDto[];
+  onHorarioSelect: (horario: HorarioDisponibleDto) => void;
+  onHorarioRemove: (horario: HorarioDisponibleDto) => void;
 }
 
 /**
@@ -51,15 +58,28 @@ function getDynamicWeekDates() {
 
   // Crear mapa de día → fecha formateada (ej: "8 mar")
   const datesMap: Record<string, string> = {};
+  const dateObjectsMap: Record<string, Date> = {};
   daysOfWeek.forEach((day, index) => {
     const date = new Date(mondayDate);
     date.setDate(mondayDate.getDate() + index);
     const dayNum = date.getDate();
     const monthAbbr = monthsAbbr[date.getMonth()];
     datesMap[day] = `${dayNum} ${monthAbbr}`;
+    dateObjectsMap[day] = date;
   });
 
-  return datesMap;
+  return { datesMap, dateObjectsMap };
+}
+
+/**
+ * Verifica si un día ya pasó
+ */
+function isDayPassed(date: Date): boolean {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const checkDate = new Date(date);
+  checkDate.setHours(0, 0, 0, 0);
+  return checkDate < today;
 }
 
 export default function OfferInfoSection({
@@ -68,6 +88,9 @@ export default function OfferInfoSection({
   description,
   categories,
   availability,
+  selectedHorarios,
+  onHorarioSelect,
+  onHorarioRemove,
 }: OfferInfoSectionProps) {
   // Agrupar disponibilidad por día
   const availabilityByDay: Record<string, string[]> = {};
@@ -79,7 +102,7 @@ export default function OfferInfoSection({
   });
 
   // Obtener fechas dinámicas para esta semana
-  const datesMap = getDynamicWeekDates();
+  const { datesMap, dateObjectsMap } = getDynamicWeekDates();
 
   // Orden de días de la semana
   const daysOrder = [
@@ -96,11 +119,25 @@ export default function OfferInfoSection({
   const availableDays = daysOrder.filter((day) =>
     availabilityByDay.hasOwnProperty(day)
   );
+
+  const handleHorarioClick = (day: string, time: string) => {
+    const horario: HorarioDisponibleDto = { day, time };
+    const isSelected = selectedHorarios.some(
+      (h) => h.day === day && h.time === time
+    );
+    
+    if (isSelected) {
+      onHorarioRemove(horario);
+    } else {
+      onHorarioSelect(horario);
+    }
+  };
+
   return (
     <div className="bg-white rounded-lg p-4">
       {/* Título con icono */}
       <div className="flex items-start gap-2 mb-1">
-        <BookOpen size={30} className="text-(--yellow) bg-amber-100 rounded-md flex-shrink-0 mt-0.5" />
+        <BookOpen size={30} className="text-yellow-500 bg-amber-100 rounded-md flex-shrink-0 mt-0.5" />
         <div>
           <h1 className="text-2xl font-extrabold text-primary">{title}</h1>
         </div>
@@ -118,7 +155,7 @@ export default function OfferInfoSection({
       </div>
 
       {/* Categorías */}
-      <div className="mb-8">
+      <div className=" mb-8">
         <h3 className="text-base font-semibold text-primary mb-3 flex items-center gap-2">
           <Tag size={18} className="text-primary" />
           <span>Categorías</span>
@@ -135,49 +172,75 @@ export default function OfferInfoSection({
         </div>
       </div>
 
-      {/* Disponibilidad Semanal - Formato Tabla con columnas ajustadas */}
+      {/* Disponibilidad Semanal - Tabla */}
       <div>
-        <h3 className="text-base font-semibold text-primary mb-4 flex items-center gap-2">
-          <Clock size={18} className="text-primary" />
-          <span>Disponibilidad Semanal</span>
+        <h3 className="text-sm font-semibold text-primary mb-3 flex items-center gap-2">
+          <Clock size={16} className="text-primary" />
+          <span>Disponibilidad Semanal (Selecciona los horarios que deseas)</span>
         </h3>
         <div className="border border-border rounded-lg overflow-hidden">
-          <div className="grid gap-0" style={{ gridTemplateColumns: '1fr 2fr' }}>
-            {/* Iterar solo sobre los días que tienen disponibilidad, en orden */}
-            {availableDays.map((day, dayIndex) => {
-              const times = availabilityByDay[day] || [];
-
-              return (
-                <div key={dayIndex} className="contents">
-                  {/* Columna 1: Día y Fecha (más pequeña) */}
-                  <div
-                    className={`border-b border-r border-border p-3 bg-bg-gray ${
-                      dayIndex === availableDays.length - 1 ? 'border-b-0' : ''
-                    }`}
-                  >
-                    <p className="font-semibold text-foreground text-sm">{day}</p>
-                    <p className="text-xs text-text-secondary">{datesMap[day]}</p>
-                  </div>
-
-                  {/* Columna 2: Horarios (más grande) */}
-                  <div
-                    className={`border-b border-border p-3 flex flex-wrap gap-1.5 items-start ${
-                      dayIndex === availableDays.length - 1 ? 'border-b-0' : ''
-                    }`}
-                  >
-                    {times.map((time, timeIndex) => (
-                      <span
-                        key={timeIndex}
-                        className="px-2.5 py-1 bg-blue-100 text-blue-600 rounded text-xs font-medium"
-                      >
-                        {time}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
+          {/* Header de tabla */}
+          <div className="grid grid-cols-4 gap-0 border-b border-border bg-bg-gray">
+            <div className="col-span-1 px-3 py-2 font-semibold text-xs text-primary border-r border-border">
+              Día
+            </div>
+            <div className="col-span-3 px-3 py-2 font-semibold text-xs text-primary">
+              Horarios disponibles
+            </div>
           </div>
+          
+          {/* Filas de disponibilidad */}
+          {availableDays.map((day) => {
+            const times = availabilityByDay[day] || [];
+            const dayDate = dateObjectsMap[day];
+            const isPassed = isDayPassed(dayDate);
+            const dateStr = datesMap[day];
+
+            return (
+              <div key={day} className="grid grid-cols-4 gap-0 border-b border-border last:border-b-0">
+                {/* Columna 1: Día y fecha */}
+                <div className={clsx(
+                  'col-span-1 px-3 py-3 border-r border-border flex flex-col justify-center',
+                  isPassed ? 'bg-gray-100' : 'bg-white'
+                )}>
+                  <p className="font-semibold text-xs text-gray-400">
+                    {day}
+                  </p>
+                  <p className="text-xs text-gray-400">
+                    {dateStr}
+                  </p>
+                </div>
+
+                {/* Columna 2: Horarios */}
+                <div className={clsx(
+                  'col-span-3 px-3 py-3 flex flex-wrap items-center gap-2',
+                  isPassed ? 'bg-gray-100' : 'bg-white'
+                )}>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {times.map((time) => {
+                      const horario: HorarioDisponibleDto = { day, time };
+                      const isSelected = selectedHorarios.some(
+                        (h) => h.day === day && h.time === time
+                      );
+
+                      return (
+                        <ChipHorario
+                          key={`${day}-${time}`}
+                          horario={horario}
+                          isSelected={isSelected}
+                          isDayPassed={isPassed}
+                          onSelect={() => handleHorarioClick(day, time)}
+                        />
+                      );
+                    })}
+                  </div>
+                  {isPassed && (
+                    <p className="text-xs text-gray-500 ml-auto">Día pasado</p>
+                  )}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>

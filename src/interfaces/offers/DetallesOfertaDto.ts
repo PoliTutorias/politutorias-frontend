@@ -12,6 +12,9 @@ export interface AvailabilityDto {
   time: string;
 }
 
+// Alias para mantener consistency con nombres más descriptivos
+export type HorarioDisponibleDto = AvailabilityDto;
+
 export interface TutorDetailDto {
   id: string;
   name: string;
