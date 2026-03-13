@@ -11,8 +11,7 @@ import ModalSolicitarTutoria from '@/components/solicitud/ModalSolicitarTutoria/
 import AlertaSolicitudPrevia from '@/components/common/AlertaSolicitudPrevia/AlertaSolicitudPrevia';
 import NotificacionExito from '@/components/common/NotificacionExito/NotificacionExito';
 import { DetallesOfertaDto, HorarioDisponibleDto } from '@/interfaces/offers/DetallesOfertaDto';
-import { OfertaBackendDto } from '@/interfaces/offers/OfertaBackendDto';
-import { getOfferDetailsSeed } from '@/lib/seeds/OfferDetailsSeedData';
+import { getOfferDetailsAction } from '@/actions/ofertas/getOfferDetailsAction';
 import { verificarSolicitudPreviaAction } from '@/actions/solicitudes/verificarSolicitudPreviaAction';
 import { enviarSolicitudTutoriaAction } from '@/actions/solicitudes/enviarSolicitudTutoriaAction';
 
@@ -22,119 +21,6 @@ interface DetallesOfertaPageProps {
   }>;
 }
 
-/**
- * Mapea abreviaturas de días del backend a nombres completos en español
- */
-function mapDayAbbreviationToFull(dayAbbr: string): string {
-  const dayMap: Record<string, string> = {
-    'Lun': 'Lunes',
-    'Mar': 'Martes',
-    'Mié': 'Miércoles',
-    'Jue': 'Jueves',
-    'Vie': 'Viernes',
-    'Sáb': 'Sábado',
-    'Dom': 'Domingo',
-    // Manejar también nombres completos si vienen así
-    'Lunes': 'Lunes',
-    'Martes': 'Martes',
-    'Miércoles': 'Miércoles',
-    'Jueves': 'Jueves',
-    'Viernes': 'Viernes',
-    'Sábado': 'Sábado',
-    'Domingo': 'Domingo',
-  };
-  return dayMap[dayAbbr] || dayAbbr;
-}
-
-/**
- * Mapea la respuesta del backend (OfertaBackendDto) a nuestro DTO interno (DetallesOfertaDto)
- */
-function mapBackendOfertaToDetallesOferta(
-  backendOferta: OfertaBackendDto
-): DetallesOfertaDto {
-  return {
-    id: backendOferta.id,
-    title: backendOferta.title,
-    modality: backendOferta.modality,
-    description: backendOferta.description,
-    categories: backendOferta.categories.map((name) => ({
-      name,
-    })),
-    availability: backendOferta.availability.map((av) => ({
-      day: mapDayAbbreviationToFull(av.day),
-      time: av.hour,
-    })),
-    pricePerHour: backendOferta.price,
-    tutor: {
-      id: backendOferta.tutor.id,
-      name: backendOferta.tutor.nombreCompleto,
-      profileImageUrl: backendOferta.tutor.fotoPerfil,
-      career: backendOferta.tutor.semestreActual,
-      semester: backendOferta.tutor.semestreActual,
-      rating: backendOferta.tutor.calificacionPromedio,
-      reviewsCount: backendOferta.tutor.numResenas,
-      description: backendOferta.tutor.biografiaCorta,
-      phoneNumber: backendOferta.tutor.numeroWhatsapp,
-      masteredSubjects: backendOferta.tutor.materias.map((materia) => ({
-        name: materia.nombre,
-      })),
-      experience: backendOferta.tutor.experiencias.map((exp) => ({
-        position: exp.puesto,
-        institution: exp.institucion,
-        period: `${exp.fechaInicio} — ${exp.fechaFin}`,
-      })),
-    },
-  };
-}
-
-async function getOfferDetails(offerId: string): Promise<DetallesOfertaDto | null> {
-  // ===== USANDO SEED DATA (para desarrollo antes de que el backend esté disponible) =====
-  return getOfferDetailsSeed(offerId);
-
-  // ===== FETCH AL BACKEND (comentado - Descomentar cuando el backend esté levantado) =====
-  // Asegurate de que:
-  // 1. NEXT_PUBLIC_BACKEND_API_URL esté configurada en .env.local
-  // 2. El backend esté levantado y escuchando en el puerto correcto
-  // 3. Los CORS estén configurados correctamente en el backend
-  /*
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
-  
-  if (!backendUrl) {
-    console.error('NEXT_PUBLIC_BACKEND_API_URL is not defined. Using seed data.');
-    return getOfferDetailsSeed(offerId);
-  }
-
-  try {
-    const response = await fetch(`${backendUrl}/api/ofertas/${offerId}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-      cache: 'no-store',
-    });
-
-    if (response.status === 404 || response.status === 400) {
-      console.warn(`Offer not found: ${offerId}, falling back to seed data`);
-      return getOfferDetailsSeed(offerId);
-    }
-
-    if (!response.ok) {
-      console.error(
-        `Error fetching offer details: ${response.status} ${response.statusText}`
-      );
-      return getOfferDetailsSeed(offerId);
-    }
-
-    const backendData: OfertaBackendDto = await response.json();
-    const mappedOferta = mapBackendOfertaToDetallesOferta(backendData);
-    return mappedOferta;
-  } catch (error) {
-    console.error('Error in getOfferDetails. Backend may not be available. Using seed data.', error);
-    return getOfferDetailsSeed(offerId);
-  }
-  */
-}
 
 export default function DetallesOfertaPage({
   params,
@@ -153,9 +39,15 @@ export default function DetallesOfertaPage({
   useEffect(() => {
     const loadOfferDetails = async () => {
       const p = await resolvedParams;
-      const details = await getOfferDetails(p.id);
-      console.log('📋 Detalles de oferta obtenidos:', details);
-      setOfferDetails(details);
+      const result = await getOfferDetailsAction(p.id);
+      
+      if (result.success && result.data) {
+        setOfferDetails(result.data);
+      } else {
+        console.error('Failed to load offer:', result.error);
+        setOfferDetails(null);
+      }
+      
       setLoading(false);
     };
 

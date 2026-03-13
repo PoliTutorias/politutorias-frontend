@@ -4,10 +4,6 @@ import {
   VerificarSolicitudPreviaPayload,
   VerificarSolicitudPreviaResponseDto,
 } from '@/interfaces/solicitudes/SolicitudDto';
-import {
-  getSolicitudPreviaExisteSeed,
-  getSolicitudPreviaNoExisteSeed,
-} from '@/lib/seeds/VerificarSolicitudPreviaSeedData';
 
 /**
  * Server Action para verificar si existe una solicitud previa
@@ -16,31 +12,25 @@ import {
 export async function verificarSolicitudPreviaAction(
   payload: VerificarSolicitudPreviaPayload
 ): Promise<VerificarSolicitudPreviaResponseDto> {
-  // ===== SEED DATA (para desarrollo) =====
-  // Simulamos que si el primer horario es "Miércoles 14:00", retorna "existe: true"
-  const firstHorario = payload.horarios[0];
-  if (firstHorario?.hora === '14:00') {
-    return getSolicitudPreviaExisteSeed('Miércoles 14:00');
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
+  const token = process.env.TEMPORARY_TOKEN;
+
+  if (!backendUrl || !token) {
+    const msg = '❌ Backend URL or token not configured';
+    console.error(msg);
+    // En desarrollo sin backend, simular que NO existe solicitud previa
+    return { existe: false };
   }
 
-  return getSolicitudPreviaNoExisteSeed();
-
-  // ===== FETCH AL BACKEND (comentado para desarrollo) =====
-  // Descomentar cuando el backend esté listo
-  /*
   try {
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
-    if (!backendUrl) {
-      console.error('NEXT_PUBLIC_BACKEND_API_URL is not defined');
-      return getSolicitudPreviaNoExisteSeed();
-    }
+    console.log('🔍 Verificando solicitud previa...');
 
-    const response = await fetch(`${backendUrl}solicitudes/verificar-previa`, {
+    const response = await fetch(`${backendUrl}/api/solicitudes/verificar-previa`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json',
-        Authorization: `Bearer ${process.env.TEMPORARY_TOKEN}`,
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(payload),
       cache: 'no-store',
@@ -48,16 +38,20 @@ export async function verificarSolicitudPreviaAction(
 
     if (!response.ok) {
       console.error(
-        `Error verifying previous solicitud: ${response.status} ${response.statusText}`
+        `❌ Error verifying solicitud previa: ${response.status} ${response.statusText}`
       );
-      return getSolicitudPreviaNoExisteSeed();
+      return { existe: false };
     }
 
     const data: VerificarSolicitudPreviaResponseDto = await response.json();
+    if (data.existe) {
+      console.warn(`⚠️ Ya existe solicitud previa: ${data.mensaje}`);
+    } else {
+      console.log('✅ No existe solicitud previa');
+    }
     return data;
   } catch (error) {
-    console.error('Error in verificarSolicitudPreviaAction:', error);
-    return getSolicitudPreviaNoExisteSeed();
+    console.error('❌ Error in verificarSolicitudPreviaAction:', error);
+    return { existe: false };
   }
-  */
 }
