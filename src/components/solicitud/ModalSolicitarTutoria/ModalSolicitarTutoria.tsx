@@ -14,6 +14,8 @@ interface ModalSolicitarTutoriaProps {
   tutorInfo: TutorDetailDto;
   selectedHorarios: HorarioDisponibleDto[];
   ofertaModalidad: 'virtual' | 'presencial' | 'virtual/presencial';
+  ofertaTitle: string;
+  pricePerHour: number;
   onSubmit: (data: {
     mensaje: string;
     modalidad?: 'virtual' | 'presencial';
@@ -27,6 +29,8 @@ export default function ModalSolicitarTutoria({
   tutorInfo,
   selectedHorarios,
   ofertaModalidad,
+  ofertaTitle,
+  pricePerHour,
   onSubmit,
   isLoading = false,
 }: ModalSolicitarTutoriaProps) {
@@ -75,7 +79,7 @@ export default function ModalSolicitarTutoria({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
         {/* Header con cerrar */}
         <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex justify-between items-center">
@@ -91,27 +95,22 @@ export default function ModalSolicitarTutoria({
 
         {/* Contenido */}
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {/* Información del tutor */}
-          <div className="flex items-center gap-4 pb-6 border-b border-gray-200">
+          {/* Información del tutor con fondo gris azulado */}
+          <div className="-mx-6 -mt-6 mb-6 bg-blue-50 px-6 py-4 rounded-t-lg flex items-center gap-4">
             <img
               src={
                 tutorInfo.profileImageUrl ||
                 'https://via.placeholder.com/50'
               }
               alt={tutorInfo.name}
-              className="w-16 h-16 rounded-full object-cover"
+              className="w-14 h-14 rounded-full object-cover flex-shrink-0"
             />
-            <div>
+            <div className="flex-1">
               <h3 className="font-semibold text-gray-900">{tutorInfo.name}</h3>
-              <p className="text-sm text-gray-600">{tutorInfo.career}</p>
-              <div className="flex items-center gap-2 mt-1">
-                <span className="text-yellow-500 font-semibold">
-                  ⭐ {tutorInfo.rating}
-                </span>
-                <span className="text-sm text-gray-600">
-                  ({tutorInfo.reviewsCount} reseñas)
-                </span>
-              </div>
+              <p className="text-sm text-gray-600">{ofertaTitle}</p>
+            </div>
+            <div className="text-right">
+              <p className="text-sm font-semibold text-gray-700">${pricePerHour}/h</p>
             </div>
           </div>
 

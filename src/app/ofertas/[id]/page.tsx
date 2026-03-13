@@ -197,6 +197,8 @@ export default function DetallesOfertaPage({
         tutorInfo={offerDetails.tutor}
         selectedHorarios={selectedHorarios}
         ofertaModalidad={offerDetails.modality as 'virtual' | 'presencial' | 'virtual/presencial'}
+        ofertaTitle={offerDetails.title}
+        pricePerHour={offerDetails.pricePerHour}
         onSubmit={handleSubmitSolicitud}
         isLoading={isLoadingSubmit}
       />
