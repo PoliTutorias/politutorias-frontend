@@ -174,17 +174,17 @@ export default function OfferInfoSection({
 
       {/* Disponibilidad Semanal - Tabla */}
       <div>
-        <h3 className="text-base font-semibold text-primary mb-4 flex items-center gap-2">
-          <Clock size={18} className="text-primary" />
+        <h3 className="text-sm font-semibold text-primary mb-3 flex items-center gap-2">
+          <Clock size={16} className="text-primary" />
           <span>Disponibilidad Semanal (Selecciona los horarios que deseas)</span>
         </h3>
         <div className="border border-border rounded-lg overflow-hidden">
           {/* Header de tabla */}
           <div className="grid grid-cols-4 gap-0 border-b border-border bg-bg-gray">
-            <div className="col-span-1 px-4 py-3 font-semibold text-sm text-primary border-r border-border">
+            <div className="col-span-1 px-3 py-2 font-semibold text-xs text-primary border-r border-border">
               Día
             </div>
-            <div className="col-span-3 px-4 py-3 font-semibold text-sm text-primary">
+            <div className="col-span-3 px-3 py-2 font-semibold text-xs text-primary">
               Horarios disponibles
             </div>
           </div>
@@ -200,10 +200,10 @@ export default function OfferInfoSection({
               <div key={day} className="grid grid-cols-4 gap-0 border-b border-border last:border-b-0">
                 {/* Columna 1: Día y fecha */}
                 <div className={clsx(
-                  'col-span-1 px-4 py-4 border-r border-border flex flex-col justify-center',
+                  'col-span-1 px-3 py-3 border-r border-border flex flex-col justify-center',
                   isPassed ? 'bg-gray-100' : 'bg-white'
                 )}>
-                  <p className="font-semibold text-sm text-gray-400">
+                  <p className="font-semibold text-xs text-gray-400">
                     {day}
                   </p>
                   <p className="text-xs text-gray-400">
@@ -213,7 +213,7 @@ export default function OfferInfoSection({
 
                 {/* Columna 2: Horarios */}
                 <div className={clsx(
-                  'col-span-3 px-4 py-4 flex flex-wrap items-center gap-2',
+                  'col-span-3 px-3 py-3 flex flex-wrap items-center gap-2',
                   isPassed ? 'bg-gray-100' : 'bg-white'
                 )}>
                   <div className="flex flex-wrap items-center gap-2">

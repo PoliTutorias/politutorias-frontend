@@ -88,20 +88,15 @@ function mapBackendOfertaToDetallesOferta(
 }
 
 async function getOfferDetails(offerId: string): Promise<DetallesOfertaDto | null> {
-  // ===== USANDO SEED DATA (para desarrollo) =====
-  return getOfferDetailsSeed(offerId);
-
-  // ===== FETCH AL BACKEND (comentado) =====
-  // Descomentar cuando el backend esté listo
-  /*
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
+  
   if (!backendUrl) {
     console.error('NEXT_PUBLIC_BACKEND_API_URL is not defined');
     return getOfferDetailsSeed(offerId);
   }
 
   try {
-    const response = await fetch(`${backendUrl}ofertas/${offerId}`, {
+    const response = await fetch(`${backendUrl}/api/ofertas/${offerId}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -111,7 +106,8 @@ async function getOfferDetails(offerId: string): Promise<DetallesOfertaDto | nul
     });
 
     if (response.status === 404 || response.status === 400) {
-      return null;
+      console.warn(`Offer not found: ${offerId}, falling back to seed data`);
+      return getOfferDetailsSeed(offerId);
     }
 
     if (!response.ok) {
@@ -128,7 +124,6 @@ async function getOfferDetails(offerId: string): Promise<DetallesOfertaDto | nul
     console.error('Error in getOfferDetails:', error);
     return getOfferDetailsSeed(offerId);
   }
-  */
 }
 
 export default function DetallesOfertaPage({

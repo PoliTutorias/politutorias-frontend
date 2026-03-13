@@ -32,15 +32,15 @@ export default function ChipHorario({
       onClick={handleClick}
       disabled={isDayPassed}
       className={clsx(
-        'px-3 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2',
+        'px-2.5 py-1.5 rounded-lg font-medium transition-all duration-200 flex items-center gap-2',
         isDayPassed
-          ? 'bg-blue-200 text-blue-600 line-through cursor-not-allowed opacity-60'
+          ? 'bg-gray-300 text-gray-600 line-through cursor-not-allowed opacity-70'
           : isSelected
             ? 'bg-yellow text-blue-900'
             : 'bg-blue-100 text-blue-600 hover:bg-blue-200'
       )}
     >
-      <span className="text-sm">
+      <span className="text-xs">
         {horario.time}
       </span>
       {removable && isSelected && (
