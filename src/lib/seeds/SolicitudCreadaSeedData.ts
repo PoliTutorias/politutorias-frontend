@@ -15,7 +15,7 @@ export function getSolicitudCreadaSeed(): SolicitudEntity {
     ],
     mensaje: 'Requiero ayuda urgente con este tema para mi examen.',
     modalidad: 'virtual',
-    estado: 'pendiente',
+    estado: 'PENDIENTE',
     createdAt: new Date().toISOString(),
   };
 }
