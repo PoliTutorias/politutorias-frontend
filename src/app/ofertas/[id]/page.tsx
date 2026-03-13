@@ -154,6 +154,7 @@ export default function DetallesOfertaPage({
     const loadOfferDetails = async () => {
       const p = await resolvedParams;
       const details = await getOfferDetails(p.id);
+      console.log('📋 Detalles de oferta obtenidos:', details);
       setOfferDetails(details);
       setLoading(false);
     };
