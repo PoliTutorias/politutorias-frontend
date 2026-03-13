@@ -88,10 +88,19 @@ function mapBackendOfertaToDetallesOferta(
 }
 
 async function getOfferDetails(offerId: string): Promise<DetallesOfertaDto | null> {
+  // ===== USANDO SEED DATA (para desarrollo antes de que el backend esté disponible) =====
+  return getOfferDetailsSeed(offerId);
+
+  // ===== FETCH AL BACKEND (comentado - Descomentar cuando el backend esté levantado) =====
+  // Asegurate de que:
+  // 1. NEXT_PUBLIC_BACKEND_API_URL esté configurada en .env.local
+  // 2. El backend esté levantado y escuchando en el puerto correcto
+  // 3. Los CORS estén configurados correctamente en el backend
+  /*
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
   
   if (!backendUrl) {
-    console.error('NEXT_PUBLIC_BACKEND_API_URL is not defined');
+    console.error('NEXT_PUBLIC_BACKEND_API_URL is not defined. Using seed data.');
     return getOfferDetailsSeed(offerId);
   }
 
@@ -121,9 +130,10 @@ async function getOfferDetails(offerId: string): Promise<DetallesOfertaDto | nul
     const mappedOferta = mapBackendOfertaToDetallesOferta(backendData);
     return mappedOferta;
   } catch (error) {
-    console.error('Error in getOfferDetails:', error);
+    console.error('Error in getOfferDetails. Backend may not be available. Using seed data.', error);
     return getOfferDetailsSeed(offerId);
   }
+  */
 }
 
 export default function DetallesOfertaPage({
