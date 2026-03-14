@@ -1,6 +1,6 @@
 'use client';
 
-import { FiCalendar, FiChevronDown, FiChevronUp, FiLaptop, FiMapPin, FiMessageSquare } from 'react-icons/fi';
+import { FiCalendar, FiChevronDown, FiChevronUp, FiMapPin, FiMessageSquare, FiMonitor } from 'react-icons/fi';
 import { StatusTag } from '@/components/common/StatusTag/StatusTag';
 import { SolicitudDetailsDto } from '@/interfaces/solicitudes/SolicitudesDTO';
 
@@ -18,7 +18,7 @@ function getInitials(estudiante: string): string {
 export function SolicitudRow({ solicitud, isExpanded, onToggleExpand }: SolicitudRowProps) {
   const initials = getInitials(solicitud.estudiante);
   const leftAccent = solicitud.estado === 'PENDIENTE' ? 'bg-orange-400' : 'bg-red-400';
-  const modalityIcon = solicitud.modalidad === 'Virtual' ? <FiLaptop size={18} /> : <FiMapPin size={18} />;
+  const modalityIcon = solicitud.modalidad === 'Virtual' ? <FiMonitor size={18} /> : <FiMapPin size={18} />;
 
   return (
     <>
@@ -42,7 +42,7 @@ export function SolicitudRow({ solicitud, isExpanded, onToggleExpand }: Solicitu
             {solicitud.fechaHora}
           </span>
         </td>
-        <td className="px-3 py-4 text-xl italic text-slate-400">"{solicitud.mensajeResumen}"</td>
+        <td className="px-3 py-4 text-xl italic text-slate-400">{solicitud.mensajeResumen}</td>
         <td className="px-4 py-4">
           <div className="flex items-center justify-end gap-4">
             <StatusTag status={solicitud.estado} />
@@ -68,7 +68,7 @@ export function SolicitudRow({ solicitud, isExpanded, onToggleExpand }: Solicitu
                   <FiMessageSquare />
                   MENSAJE DEL ESTUDIANTE
                 </p>
-                <p className="text-[28px] italic text-primary">"{solicitud.mensajeCompleto}"</p>
+                <p className="text-[28px] italic text-primary">{solicitud.mensajeCompleto}</p>
               </div>
             </div>
           </td>
