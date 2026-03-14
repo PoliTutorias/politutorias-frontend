@@ -123,4 +123,5 @@ export const paginatedSolicitudesExpiredSeed: PaginatedSolicitudesDto = {
   total: 14,
   page: 1,
   limit: 10,
+  totalPages: 2,
 };

@@ -26,25 +26,27 @@ export function SolicitudRow({ solicitud, isExpanded, onToggleExpand }: Solicitu
         className="cursor-pointer border-b border-slate-100 bg-white hover:bg-slate-50"
         onClick={() => onToggleExpand(solicitud.id)}
       >
-        <td className="px-3 py-4 align-top">
+        <td className="px-3 py-3 align-top">
           <div className="flex items-center gap-3">
-            <span className={`h-11 w-1 rounded-full ${leftAccent}`} aria-hidden="true" />
-            <span className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-slate-100 text-base font-bold text-slate-600">
+            <span className={`h-9 w-1 rounded-full ${leftAccent}`} aria-hidden="true" />
+            <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-600">
               {initials}
             </span>
-            <span className="text-2xl font-bold text-slate-700">{solicitud.estudiante}</span>
+            <span className="text-sm font-semibold text-slate-700">{solicitud.estudiante}</span>
           </div>
         </td>
-        <td className="px-3 py-4 text-2xl font-semibold text-slate-600">{solicitud.materia}</td>
-        <td className="px-3 py-4">
-          <span className="inline-flex items-center gap-2 rounded-md bg-slate-100 px-3 py-1 text-lg font-semibold text-slate-500">
-            <FiCalendar size={15} />
+        <td className="px-3 py-3 text-sm font-semibold text-slate-600">{solicitud.materia}</td>
+        <td className="px-3 py-3">
+          <span className="inline-flex items-center gap-2 rounded-md bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-500">
+            <FiCalendar size={13} />
             {solicitud.fechaHora}
           </span>
         </td>
-        <td className="px-3 py-4 text-xl italic text-slate-400">{solicitud.mensajeResumen}</td>
-        <td className="px-4 py-4">
-          <div className="flex items-center justify-end gap-4">
+        <td className="px-3 py-3 text-xs italic text-slate-400">
+          &quot;{solicitud.mensajeResumen}&quot;
+        </td>
+        <td className="px-4 py-3">
+          <div className="flex items-center justify-end gap-3">
             <StatusTag status={solicitud.estado} />
             {isExpanded ? <FiChevronUp className="text-slate-400" /> : <FiChevronDown className="text-slate-400" />}
           </div>
@@ -53,22 +55,22 @@ export function SolicitudRow({ solicitud, isExpanded, onToggleExpand }: Solicitu
 
       {isExpanded && (
         <tr className="border-b border-slate-100 bg-white">
-          <td colSpan={5} className="px-8 pb-4 pt-2">
+          <td colSpan={5} className="px-8 pb-4 pt-1">
             <div className="pl-16">
-              <div className="mb-4 flex items-center gap-6 text-3xl text-slate-700">
+              <div className="mb-2 flex items-center gap-4 text-sm text-slate-700">
                 <span className="inline-flex items-center gap-2">
                   {modalityIcon}
                   {solicitud.modalidad}
                 </span>
-                <span className="font-bold text-slate-900">${solicitud.precioHora}/h</span>
+                <span className="text-sm font-bold text-slate-900">${solicitud.precioHora}/h</span>
               </div>
 
-              <div className="rounded-xl border border-slate-200 bg-white p-5">
-                <p className="mb-3 inline-flex items-center gap-2 text-2xl font-bold text-primary">
+              <div className="rounded-xl border border-slate-200 border-l-3 border-l-yellow bg-white p-4">
+                <p className="mb-2 inline-flex items-center gap-2 text-xs font-bold tracking-wide text-primary">
                   <FiMessageSquare />
                   MENSAJE DEL ESTUDIANTE
                 </p>
-                <p className="text-[28px] italic text-primary">{solicitud.mensajeCompleto}</p>
+                <p className="text-sm italic text-primary">&quot;{solicitud.mensajeCompleto}&quot;</p>
               </div>
             </div>
           </td>

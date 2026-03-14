@@ -7,17 +7,25 @@ interface PaginationComponentProps {
   totalPages?: number;
 }
 
+function getPaginationItems(totalPages: number): number[] {
+  const safeTotalPages = Math.max(1, totalPages);
+  return Array.from({ length: safeTotalPages }, (_, index) => index + 1);
+}
+
 export function PaginationComponent({
   currentPage = 1,
-  totalPages = 2,
+  totalPages = 1,
 }: PaginationComponentProps) {
-  const pages = Array.from({ length: totalPages }, (_, index) => index + 1);
+  const pages = getPaginationItems(totalPages);
+  const showNavArrows = pages.length > 1;
 
   return (
     <div className="mt-4 flex items-center justify-center gap-2">
-      <button className="px-2 py-1 text-slate-400" type="button" aria-label="Pagina anterior">
-        &lt;
-      </button>
+      {showNavArrows && (
+        <button className="px-2 py-1 text-slate-400" type="button" aria-label="Pagina anterior">
+          &lt;
+        </button>
+      )}
       {pages.map((pageNumber) => (
         <button
           key={pageNumber}
@@ -25,16 +33,18 @@ export function PaginationComponent({
           className={clsx(
             'h-8 min-w-8 rounded-md px-3 text-sm font-semibold',
             pageNumber === currentPage
-              ? 'bg-[var(--primary)] text-white'
+              ? 'bg-primary text-white'
               : 'text-slate-600 hover:bg-slate-100'
           )}
         >
           {pageNumber}
         </button>
       ))}
-      <button className="px-2 py-1 text-slate-400" type="button" aria-label="Pagina siguiente">
-        &gt;
-      </button>
+      {showNavArrows && (
+        <button className="px-2 py-1 text-slate-400" type="button" aria-label="Pagina siguiente">
+          &gt;
+        </button>
+      )}
     </div>
   );
 }

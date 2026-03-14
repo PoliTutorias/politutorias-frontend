@@ -44,14 +44,14 @@ export function TabsComponent({
             type="button"
             onClick={() => handleTabClick(tab.status)}
             className={clsx(
-              'rounded-full border px-4 py-2 text-base font-semibold transition-colors',
+              'rounded-full border px-4 py-1.5 text-sm font-semibold transition-colors',
               isActive
                 ? 'border-primary bg-primary text-white'
                 : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
             )}
           >
             {tab.label}
-            <span className={clsx('ml-1 text-sm', isActive ? 'text-slate-200' : 'text-slate-400')}>
+            <span className={clsx('ml-1 text-xs', isActive ? 'text-slate-200' : 'text-slate-400')}>
               ({countMap[tab.status]})
             </span>
           </button>

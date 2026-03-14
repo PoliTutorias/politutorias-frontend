@@ -93,6 +93,9 @@ export async function fetchInitialDataAction(
         total: solicitudesApi.total,
         page: solicitudesApi.currentPage ?? solicitudesApi.page ?? page,
         limit: solicitudesApi.itemsPerPage ?? solicitudesApi.limit ?? limit,
+        totalPages:
+          solicitudesApi.totalPages ??
+          Math.max(1, Math.ceil(solicitudesApi.total / (solicitudesApi.itemsPerPage ?? solicitudesApi.limit ?? limit))),
       },
     };
   } catch (error) {
@@ -103,6 +106,7 @@ export async function fetchInitialDataAction(
         total: 0,
         page,
         limit,
+        totalPages: 1,
       },
       counts: {
         pending: 0,
@@ -147,6 +151,9 @@ export async function getSolicitudesAction(
       total: solicitudesApi.total,
       page: solicitudesApi.currentPage ?? solicitudesApi.page ?? page,
       limit: solicitudesApi.itemsPerPage ?? solicitudesApi.limit ?? limit,
+      totalPages:
+        solicitudesApi.totalPages ??
+        Math.max(1, Math.ceil(solicitudesApi.total / (solicitudesApi.itemsPerPage ?? solicitudesApi.limit ?? limit))),
     };
   } catch (error) {
     console.error('Error en getSolicitudesAction:', error);
@@ -155,6 +162,7 @@ export async function getSolicitudesAction(
       total: 0,
       page,
       limit,
+      totalPages: 1,
     };
   }
 }

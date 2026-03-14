@@ -7,7 +7,7 @@ export default async function BandejaEntradaPage() {
 
   return (
     <div className="min-h-screen bg-[#f3f6fa]">
-      <NavBar activeItem="bandeja" pendingCount={globalCounts.pending} userName="Jose" />
+      <NavBar activeItem="bandeja" userName="Jose" />
       <BandejaEntradaClient initialSolicitudes={initialSolicitudes} globalCounts={globalCounts} />
     </div>
   );

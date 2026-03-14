@@ -8,7 +8,7 @@ import { NavBar } from '@/components/layout/NavBar/NavBar';
 export default function TutorDashboardPage() {
   return (
     <div className="min-h-screen bg-[#f7fafc]">
-      <NavBar activeItem="panel" pendingCount={3} userName="Jose" />
+      <NavBar activeItem="panel" userName="Jose" />
 
       {/* Main Content */}
       <TutorDashboardContent />

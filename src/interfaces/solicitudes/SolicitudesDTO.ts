@@ -23,6 +23,7 @@ export interface PaginatedSolicitudesDto {
   total: number;
   page: number;
   limit: number;
+  totalPages: number;
 }
 
 export interface InitialFetchResponse {
@@ -46,6 +47,7 @@ interface ApiSolicitudItem {
 export interface ApiSolicitudesResponse {
   data: ApiSolicitudItem[];
   total: number;
+  totalPages?: number;
   page?: number;
   limit?: number;
   currentPage?: number;

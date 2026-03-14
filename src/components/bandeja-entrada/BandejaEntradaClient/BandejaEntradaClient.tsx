@@ -20,6 +20,8 @@ export function BandejaEntradaClient({ initialSolicitudes, globalCounts }: Bande
   const [currentSolicitudes, setCurrentSolicitudes] = React.useState<SolicitudDetailsDto[]>(
     initialSolicitudes.data
   );
+  const [currentPage, setCurrentPage] = React.useState<number>(initialSolicitudes.page);
+  const [totalPages, setTotalPages] = React.useState<number>(initialSolicitudes.totalPages);
   const [activeTab, setActiveTab] = React.useState<'PENDIENTE' | 'EXPIRADA'>('PENDIENTE');
   const [isPending, startTransition] = React.useTransition();
 
@@ -29,15 +31,17 @@ export function BandejaEntradaClient({ initialSolicitudes, globalCounts }: Bande
     startTransition(async () => {
       const response = await getSolicitudesAction(newStatus, 1, 10);
       setCurrentSolicitudes(response.data);
+      setCurrentPage(response.page);
+      setTotalPages(response.totalPages);
     });
   };
 
   return (
-    <section className="mx-auto w-full max-w-[1240px] px-6 py-10">
+    <section className="mx-auto w-full max-w-310 px-6 py-8">
       <div className="mb-7 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-5xl font-bold text-[var(--primary)]">Bandeja de Entrada</h1>
-          <p className="mt-2 text-2xl text-slate-500">Solicitudes de tutoria recibidas</p>
+          <h1 className="text-4xl font-bold text-primary">Bandeja de Entrada</h1>
+          <p className="mt-1 text-base text-slate-500">Solicitudes de tutoria recibidas</p>
         </div>
 
         <GlobalPendingCount pendingCount={globalCounts.pending} />
@@ -50,9 +54,14 @@ export function BandejaEntradaClient({ initialSolicitudes, globalCounts }: Bande
       />
 
       {isPending ? (
-        <div className="py-8 text-center text-lg text-slate-500">Cargando solicitudes...</div>
+        <div className="py-8 text-center text-sm text-slate-500">Cargando solicitudes...</div>
       ) : (
-        <SolicitudesTable solicitudes={currentSolicitudes} activeTabStatus={activeTab} />
+        <SolicitudesTable
+          solicitudes={currentSolicitudes}
+          activeTabStatus={activeTab}
+          currentPage={currentPage}
+          totalPages={totalPages}
+        />
       )}
     </section>
   );

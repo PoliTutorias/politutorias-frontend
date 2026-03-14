@@ -14,7 +14,7 @@ const STATUS_TEXT: Record<SolicitudStatus, string> = {
 
 export function NoRequestsMessage({ status }: NoRequestsMessageProps) {
   return (
-    <div className="py-10 text-center text-lg font-medium text-slate-500">
+    <div className="py-10 text-center text-sm font-medium text-slate-500">
       No hay solicitudes {STATUS_TEXT[status]}.
     </div>
   );

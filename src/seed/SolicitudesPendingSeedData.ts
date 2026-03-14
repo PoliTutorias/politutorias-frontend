@@ -42,4 +42,5 @@ export const paginatedSolicitudesPendingSeed: PaginatedSolicitudesDto = {
   total: 3,
   page: 1,
   limit: 10,
+  totalPages: 1,
 };
