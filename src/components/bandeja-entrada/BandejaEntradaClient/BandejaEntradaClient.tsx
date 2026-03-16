@@ -36,6 +36,19 @@ export function BandejaEntradaClient({ initialSolicitudes, globalCounts }: Bande
     });
   };
 
+  const handlePageChange = (newPage: number) => {
+    if (newPage === currentPage || newPage < 1 || newPage > totalPages) {
+      return;
+    }
+
+    startTransition(async () => {
+      const response = await getSolicitudesAction(activeTab, newPage, 10);
+      setCurrentSolicitudes(response.data);
+      setCurrentPage(response.page);
+      setTotalPages(response.totalPages);
+    });
+  };
+
   return (
     <section className="mx-auto w-full max-w-310 px-6 py-8">
       <div className="mb-7 flex flex-wrap items-start justify-between gap-4">
@@ -61,6 +74,8 @@ export function BandejaEntradaClient({ initialSolicitudes, globalCounts }: Bande
           activeTabStatus={activeTab}
           currentPage={currentPage}
           totalPages={totalPages}
+          onPageChange={handlePageChange}
+          isLoading={isPending}
         />
       )}
     </section>

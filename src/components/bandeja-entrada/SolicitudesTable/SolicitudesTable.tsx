@@ -11,6 +11,8 @@ interface SolicitudesTableProps {
   activeTabStatus: 'PENDIENTE' | 'EXPIRADA';
   currentPage: number;
   totalPages: number;
+  onPageChange: (page: number) => void;
+  isLoading?: boolean;
 }
 
 export function SolicitudesTable({
@@ -18,6 +20,8 @@ export function SolicitudesTable({
   activeTabStatus,
   currentPage,
   totalPages,
+  onPageChange,
+  isLoading = false,
 }: SolicitudesTableProps) {
   const [expandedRowId, setExpandedRowId] = React.useState<string | null>(null);
 
@@ -61,7 +65,12 @@ export function SolicitudesTable({
 
       {solicitudes.length > 0 && (
         <div className="mt-auto pt-4">
-          <PaginationComponent currentPage={currentPage} totalPages={totalPages} />
+          <PaginationComponent
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={onPageChange}
+            isLoading={isLoading}
+          />
         </div>
       )}
     </div>
