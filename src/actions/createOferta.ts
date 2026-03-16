@@ -65,29 +65,53 @@ export async function createOfertaAction(
       }
     };
 
+    const tutorId = await getTutorIdFromCookies();
+    const payload = {
+      title: data.title,
+      price: data.price,
+      modality: mapModalidadToBackend(data.modality),
+      categories: categoryNames,
+      description: data.description,
+    };
+
+    console.log('[createOfertaAction] Request URL:', `${backendUrl}ofertas`);
+    console.log('[createOfertaAction] Request Method:', 'POST');
+    console.log('[createOfertaAction] Request Headers:', {
+      'Content-Type': 'application/json',
+      'X-Tutor-Id': tutorId,
+    });
+    console.log('[createOfertaAction] Request Body:', payload);
+
     const response = await fetch(`${backendUrl}ofertas`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-Tutor-Id': await getTutorIdFromCookies(),
+        'X-Tutor-Id': tutorId,
       },
-      body: JSON.stringify({
-        title: data.title,
-        price: data.price,
-        modality: mapModalidadToBackend(data.modality),
-        categories: categoryNames,
-        description: data.description,
-      }),
+      body: JSON.stringify(payload),
     });
 
-    const responseData = await response.json();
+    const rawResponseBody = await response.text();
+    console.log('[createOfertaAction] Response Status:', response.status, response.statusText);
+    console.log('[createOfertaAction] Response Headers:', Object.fromEntries(response.headers.entries()));
+    console.log('[createOfertaAction] Response Body:', rawResponseBody);
+
+    let responseData: Record<string, unknown> = {};
+    try {
+      responseData = rawResponseBody ? JSON.parse(rawResponseBody) : {};
+    } catch {
+      responseData = { message: rawResponseBody || 'Respuesta no JSON del servidor' };
+    }
 
     // Respuesta exitosa 201
     if (response.status === 201) {
       return {
         success: true,
-        message: responseData.message || 'Oferta creada exitosamente',
-        data: responseData.data,
+        message:
+          typeof responseData.message === 'string'
+            ? responseData.message
+            : 'Oferta creada exitosamente',
+        data: responseData.data as CreateOfertaResponse['data'],
       };
     }
 
@@ -96,11 +120,11 @@ export async function createOfertaAction(
       return {
         success: false,
         message: Array.isArray(responseData.message)
-          ? responseData.message[0]
-          : responseData.message || 'Error de validación',
+          ? String(responseData.message[0])
+          : String(responseData.message || 'Error de validación'),
         errors: Array.isArray(responseData.message)
-          ? responseData.message
-          : [responseData.message],
+          ? responseData.message.map((item) => String(item))
+          : [String(responseData.message)],
       };
     }
 
@@ -108,7 +132,7 @@ export async function createOfertaAction(
     if (response.status === 409) {
       return {
         success: false,
-        message: responseData.message || 'Ya existe una oferta con este título',
+        message: String(responseData.message || 'Ya existe una oferta con este título'),
       };
     }
 
@@ -116,13 +140,13 @@ export async function createOfertaAction(
     if (response.status === 500) {
       return {
         success: false,
-        message: responseData.message || 'Error interno del servidor',
+        message: String(responseData.message || 'Error interno del servidor'),
       };
     }
 
     // Otros errores
     throw new Error(
-      `Error ${response.status}: ${responseData.message || 'Error desconocido'}`
+      `Error ${response.status}: ${String(responseData.message || 'Error desconocido')}`
     );
   } catch (error) {
     const message =
