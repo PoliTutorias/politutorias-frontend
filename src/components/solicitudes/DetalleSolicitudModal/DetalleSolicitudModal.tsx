@@ -1,6 +1,6 @@
 'use client';
 
-import { FiCalendar, FiClock, FiMapPin, FiMessageSquare, FiTrash2, FiX } from 'react-icons/fi';
+import { FiCalendar, FiClock, FiMapPin, FiMessageSquare, FiTrash2, FiX, FiXCircle } from 'react-icons/fi';
 import { SolicitudDetailDto, SolicitudStatus } from '@/dtos/solicitudes.dto';
 
 interface DetalleSolicitudModalProps {
@@ -33,6 +33,7 @@ export function DetalleSolicitudModal({
 
   const isPending = solicitudDetail.status === SolicitudStatus.PENDIENTE;
   const isAccepted = solicitudDetail.status === SolicitudStatus.ACEPTADA;
+  const isRejected = solicitudDetail.status === SolicitudStatus.RECHAZADA;
   const isPendingOrAccepted = isPending || isAccepted;
 
   return (
@@ -74,6 +75,13 @@ export function DetalleSolicitudModal({
               <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-slate-100 px-4 py-1.5 text-sm font-semibold text-slate-700">
                 <FiClock />
                 Aceptada
+              </span>
+            )}
+
+            {isRejected && (
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-slate-100 px-4 py-1.5 text-sm font-semibold text-slate-600">
+                <FiXCircle />
+                Rechazada
               </span>
             )}
           </div>
@@ -136,6 +144,13 @@ export function DetalleSolicitudModal({
           </div>
           <p className="mt-3 text-[1.45rem] italic text-slate-600 md:text-base">“{solicitudDetail.studentMessage}”</p>
         </section>
+
+        {isRejected && (
+          <section className="mt-4 rounded-xl border border-slate-200 bg-[#f1f5f9] p-4">
+            <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Motivo de Rechazo</p>
+            <p className="mt-2 text-base text-slate-600">{solicitudDetail.rejectionReason || 'Sin motivo registrado.'}</p>
+          </section>
+        )}
 
         <footer className="mt-8 flex justify-end gap-6">
           {isPending && (
