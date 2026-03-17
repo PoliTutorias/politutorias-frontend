@@ -34,7 +34,9 @@ export function DetalleSolicitudModal({
   const isPending = solicitudDetail.status === SolicitudStatus.PENDIENTE;
   const isAccepted = solicitudDetail.status === SolicitudStatus.ACEPTADA;
   const isRejected = solicitudDetail.status === SolicitudStatus.RECHAZADA;
+  const isExpired = solicitudDetail.status === SolicitudStatus.EXPIRADA;
   const isPendingOrAccepted = isPending || isAccepted;
+  const showBaseInfo = isPendingOrAccepted || isExpired;
 
   return (
     <dialog
@@ -84,6 +86,13 @@ export function DetalleSolicitudModal({
                 Rechazada
               </span>
             )}
+
+            {isExpired && (
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-red-200 bg-red-50 px-4 py-1.5 text-sm font-semibold text-red-500">
+                <FiClock />
+                Expirada
+              </span>
+            )}
           </div>
         </section>
 
@@ -103,7 +112,7 @@ export function DetalleSolicitudModal({
         <section className="mt-4 rounded-xl border border-slate-200 bg-white p-4">
           <h3 className="text-[1.95rem] font-bold leading-none text-primary md:text-[1.65rem]">{solicitudDetail.subject}</h3>
 
-          {isPendingOrAccepted && (
+          {showBaseInfo && (
             <>
               <div className="mt-4 grid grid-cols-2 gap-4 text-[1.35rem] text-slate-500 md:text-base">
                 <span className="inline-flex items-center gap-2">
