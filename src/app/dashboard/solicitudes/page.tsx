@@ -1,16 +1,97 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import { SolicitudFilterStatus, SolicitudStatus } from '@/dtos/solicitudes.dto';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  SolicitudFilterStatus,
+  SolicitudListItemDto,
+  SolicitudStatus,
+} from '@/dtos/solicitudes.dto';
 import Link from 'next/link';
 import clsx from 'clsx';
 import { dancingScript, montserrat } from '@/lib/fonts';
+import { SolicitudFilterTabs } from '@/components/solicitudes/SolicitudFilterTabs/SolicitudFilterTabs';
+import { SolicitudList } from '@/components/solicitudes/SolicitudList/SolicitudList';
+import { PaginationComponent } from '@/components/common/Pagination/PaginationComponent';
+import { getSolicitudesAction } from '@/actions/solicitudes/getSolicitudesAction';
+
+const ITEMS_PER_PAGE = 5;
+
+const INITIAL_COUNTS: { [key in SolicitudFilterStatus]: number } = {
+  TODAS: 0,
+  PENDIENTE: 0,
+  ACEPTADA: 0,
+  RECHAZADA: 0,
+  EXPIRADA: 0,
+};
 
 export default function MisSolicitudesPage() {
   const [currentStatusFilter, setCurrentStatusFilter] = useState<SolicitudFilterStatus>('TODAS');
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [solicitudes, setSolicitudes] = useState<SolicitudListItemDto[]>([]);
+  const [total, setTotal] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [counts, setCounts] = useState<{ [key in SolicitudFilterStatus]: number }>(INITIAL_COUNTS);
 
-  const canShowPagination = useMemo(() => currentPage >= 1, [currentPage]);
+  const canShowPagination = useMemo(() => total > ITEMS_PER_PAGE, [total]);
+
+  const handleFilterChange = useCallback((status: SolicitudFilterStatus) => {
+    setCurrentStatusFilter(status);
+    setCurrentPage(1);
+  }, []);
+
+  const loadSolicitudes = useCallback(async (status: SolicitudFilterStatus, page: number) => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const [listResult, todasCount, pendienteCount, aceptadaCount, rechazadaCount, expiradaCount] =
+        await Promise.all([
+          getSolicitudesAction({ status, page, limit: ITEMS_PER_PAGE }),
+          getSolicitudesAction({ status: 'TODAS', page: 1, limit: 1000 }),
+          getSolicitudesAction({ status: SolicitudStatus.PENDIENTE, page: 1, limit: 1000 }),
+          getSolicitudesAction({ status: SolicitudStatus.ACEPTADA, page: 1, limit: 1000 }),
+          getSolicitudesAction({ status: SolicitudStatus.RECHAZADA, page: 1, limit: 1000 }),
+          getSolicitudesAction({ status: SolicitudStatus.EXPIRADA, page: 1, limit: 1000 }),
+        ]);
+
+      setSolicitudes(listResult.items);
+      setTotal(listResult.total);
+      setCounts({
+        TODAS: todasCount.total,
+        PENDIENTE: pendienteCount.total,
+        ACEPTADA: aceptadaCount.total,
+        RECHAZADA: rechazadaCount.total,
+        EXPIRADA: expiradaCount.total,
+      });
+    } catch {
+      setError('No se pudieron cargar las solicitudes. Intenta nuevamente.');
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadSolicitudes(currentStatusFilter, currentPage);
+  }, [currentStatusFilter, currentPage, loadSolicitudes]);
+
+  let content: React.ReactNode;
+
+  if (isLoading) {
+    content = (
+      <div className="rounded-2xl border border-slate-200 bg-white px-6 py-10 text-center text-slate-500">
+        Cargando solicitudes...
+      </div>
+    );
+  } else if (error) {
+    content = (
+      <div className="rounded-2xl border border-red-200 bg-red-50 px-6 py-6 text-center text-red-600">
+        {error}
+      </div>
+    );
+  } else {
+    content = <SolicitudList solicitudes={solicitudes} onCardClick={() => undefined} />;
+  }
 
   return (
     <div className="min-h-screen bg-[#eef2f6]">
@@ -51,64 +132,23 @@ export default function MisSolicitudesPage() {
         <p className="mt-2 text-[1.38rem] text-[#64748b]">Seguimiento de tus solicitudes de tutoría</p>
 
         <section className="mt-8">
-          <div className="rounded-2xl border border-slate-200 bg-white p-6">
-            <p className="text-sm font-medium text-slate-500">Filtro actual: {currentStatusFilter}</p>
-            <div className="mt-3 flex flex-wrap gap-2">
-              <button
-                type="button"
-                className="rounded-full border border-slate-300 px-4 py-2 text-sm"
-                onClick={() => {
-                  setCurrentStatusFilter('TODAS');
-                  setCurrentPage(1);
-                }}
-              >
-                TODAS
-              </button>
-              <button
-                type="button"
-                className="rounded-full border border-slate-300 px-4 py-2 text-sm"
-                onClick={() => {
-                  setCurrentStatusFilter(SolicitudStatus.PENDIENTE);
-                  setCurrentPage(1);
-                }}
-              >
-                PENDIENTE
-              </button>
-              <button
-                type="button"
-                className="rounded-full border border-slate-300 px-4 py-2 text-sm"
-                onClick={() => {
-                  setCurrentStatusFilter(SolicitudStatus.EXPIRADA);
-                  setCurrentPage(1);
-                }}
-              >
-                EXPIRADA
-              </button>
-            </div>
+          <SolicitudFilterTabs
+            currentStatusFilter={currentStatusFilter}
+            onFilterChange={handleFilterChange}
+            counts={counts}
+          />
+
+          <div className="mt-6">
+            {content}
           </div>
 
-          <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-6">
-            <p className="text-slate-500">Aquí se renderizará el componente SolicitudList.</p>
-          </div>
-
-          {canShowPagination && (
-            <div className="mt-6 flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white p-4">
-              <button
-                type="button"
-                className="rounded-md border border-slate-300 px-3 py-1 text-sm"
-                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-              >
-                {'<'}
-              </button>
-              <span className="text-sm font-semibold text-primary">{currentPage}</span>
-              <button
-                type="button"
-                className="rounded-md border border-slate-300 px-3 py-1 text-sm"
-                onClick={() => setCurrentPage((prev) => prev + 1)}
-              >
-                {'>'}
-              </button>
-            </div>
+          {canShowPagination && !isLoading && !error && (
+            <PaginationComponent
+              totalItems={total}
+              itemsPerPage={ITEMS_PER_PAGE}
+              currentPage={currentPage}
+              onPageChange={setCurrentPage}
+            />
           )}
         </section>
       </main>
