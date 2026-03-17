@@ -1,24 +1,24 @@
 'use client';
 
 import clsx from 'clsx';
-import { SolicitudFilterStatus, SolicitudStatus } from '@/dtos/solicitudes.dto';
+import { SolicitudStatus } from '@/dtos/solicitudes.dto';
+
+type Hu33FilterStatus = 'TODAS' | SolicitudStatus.PENDIENTE | SolicitudStatus.EXPIRADA;
 
 interface SolicitudFilterTabsProps {
-  readonly currentStatusFilter: SolicitudFilterStatus;
-  readonly onFilterChange: (status: SolicitudFilterStatus) => void;
-  readonly counts: { [key in SolicitudFilterStatus]: number };
+  readonly currentStatusFilter: Hu33FilterStatus;
+  readonly onFilterChange: (status: Hu33FilterStatus) => void;
+  readonly counts: { [key in Hu33FilterStatus]: number };
 }
 
 type FilterTab = {
-  key: SolicitudFilterStatus;
+  key: Hu33FilterStatus;
   label: string;
 };
 
 const FILTER_TABS: FilterTab[] = [
   { key: 'TODAS', label: 'Todas' },
   { key: SolicitudStatus.PENDIENTE, label: 'Pendientes' },
-  { key: SolicitudStatus.ACEPTADA, label: 'Aceptadas' },
-  { key: SolicitudStatus.RECHAZADA, label: 'Rechazadas' },
   { key: SolicitudStatus.EXPIRADA, label: 'Expiradas' },
 ];
 

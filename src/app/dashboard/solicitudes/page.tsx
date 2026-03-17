@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-  SolicitudFilterStatus,
   SolicitudListItemDto,
   SolicitudStatus,
 } from '@/dtos/solicitudes.dto';
@@ -17,28 +16,28 @@ import { DetalleSolicitudModal } from '@/components/solicitudes/DetalleSolicitud
 
 const ITEMS_PER_PAGE = 5;
 
-const INITIAL_COUNTS: { [key in SolicitudFilterStatus]: number } = {
+type Hu33FilterStatus = 'TODAS' | SolicitudStatus.PENDIENTE | SolicitudStatus.EXPIRADA;
+
+const INITIAL_COUNTS: { [key in Hu33FilterStatus]: number } = {
   TODAS: 0,
   PENDIENTE: 0,
-  ACEPTADA: 0,
-  RECHAZADA: 0,
   EXPIRADA: 0,
 };
 
 export default function MisSolicitudesPage() {
-  const [currentStatusFilter, setCurrentStatusFilter] = useState<SolicitudFilterStatus>('TODAS');
+  const [currentStatusFilter, setCurrentStatusFilter] = useState<Hu33FilterStatus>('TODAS');
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [solicitudes, setSolicitudes] = useState<SolicitudListItemDto[]>([]);
   const [total, setTotal] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [counts, setCounts] = useState<{ [key in SolicitudFilterStatus]: number }>(INITIAL_COUNTS);
+  const [counts, setCounts] = useState<{ [key in Hu33FilterStatus]: number }>(INITIAL_COUNTS);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedSolicitudId, setSelectedSolicitudId] = useState<string | null>(null);
 
   const canShowPagination = useMemo(() => total > ITEMS_PER_PAGE, [total]);
 
-  const handleFilterChange = useCallback((status: SolicitudFilterStatus) => {
+  const handleFilterChange = useCallback((status: Hu33FilterStatus) => {
     setCurrentStatusFilter(status);
     setCurrentPage(1);
   }, []);
@@ -52,18 +51,16 @@ export default function MisSolicitudesPage() {
     setIsModalOpen(false);
   }, []);
 
-  const loadSolicitudes = useCallback(async (status: SolicitudFilterStatus, page: number) => {
+  const loadSolicitudes = useCallback(async (status: Hu33FilterStatus, page: number) => {
     setIsLoading(true);
     setError(null);
 
     try {
-      const [listResult, todasCount, pendienteCount, aceptadaCount, rechazadaCount, expiradaCount] =
+      const [listResult, todasCount, pendienteCount, expiradaCount] =
         await Promise.all([
           getSolicitudesAction({ status, page, limit: ITEMS_PER_PAGE }),
           getSolicitudesAction({ status: 'TODAS', page: 1, limit: 1000 }),
           getSolicitudesAction({ status: SolicitudStatus.PENDIENTE, page: 1, limit: 1000 }),
-          getSolicitudesAction({ status: SolicitudStatus.ACEPTADA, page: 1, limit: 1000 }),
-          getSolicitudesAction({ status: SolicitudStatus.RECHAZADA, page: 1, limit: 1000 }),
           getSolicitudesAction({ status: SolicitudStatus.EXPIRADA, page: 1, limit: 1000 }),
         ]);
 
@@ -72,8 +69,6 @@ export default function MisSolicitudesPage() {
       setCounts({
         TODAS: todasCount.total,
         PENDIENTE: pendienteCount.total,
-        ACEPTADA: aceptadaCount.total,
-        RECHAZADA: rechazadaCount.total,
         EXPIRADA: expiradaCount.total,
       });
     } catch {
