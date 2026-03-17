@@ -1,57 +1,112 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { FiCalendar, FiClock, FiMapPin, FiMessageSquare, FiTrash2, FiX, FiXCircle } from 'react-icons/fi';
 import { SolicitudDetailDto, SolicitudStatus } from '@/dtos/solicitudes.dto';
+import { getSolicitudDetailAction } from '@/actions/solicitudes/getSolicitudDetailAction';
 
 interface DetalleSolicitudModalProps {
   readonly isOpen: boolean;
   readonly onClose: () => void;
-  readonly solicitudDetail: SolicitudDetailDto | null;
+  readonly solicitudId: string | null;
 }
 
 export function DetalleSolicitudModal({
   isOpen,
   onClose,
-  solicitudDetail,
+  solicitudId,
 }: DetalleSolicitudModalProps) {
-  if (!isOpen || !solicitudDetail) {
+  const [solicitudDetail, setSolicitudDetail] = useState<SolicitudDetailDto | null>(null);
+  const [isLoadingDetail, setIsLoadingDetail] = useState<boolean>(false);
+  const [detailError, setDetailError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!isOpen || !solicitudId) {
+      setSolicitudDetail(null);
+      setDetailError(null);
+      return;
+    }
+
+    let isMounted = true;
+
+    const loadDetail = async () => {
+      setIsLoadingDetail(true);
+      setDetailError(null);
+
+      try {
+        const detail = await getSolicitudDetailAction(solicitudId);
+
+        if (!isMounted) {
+          return;
+        }
+
+        if (!detail) {
+          setSolicitudDetail(null);
+          setDetailError('No se encontró el detalle de la solicitud.');
+          return;
+        }
+
+        setSolicitudDetail(detail);
+      } catch {
+        if (isMounted) {
+          setSolicitudDetail(null);
+          setDetailError('No se pudo cargar el detalle de la solicitud.');
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoadingDetail(false);
+        }
+      }
+    };
+
+    void loadDetail();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isOpen, solicitudId]);
+
+  if (!isOpen) {
     return null;
   }
 
-  const dateLabel = new Intl.DateTimeFormat('es-EC', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  }).format(new Date(solicitudDetail.dateTime));
+  let bodyContent: React.ReactNode;
 
-  const timeLabel = new Intl.DateTimeFormat('es-EC', {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-  }).format(new Date(solicitudDetail.dateTime));
+  if (isLoadingDetail) {
+    bodyContent = (
+      <div className="rounded-xl border border-slate-200 bg-white px-6 py-10 text-center text-slate-500">
+        Cargando detalle de solicitud...
+      </div>
+    );
+  } else if (detailError) {
+    bodyContent = (
+      <div className="rounded-xl border border-red-200 bg-red-50 px-6 py-6 text-center text-red-600">
+        {detailError}
+      </div>
+    );
+  } else if (solicitudDetail) {
+    const dateLabel = new Intl.DateTimeFormat('es-EC', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    }).format(new Date(solicitudDetail.dateTime));
 
-  const isPending = solicitudDetail.status === SolicitudStatus.PENDIENTE;
-  const isAccepted = solicitudDetail.status === SolicitudStatus.ACEPTADA;
-  const isRejected = solicitudDetail.status === SolicitudStatus.RECHAZADA;
-  const isExpired = solicitudDetail.status === SolicitudStatus.EXPIRADA;
-  const isPendingOrAccepted = isPending || isAccepted;
-  const showBaseInfo = isPendingOrAccepted || isExpired;
+    const timeLabel = new Intl.DateTimeFormat('es-EC', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    }).format(new Date(solicitudDetail.dateTime));
 
-  return (
-    <dialog
-      open
-      className="fixed inset-0 z-50 m-0 flex h-screen w-screen items-center justify-center bg-black/40 px-4"
-      aria-label="Detalle de la Solicitud"
-    >
-      <div className="w-full max-w-2xl rounded-3xl bg-white p-7 shadow-xl">
-        <header className="flex items-center justify-between">
-          <h2 className="text-3xl font-bold text-primary md:text-[1.95rem]">Detalle de la Solicitud</h2>
-          <button type="button" onClick={onClose} className="text-3xl text-slate-600 transition-colors hover:text-primary">
-            <FiX />
-          </button>
-        </header>
+    const isPending = solicitudDetail.status === SolicitudStatus.PENDIENTE;
+    const isAccepted = solicitudDetail.status === SolicitudStatus.ACEPTADA;
+    const isRejected = solicitudDetail.status === SolicitudStatus.RECHAZADA;
+    const isExpired = solicitudDetail.status === SolicitudStatus.EXPIRADA;
+    const isPendingOrAccepted = isPending || isAccepted;
+    const showBaseInfo = isPendingOrAccepted || isExpired;
 
+    bodyContent = (
+      <>
         <section className="mt-6 rounded-xl border border-slate-200 bg-[#edf2f7] p-4">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-4">
@@ -190,6 +245,30 @@ export function DetalleSolicitudModal({
             Cerrar
           </button>
         </footer>
+      </>
+    );
+  } else {
+    bodyContent = (
+      <div className="rounded-xl border border-slate-200 bg-white px-6 py-6 text-center text-slate-500">
+        No hay datos para mostrar.
+      </div>
+    );
+  }
+
+  return (
+    <dialog
+      open
+      className="fixed inset-0 z-50 m-0 flex h-screen w-screen items-center justify-center bg-black/40 px-4"
+      aria-label="Detalle de la Solicitud"
+    >
+      <div className="w-full max-w-2xl rounded-3xl bg-white p-7 shadow-xl">
+        <header className="flex items-center justify-between">
+          <h2 className="text-3xl font-bold text-primary md:text-[1.95rem]">Detalle de la Solicitud</h2>
+          <button type="button" onClick={onClose} className="text-3xl text-slate-600 transition-colors hover:text-primary">
+            <FiX />
+          </button>
+        </header>
+        {bodyContent}
       </div>
     </dialog>
   );

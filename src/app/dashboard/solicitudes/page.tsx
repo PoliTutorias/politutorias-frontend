@@ -13,6 +13,7 @@ import { SolicitudFilterTabs } from '@/components/solicitudes/SolicitudFilterTab
 import { SolicitudList } from '@/components/solicitudes/SolicitudList/SolicitudList';
 import { PaginationComponent } from '@/components/common/Pagination/PaginationComponent';
 import { getSolicitudesAction } from '@/actions/solicitudes/getSolicitudesAction';
+import { DetalleSolicitudModal } from '@/components/solicitudes/DetalleSolicitudModal/DetalleSolicitudModal';
 
 const ITEMS_PER_PAGE = 5;
 
@@ -32,12 +33,23 @@ export default function MisSolicitudesPage() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [counts, setCounts] = useState<{ [key in SolicitudFilterStatus]: number }>(INITIAL_COUNTS);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [selectedSolicitudId, setSelectedSolicitudId] = useState<string | null>(null);
 
   const canShowPagination = useMemo(() => total > ITEMS_PER_PAGE, [total]);
 
   const handleFilterChange = useCallback((status: SolicitudFilterStatus) => {
     setCurrentStatusFilter(status);
     setCurrentPage(1);
+  }, []);
+
+  const handleCardClick = useCallback((id: string) => {
+    setSelectedSolicitudId(id);
+    setIsModalOpen(true);
+  }, []);
+
+  const handleCloseModal = useCallback(() => {
+    setIsModalOpen(false);
   }, []);
 
   const loadSolicitudes = useCallback(async (status: SolicitudFilterStatus, page: number) => {
@@ -90,7 +102,7 @@ export default function MisSolicitudesPage() {
       </div>
     );
   } else {
-    content = <SolicitudList solicitudes={solicitudes} onCardClick={() => undefined} />;
+    content = <SolicitudList solicitudes={solicitudes} onCardClick={handleCardClick} />;
   }
 
   return (
@@ -152,6 +164,12 @@ export default function MisSolicitudesPage() {
           )}
         </section>
       </main>
+
+      <DetalleSolicitudModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        solicitudId={selectedSolicitudId}
+      />
     </div>
   );
 }
