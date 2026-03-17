@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { FiCalendar, FiClock, FiMapPin, FiMessageSquare, FiX } from 'react-icons/fi';
+import { FiBookOpen, FiCalendar, FiClock, FiMapPin, FiMessageSquare, FiX } from 'react-icons/fi';
 import { SolicitudDetailDto, SolicitudStatus } from '@/dtos/solicitudes.dto';
 import { getSolicitudDetailAction } from '@/actions/solicitudes/getSolicitudDetailAction';
 
@@ -74,13 +74,13 @@ export function DetalleSolicitudModal({
 
   if (isLoadingDetail) {
     bodyContent = (
-      <div className="rounded-xl border border-slate-200 bg-white px-6 py-10 text-center text-slate-500">
+      <div className="rounded-xl border border-slate-200 bg-white px-5 py-8 text-center text-slate-500">
         Cargando detalle de solicitud...
       </div>
     );
   } else if (detailError) {
     bodyContent = (
-      <div className="rounded-xl border border-red-200 bg-red-50 px-6 py-6 text-center text-red-600">
+      <div className="rounded-xl border border-red-200 bg-red-50 px-5 py-5 text-center text-red-600">
         {detailError}
       </div>
     );
@@ -104,29 +104,29 @@ export function DetalleSolicitudModal({
 
     bodyContent = (
       <>
-        <section className="mt-6 rounded-xl border border-slate-200 bg-[#edf2f7] p-4">
+        <section className="mt-4 rounded-xl border border-slate-200 bg-[#edf2f7] p-4">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <img
                 src={solicitudDetail.avatarUrl || 'https://i.pravatar.cc/96'}
                 alt={`Avatar de ${solicitudDetail.tutorName}`}
-                className="h-14 w-14 rounded-full object-cover"
+                className="h-11 w-11 rounded-full object-cover"
               />
               <div>
-                <p className="text-[2rem] font-bold leading-none text-primary md:text-[1.65rem]">{solicitudDetail.tutorName}</p>
-                <p className="mt-1 text-[1.6rem] leading-none text-slate-500 md:text-base">Tutor</p>
+                <p className="text-base font-bold leading-none text-primary">{solicitudDetail.tutorName}</p>
+                <p className="mt-1 text-xs leading-none text-slate-500">Tutor</p>
               </div>
             </div>
 
             {isPending && (
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-orange-200 bg-orange-50 px-4 py-1.5 text-sm font-semibold text-orange-600">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-xs font-semibold text-orange-600">
                 <FiClock />
                 Pendiente
               </span>
             )}
 
             {isExpired && (
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-red-200 bg-red-50 px-4 py-1.5 text-sm font-semibold text-red-500">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-red-200 bg-red-50 px-3 py-1 text-xs font-semibold text-red-500">
                 <FiClock />
                 Expirada
               </span>
@@ -134,12 +134,15 @@ export function DetalleSolicitudModal({
           </div>
         </section>
 
-        <section className="mt-4 rounded-xl border border-slate-200 bg-white p-4">
-          <h3 className="text-[1.95rem] font-bold leading-none text-primary md:text-[1.65rem]">{solicitudDetail.subject}</h3>
+        <section className="mt-3 rounded-xl border border-slate-200 bg-white p-4">
+          <div className="flex items-center gap-2">
+            <FiBookOpen className="text-yellow" />
+            <h3 className="text-base font-bold leading-none text-primary">{solicitudDetail.subject}</h3>
+          </div>
 
           {showBaseInfo && (
             <>
-              <div className="mt-4 grid grid-cols-2 gap-4 text-[1.35rem] text-slate-500 md:text-base">
+              <div className="mt-3 grid grid-cols-2 gap-3 text-sm text-slate-500">
                 <span className="inline-flex items-center gap-2">
                   <FiCalendar />
                   {dateLabel}
@@ -152,16 +155,17 @@ export function DetalleSolicitudModal({
                   <FiMapPin />
                   {solicitudDetail.modality}
                 </span>
-                <span className="font-bold text-primary">${solicitudDetail.price}/h</span>
+                <span className="text-sm font-bold text-primary">${solicitudDetail.price}/h</span>
               </div>
 
               {isPending && (
-                <div className="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-4">
+                <div className="mt-3 rounded-lg border border-slate-200 bg-slate-50 p-3">
                   <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Horarios Propuestos</p>
                   <ul className="mt-2 space-y-1 text-sm text-slate-600">
                     {solicitudDetail.proposedSchedules.map((schedule, index) => (
-                      <li key={`${schedule.date}-${schedule.time}-${index}`}>
-                        {schedule.date} · {schedule.time}
+                      <li key={`${schedule.date}-${schedule.time}-${index}`} className="flex items-center gap-2">
+                        <FiCalendar className="text-slate-400" />
+                        <span>{schedule.date} · {schedule.time}</span>
                       </li>
                     ))}
                   </ul>
@@ -171,19 +175,19 @@ export function DetalleSolicitudModal({
           )}
         </section>
 
-        <section className="mt-4 rounded-xl border border-orange-300 bg-white p-4">
-          <div className="flex items-center gap-2 text-[1.25rem] font-bold uppercase tracking-wide text-primary md:text-sm">
+        <section className="mt-3 rounded-xl border border-orange-200 bg-[#f9fbff] p-4 border-l-4 border-l-yellow">
+          <div className="flex items-center gap-2 text-[0.7rem] font-bold uppercase tracking-wide text-primary">
             <FiMessageSquare />
             <span>Tu mensaje</span>
           </div>
-          <p className="mt-3 text-[1.45rem] italic text-slate-600 md:text-base">“{solicitudDetail.studentMessage}”</p>
+          <p className="mt-2 text-sm italic text-slate-600">“{solicitudDetail.studentMessage}”</p>
         </section>
 
-        <footer className="mt-8 flex justify-end gap-6">
+        <footer className="-mx-4 mt-5 flex justify-end gap-6 border-t border-slate-200 px-4 pt-4 pr-6">
           <button
             type="button"
             onClick={onClose}
-            className="text-[1.7rem] font-semibold text-slate-600 transition-colors hover:text-primary md:text-xl"
+            className="rounded-lg px-2 py-1 text-base font-semibold text-slate-700 transition-colors hover:text-primary"
           >
             Cerrar
           </button>
@@ -201,13 +205,13 @@ export function DetalleSolicitudModal({
   return (
     <dialog
       open
-      className="fixed inset-0 z-50 m-0 flex h-screen w-screen items-center justify-center bg-black/40 px-4"
+      className="fixed inset-0 z-50 m-0 flex h-screen w-screen items-center justify-center bg-black/40 px-3"
       aria-label="Detalle de la Solicitud"
     >
-      <div className="w-full max-w-2xl rounded-3xl bg-white p-7 shadow-xl">
+      <div className="w-full max-w-lg rounded-2xl bg-white p-4 shadow-xl">
         <header className="flex items-center justify-between">
-          <h2 className="text-3xl font-bold text-primary md:text-[1.95rem]">Detalle de la Solicitud</h2>
-          <button type="button" onClick={onClose} className="text-3xl text-slate-600 transition-colors hover:text-primary">
+          <h2 className="text-lg font-bold text-primary">Detalle de la Solicitud</h2>
+          <button type="button" onClick={onClose} className="text-xl text-slate-600 transition-colors hover:text-primary">
             <FiX />
           </button>
         </header>

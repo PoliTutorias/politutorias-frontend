@@ -59,30 +59,34 @@ export function SolicitudCard({ solicitud, onClick }: SolicitudCardProps) {
       type="button"
       onClick={() => onClick(solicitud.id)}
       className={clsx(
-        'relative w-full cursor-pointer rounded-none border-b border-slate-200 px-6 py-6 text-left transition-colors hover:bg-slate-50',
+        'relative w-full cursor-pointer rounded-none border-b border-slate-200 px-5 py-4 text-left transition-colors hover:bg-slate-50',
         solicitud.status === SolicitudStatus.EXPIRADA && 'bg-slate-50/50'
       )}
     >
       <span
         className={clsx(
-          'absolute bottom-5 left-6 top-5 w-[3px] rounded-sm bg-primary',
+          'absolute bottom-4 left-5 top-4 w-[3px] rounded-sm bg-primary',
           solicitud.status === SolicitudStatus.EXPIRADA && 'bg-red-400'
         )}
       />
+      <div className="ml-3">
+        <span className={clsx('absolute right-5 top-4 inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold', status.className)}>
+          <status.Icon className="text-xs" />
+          {status.label}
+        </span>
 
-      <div className="ml-4 flex items-start justify-between gap-4">
-        <div className="flex flex-1 items-start gap-4">
+        <div className="flex items-start gap-3">
           <img
             src={solicitud.avatarUrl || 'https://i.pravatar.cc/96'}
             alt={`Avatar de ${solicitud.tutorName}`}
-            className="h-14 w-14 rounded-full object-cover"
+            className="h-12 w-12 rounded-full object-cover"
           />
 
           <div className="flex-1">
-            <h3 className="text-3xl font-bold leading-none text-primary md:text-[1.65rem]">{solicitud.subject}</h3>
-            <p className="mt-2 text-2xl leading-none text-slate-600 md:text-base">{solicitud.tutorName}</p>
+            <h3 className="text-xl font-bold leading-none text-primary">{solicitud.subject}</h3>
+            <p className="mt-1 text-sm text-slate-600">{solicitud.tutorName}</p>
 
-            <div className="mt-4 rounded-lg bg-[#edf2f7] px-4 py-3 text-xl text-slate-500 md:text-sm">
+            <div className="mt-3 rounded-lg bg-[#edf2f7] px-3 py-2 text-sm text-slate-500">
               <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
                 <span className="inline-flex items-center gap-1.5">
                   <FiCalendar className="text-slate-400" />
@@ -92,16 +96,11 @@ export function SolicitudCard({ solicitud, onClick }: SolicitudCardProps) {
                   {solicitud.modality === 'Virtual' ? <FiMonitor className="text-slate-400" /> : <FiUser className="text-slate-400" />}
                   {solicitud.modality}
                 </span>
-                <span className="text-2xl font-bold text-primary md:text-[1.1rem]">${solicitud.price}/h</span>
+                <span className="text-base font-bold text-primary">${solicitud.price}/h</span>
               </div>
             </div>
           </div>
         </div>
-
-        <span className={clsx('inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm font-semibold', status.className)}>
-          <status.Icon className="text-base" />
-          {status.label}
-        </span>
       </div>
     </button>
   );

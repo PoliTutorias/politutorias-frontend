@@ -56,20 +56,22 @@ export default function MisSolicitudesPage() {
     setError(null);
 
     try {
-      const [listResult, todasCount, pendienteCount, expiradaCount] =
-        await Promise.all([
-          getSolicitudesAction({ status, page, limit: ITEMS_PER_PAGE }),
-          getSolicitudesAction({ status: 'TODAS', page: 1, limit: 1000 }),
-          getSolicitudesAction({ status: SolicitudStatus.PENDIENTE, page: 1, limit: 1000 }),
-          getSolicitudesAction({ status: SolicitudStatus.EXPIRADA, page: 1, limit: 1000 }),
-        ]);
+      const listResult = await getSolicitudesAction({ status, page, limit: ITEMS_PER_PAGE });
+
+      const [pendingResult, expiredResult] = await Promise.allSettled([
+        getSolicitudesAction({ status: SolicitudStatus.PENDIENTE, page: 1, limit: 1 }),
+        getSolicitudesAction({ status: SolicitudStatus.EXPIRADA, page: 1, limit: 1 }),
+      ]);
+
+      const pendingTotal = pendingResult.status === 'fulfilled' ? pendingResult.value.total : 0;
+      const expiredTotal = expiredResult.status === 'fulfilled' ? expiredResult.value.total : 0;
 
       setSolicitudes(listResult.items);
       setTotal(listResult.total);
       setCounts({
-        TODAS: todasCount.total,
-        PENDIENTE: pendienteCount.total,
-        EXPIRADA: expiradaCount.total,
+        TODAS: pendingTotal + expiredTotal,
+        PENDIENTE: pendingTotal,
+        EXPIRADA: expiredTotal,
       });
     } catch {
       setError('No se pudieron cargar las solicitudes. Intenta nuevamente.');
@@ -102,7 +104,7 @@ export default function MisSolicitudesPage() {
 
   return (
     <div className="min-h-screen bg-[#eef2f6]">
-      <header className="bg-primary px-6 py-3 text-white">
+      <header className="bg-primary px-6 py-4 text-white">
         <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4">
           <Link href="/encuentra-tutoria" className="flex items-center">
             <span className={`${montserrat.className} antialiased text-3xl font-extrabold leading-none text-white`}>
@@ -113,6 +115,7 @@ export default function MisSolicitudesPage() {
             </span>
           </Link>
 
+          <div className="flex items-center gap-5">
           <nav className="flex items-center gap-6 text-sm font-semibold">
             <Link href="/encuentra-tutoria" className="border-b-2 border-transparent pb-1 text-slate-300 transition-colors hover:text-white">
               Explorar
@@ -131,12 +134,23 @@ export default function MisSolicitudesPage() {
               Agenda
             </span>
           </nav>
+
+            <div className="h-8 border-l border-slate-500" />
+
+            <div className="inline-flex items-center gap-2 rounded-full border border-slate-500 bg-slate-700/30 px-3 py-1.5">
+              <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-yellow text-xs font-bold text-primary">P</span>
+              <span className="text-sm font-semibold text-white">Patricio</span>
+            </div>
+            <button type="button" className="text-sm font-medium text-slate-300 transition-colors hover:text-white">
+              Salir
+            </button>
+          </div>
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-6xl px-6 py-10">
-        <h1 className="text-[2.15rem] font-bold leading-none text-primary">Mis Solicitudes</h1>
-        <p className="mt-2 text-[1.38rem] text-[#64748b]">Seguimiento de tus solicitudes de tutoría</p>
+      <main className="mx-auto w-full max-w-5xl px-6 py-10">
+        <h1 className="text-2xl font-bold leading-none text-primary">Mis Solicitudes</h1>
+        <p className="mt-2 text-sm text-[#64748b]">Seguimiento de tus solicitudes de tutoría</p>
 
         <section className="mt-8">
           <SolicitudFilterTabs

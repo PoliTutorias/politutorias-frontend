@@ -25,6 +25,7 @@ type ApiDetalleSolicitud = {
   pricePerHour?: number;
   precioHora?: number;
   status?: string;
+  estado?: string;
   mensaje?: string;
   studentMessage?: string;
   horarios?: ApiHorario[];
@@ -82,7 +83,7 @@ function mapApiDetail(detail: ApiDetalleSolicitud): SolicitudDetailDto {
     dateTime: detail.date || detail.fechaHora || new Date().toISOString(),
     modality: detail.modality || detail.modalidad || 'Virtual',
     price: detail.pricePerHour ?? detail.precioHora ?? 0,
-    status: normalizeStatus(detail.status),
+    status: normalizeStatus(detail.status ?? detail.estado),
     studentMessage: detail.studentMessage || detail.mensaje || '',
     proposedSchedules,
     acceptedMeetingLocation: detail.acceptedMeetingLocation,
