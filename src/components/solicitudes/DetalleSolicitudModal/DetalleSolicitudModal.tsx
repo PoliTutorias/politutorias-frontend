@@ -1,6 +1,6 @@
 'use client';
 
-import { FiCalendar, FiClock, FiMapPin, FiMessageSquare, FiX } from 'react-icons/fi';
+import { FiCalendar, FiClock, FiMapPin, FiMessageSquare, FiTrash2, FiX } from 'react-icons/fi';
 import { SolicitudDetailDto, SolicitudStatus } from '@/dtos/solicitudes.dto';
 
 interface DetalleSolicitudModalProps {
@@ -32,6 +32,8 @@ export function DetalleSolicitudModal({
   }).format(new Date(solicitudDetail.dateTime));
 
   const isPending = solicitudDetail.status === SolicitudStatus.PENDIENTE;
+  const isAccepted = solicitudDetail.status === SolicitudStatus.ACEPTADA;
+  const isPendingOrAccepted = isPending || isAccepted;
 
   return (
     <dialog
@@ -67,13 +69,33 @@ export function DetalleSolicitudModal({
                 Pendiente
               </span>
             )}
+
+            {isAccepted && (
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-slate-100 px-4 py-1.5 text-sm font-semibold text-slate-700">
+                <FiClock />
+                Aceptada
+              </span>
+            )}
           </div>
         </section>
+
+        {isAccepted && (
+          <section className="mt-4 rounded-xl border border-slate-200 bg-[#f8fafc] p-4">
+            <p className="text-xs font-bold uppercase tracking-wide text-primary">
+              {solicitudDetail.modality === 'Presencial' ? 'Lugar' : 'Enlace'}
+            </p>
+            <p className="mt-2 text-base text-slate-600">
+              {solicitudDetail.modality === 'Presencial'
+                ? solicitudDetail.acceptedMeetingLocation || 'Lugar pendiente de confirmación'
+                : solicitudDetail.acceptedMeetingLink || 'Enlace pendiente de confirmación'}
+            </p>
+          </section>
+        )}
 
         <section className="mt-4 rounded-xl border border-slate-200 bg-white p-4">
           <h3 className="text-[1.95rem] font-bold leading-none text-primary md:text-[1.65rem]">{solicitudDetail.subject}</h3>
 
-          {isPending && (
+          {isPendingOrAccepted && (
             <>
               <div className="mt-4 grid grid-cols-2 gap-4 text-[1.35rem] text-slate-500 md:text-base">
                 <span className="inline-flex items-center gap-2">
@@ -91,16 +113,18 @@ export function DetalleSolicitudModal({
                 <span className="font-bold text-primary">${solicitudDetail.price}/h</span>
               </div>
 
-              <div className="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-4">
-                <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Horarios Propuestos</p>
-                <ul className="mt-2 space-y-1 text-sm text-slate-600">
-                  {solicitudDetail.proposedSchedules.map((schedule, index) => (
-                    <li key={`${schedule.date}-${schedule.time}-${index}`}>
-                      {schedule.date} · {schedule.time}
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              {isPending && (
+                <div className="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-4">
+                  <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Horarios Propuestos</p>
+                  <ul className="mt-2 space-y-1 text-sm text-slate-600">
+                    {solicitudDetail.proposedSchedules.map((schedule, index) => (
+                      <li key={`${schedule.date}-${schedule.time}-${index}`}>
+                        {schedule.date} · {schedule.time}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </>
           )}
         </section>
@@ -121,6 +145,16 @@ export function DetalleSolicitudModal({
               className="cursor-not-allowed text-[1.7rem] font-semibold text-slate-400 md:text-xl"
             >
               Cancelar Solicitud
+            </button>
+          )}
+
+          {isAccepted && (
+            <button
+              type="button"
+              className="inline-flex items-center gap-2 text-[1.7rem] font-semibold text-red-500 transition-colors hover:text-red-600 md:text-xl"
+            >
+              <FiTrash2 />
+              Cancelar Tutoría
             </button>
           )}
 
