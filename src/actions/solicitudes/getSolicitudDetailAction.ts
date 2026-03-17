@@ -1,49 +1,131 @@
 'use server';
 
-import { SolicitudDetailDto } from '@/dtos/solicitudes.dto';
-import { getSolicitudDetailSeedById } from '@/lib/seeds/solicitudes-detail';
+import { SolicitudDetailDto, SolicitudStatus } from '@/dtos/solicitudes.dto';
+
+type ApiHorario = {
+  date?: string;
+  time?: string;
+  fecha?: string;
+  hora?: string;
+};
+
+type ApiDetalleSolicitud = {
+  id: string;
+  studentId?: string;
+  tutorId?: string;
+  tutorAvatarUrl?: string;
+  avatarUrl?: string;
+  tutorName?: string;
+  subject?: string;
+  materia?: string;
+  date?: string;
+  fechaHora?: string;
+  modality?: 'Virtual' | 'Presencial';
+  modalidad?: 'Virtual' | 'Presencial';
+  pricePerHour?: number;
+  precioHora?: number;
+  status?: string;
+  mensaje?: string;
+  studentMessage?: string;
+  horarios?: ApiHorario[];
+  proposedSchedules?: ApiHorario[];
+  acceptedMeetingLocation?: string;
+  acceptedMeetingLink?: string;
+  rejectionReason?: string;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+function getRequestConfig() {
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
+  const token = process.env.TEMPORARY_TOKEN;
+
+  if (!backendUrl || !token) {
+    throw new Error('NEXT_PUBLIC_BACKEND_API_URL o TEMPORARY_TOKEN no configurado');
+  }
+
+  return {
+    baseUrl: backendUrl.replace(/\/+$/, ''),
+    token,
+  };
+}
+
+function normalizeStatus(rawStatus?: string): SolicitudStatus {
+  if (rawStatus === 'PENDIENTE') {
+    return SolicitudStatus.PENDIENTE;
+  }
+
+  if (rawStatus === 'EXPIRADA') {
+    return SolicitudStatus.EXPIRADA;
+  }
+
+  if (rawStatus === 'ACEPTADA') {
+    return SolicitudStatus.ACEPTADA;
+  }
+
+  return SolicitudStatus.RECHAZADA;
+}
+
+function mapApiDetail(detail: ApiDetalleSolicitud): SolicitudDetailDto {
+  const proposedSchedules = (detail.proposedSchedules ?? detail.horarios ?? []).map((schedule) => ({
+    date: schedule.date || schedule.fecha || '',
+    time: schedule.time || schedule.hora || '',
+  }));
+
+  return {
+    id: detail.id,
+    studentId: detail.studentId || 'student-unknown',
+    tutorId: detail.tutorId || 'tutor-unknown',
+    avatarUrl: detail.tutorAvatarUrl || detail.avatarUrl,
+    tutorName: detail.tutorName || 'Tutor sin nombre',
+    subject: detail.subject || detail.materia || 'Materia no especificada',
+    dateTime: detail.date || detail.fechaHora || new Date().toISOString(),
+    modality: detail.modality || detail.modalidad || 'Virtual',
+    price: detail.pricePerHour ?? detail.precioHora ?? 0,
+    status: normalizeStatus(detail.status),
+    studentMessage: detail.studentMessage || detail.mensaje || '',
+    proposedSchedules,
+    acceptedMeetingLocation: detail.acceptedMeetingLocation,
+    acceptedMeetingLink: detail.acceptedMeetingLink,
+    rejectionReason: detail.rejectionReason,
+    createdAt: detail.createdAt || new Date().toISOString(),
+    updatedAt: detail.updatedAt || new Date().toISOString(),
+  };
+}
 
 export async function getSolicitudDetailAction(solicitudId: string): Promise<SolicitudDetailDto | null> {
   if (!solicitudId) {
     return null;
   }
 
-  return getSolicitudDetailSeedById(solicitudId);
+  const { baseUrl, token } = getRequestConfig();
 
-  // Estructura esperada del endpoint GET /api/solicitudes/:id
-  // 200 OK: SolicitudDetailDto
-  // 404: solicitud no encontrada o no pertenece al estudiante
-  // 401: no autorizado
-  // 500: error interno del servidor
+  const response = await fetch(`${baseUrl}/solicitudes/${solicitudId}`, {
+    method: 'GET',
+    headers: {
+      Accept: 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    cache: 'no-store',
+  });
 
-  /* eslint-disable sonarjs/no-commented-code */
-  // const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/solicitudes/${solicitudId}`, {
-  //   method: 'GET',
-  //   headers: {
-  //     'Content-Type': 'application/json',
-  //     Accept: 'application/json',
-  //   },
-  //   cache: 'no-store',
-  // });
+  if (response.status === 404) {
+    return null;
+  }
 
-  // if (response.status === 404) {
-  //   return null;
-  // }
+  if (!response.ok) {
+    let errorMessage = 'No se pudo obtener el detalle de la solicitud';
 
-  // if (!response.ok) {
-  //   let errorMessage = 'No se pudo obtener el detalle de la solicitud';
+    try {
+      const errorBody = await response.json();
+      errorMessage = errorBody.message ?? errorMessage;
+    } catch {
+      errorMessage = response.statusText || errorMessage;
+    }
 
-  //   try {
-  //     const errorBody = await response.json();
-  //     errorMessage = errorBody.message ?? errorMessage;
-  //   } catch {
-  //     errorMessage = response.statusText || errorMessage;
-  //   }
+    throw new Error(errorMessage);
+  }
 
-  //   throw new Error(errorMessage);
-  // }
-
-  // const data = (await response.json()) as SolicitudDetailDto;
-  // return data;
-  /* eslint-enable sonarjs/no-commented-code */
+  const data = (await response.json()) as ApiDetalleSolicitud;
+  return mapApiDetail(data);
 }
