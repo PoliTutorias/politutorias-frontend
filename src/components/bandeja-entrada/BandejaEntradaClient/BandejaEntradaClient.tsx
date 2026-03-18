@@ -5,6 +5,7 @@ import { getSolicitudesAction } from '@/actions/solicitudes/solicitudes';
 import { SolicitudesTable } from '@/components/bandeja-entrada/SolicitudesTable/SolicitudesTable';
 import { TabsComponent } from '@/components/bandeja-entrada/TabsComponent/TabsComponent';
 import { GlobalPendingCount } from '@/components/layout/GlobalPendingCount/GlobalPendingCount';
+import { ConfirmarTutoriaModal } from '@/components/tutorias/ConfirmarTutoriaModal/ConfirmarTutoriaModal';
 import {
   GlobalCountsDto,
   PaginatedSolicitudesDto,
@@ -24,6 +25,8 @@ export function BandejaEntradaClient({ initialSolicitudes, globalCounts }: Bande
   const [totalPages, setTotalPages] = React.useState<number>(initialSolicitudes.totalPages);
   const [activeTab, setActiveTab] = React.useState<'PENDIENTE' | 'EXPIRADA'>('PENDIENTE');
   const [isPending, startTransition] = React.useTransition();
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = React.useState(false);
+  const [selectedSolicitud, setSelectedSolicitud] = React.useState<SolicitudDetailsDto | null>(null);
 
   const handleTabChange = (newStatus: 'PENDIENTE' | 'EXPIRADA') => {
     setActiveTab(newStatus);
@@ -47,6 +50,33 @@ export function BandejaEntradaClient({ initialSolicitudes, globalCounts }: Bande
       setCurrentPage(response.page);
       setTotalPages(response.totalPages);
     });
+  };
+
+  const handleAcceptClick = (tutoriaId: string, modalidad: 'Virtual' | 'Presencial') => {
+    const solicitud = currentSolicitudes.find((item) => item.id === tutoriaId) ?? null;
+
+    if (solicitud) {
+      setSelectedSolicitud(solicitud);
+    } else {
+      setSelectedSolicitud({
+        id: tutoriaId,
+        modalidad,
+        estudiante: '',
+        materia: '',
+        fechaHora: '',
+        mensajeResumen: '',
+        estado: 'PENDIENTE',
+        precioHora: 0,
+        mensajeCompleto: '',
+      });
+    }
+
+    setIsConfirmModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsConfirmModalOpen(false);
+    setSelectedSolicitud(null);
   };
 
   return (
@@ -75,7 +105,17 @@ export function BandejaEntradaClient({ initialSolicitudes, globalCounts }: Bande
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={handlePageChange}
+          onAcceptClick={handleAcceptClick}
           isLoading={isPending}
+        />
+      )}
+
+      {selectedSolicitud && (
+        <ConfirmarTutoriaModal
+          isOpen={isConfirmModalOpen}
+          onClose={handleCloseModal}
+          tutoriaId={selectedSolicitud.id}
+          modalidad={selectedSolicitud.modalidad}
         />
       )}
     </section>
