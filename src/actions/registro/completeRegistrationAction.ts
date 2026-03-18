@@ -1,7 +1,6 @@
 'use server';
 
 import { redirect } from 'next/navigation';
-import { cookies } from 'next/headers';
 import { Experiencia } from '@/interfaces/experiencia-tipo/Experiencia';
 import { getServerToken } from '@/lib/server-auth';
 
@@ -26,14 +25,8 @@ export async function completeRegistrationAction(
   try {
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL || 'http://localhost:3000/api/';
 
-    const cookieStore = await cookies();
-
-    // Obtener el token de las cookies de HU34, o del auth cookie
-    let authToken = cookieStore.get('tutor-auth-token')?.value;
-    
-    if (!authToken) {
-      authToken = await getServerToken() ?? undefined;
-    }
+    // Usar siempre el token real del usuario (auth_token cookie)
+    const authToken = await getServerToken();
 
     if (!authToken) {
       return {
