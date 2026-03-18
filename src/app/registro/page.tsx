@@ -5,45 +5,62 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import { montserrat, dancingScript } from '@/lib/fonts';
-import { loginAction } from '@/actions/auth/authActions';
+import { registerAction } from '@/actions/auth/authActions';
 import { useAuthStore } from '@/lib/stores/authStore';
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const router = useRouter();
   const { login } = useAuthStore();
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!email.trim() || !password.trim()) {
+    if (!name.trim() || !email.trim() || !password.trim()) {
       toast.error('Completa todos los campos.');
+      return;
+    }
+
+    if (name.trim().length < 3) {
+      toast.error('El nombre debe tener al menos 3 caracteres.');
+      return;
+    }
+
+    if (password.length < 6) {
+      toast.error('La contraseña debe tener al menos 6 caracteres.');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      toast.error('Las contraseñas no coinciden.');
       return;
     }
 
     setIsLoading(true);
 
     try {
-      const result = await loginAction({ email: email.trim(), password });
+      const result = await registerAction({
+        name: name.trim(),
+        email: email.trim(),
+        password,
+      });
 
       if (result.success && result.token && result.user) {
         login(result.token, result.user);
 
-        toast.success(`¡Bienvenido, ${result.user.name}!`, {
+        toast.success('¡Cuenta creada exitosamente!', {
           duration: 2000,
         });
 
-        // Si es tutor, ir al dashboard de tutor. Si no, a explorar tutorías.
-        if (result.user.isTutor) {
-          router.push('/dashboard/tutor');
-        } else {
-          router.push('/encuentra-tutoria');
-        }
+        // Nuevo usuario → ir a explorar tutorías
+        router.push('/encuentra-tutoria');
       } else {
-        toast.error(result.error || 'Error al iniciar sesión.');
+        toast.error(result.error || 'Error al registrar.');
       }
     } catch {
       toast.error('Error de conexión.');
@@ -67,27 +84,51 @@ export default function LoginPage() {
             </span>
           </div>
           <p className="mt-3 text-sm" style={{ color: 'var(--text-secondary)' }}>
-            Plataforma de tutorías de la Escuela Politécnica Nacional
+            Crea tu cuenta para empezar
           </p>
         </div>
 
-        {/* Card de Login */}
+        {/* Card de Registro */}
         <div className="bg-white rounded-2xl shadow-lg p-8">
           <h1 className="text-2xl font-bold mb-2" style={{ color: 'var(--foreground)' }}>
-            Iniciar Sesión
+            Crear Cuenta
           </h1>
           <p className="text-sm mb-8" style={{ color: 'var(--text-secondary)' }}>
-            Ingresa tus credenciales para acceder
+            Regístrate como estudiante. Luego podrás registrarte como tutor.
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Name */}
+            <div>
+              <label htmlFor="register-name" className="block text-sm font-semibold mb-1.5" style={{ color: 'var(--foreground)' }}>
+                Nombre Completo
+              </label>
+              <input
+                id="register-name"
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Juan Carlos Pérez"
+                maxLength={100}
+                className="w-full px-4 py-3 rounded-lg border text-sm transition-colors outline-none"
+                style={{
+                  borderColor: 'var(--input-border)',
+                  backgroundColor: 'var(--input-bg)',
+                }}
+                onFocus={(e) => (e.target.style.borderColor = 'var(--input-border-focus)')}
+                onBlur={(e) => (e.target.style.borderColor = 'var(--input-border)')}
+                autoComplete="name"
+                disabled={isLoading}
+              />
+            </div>
+
             {/* Email */}
             <div>
-              <label htmlFor="login-email" className="block text-sm font-semibold mb-1.5" style={{ color: 'var(--foreground)' }}>
+              <label htmlFor="register-email" className="block text-sm font-semibold mb-1.5" style={{ color: 'var(--foreground)' }}>
                 Correo Electrónico
               </label>
               <input
-                id="login-email"
+                id="register-email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -106,16 +147,16 @@ export default function LoginPage() {
 
             {/* Password */}
             <div>
-              <label htmlFor="login-password" className="block text-sm font-semibold mb-1.5" style={{ color: 'var(--foreground)' }}>
+              <label htmlFor="register-password" className="block text-sm font-semibold mb-1.5" style={{ color: 'var(--foreground)' }}>
                 Contraseña
               </label>
               <div className="relative">
                 <input
-                  id="login-password"
+                  id="register-password"
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
+                  placeholder="Mínimo 6 caracteres"
                   className="w-full px-4 py-3 rounded-lg border text-sm transition-colors outline-none pr-12"
                   style={{
                     borderColor: 'var(--input-border)',
@@ -123,7 +164,7 @@ export default function LoginPage() {
                   }}
                   onFocus={(e) => (e.target.style.borderColor = 'var(--input-border-focus)')}
                   onBlur={(e) => (e.target.style.borderColor = 'var(--input-border)')}
-                  autoComplete="current-password"
+                  autoComplete="new-password"
                   disabled={isLoading}
                 />
                 <button
@@ -136,6 +177,29 @@ export default function LoginPage() {
                   {showPassword ? 'Ocultar' : 'Ver'}
                 </button>
               </div>
+            </div>
+
+            {/* Confirm Password */}
+            <div>
+              <label htmlFor="register-confirm" className="block text-sm font-semibold mb-1.5" style={{ color: 'var(--foreground)' }}>
+                Confirmar Contraseña
+              </label>
+              <input
+                id="register-confirm"
+                type={showPassword ? 'text' : 'password'}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Repite tu contraseña"
+                className="w-full px-4 py-3 rounded-lg border text-sm transition-colors outline-none"
+                style={{
+                  borderColor: 'var(--input-border)',
+                  backgroundColor: 'var(--input-bg)',
+                }}
+                onFocus={(e) => (e.target.style.borderColor = 'var(--input-border-focus)')}
+                onBlur={(e) => (e.target.style.borderColor = 'var(--input-border)')}
+                autoComplete="new-password"
+                disabled={isLoading}
+              />
             </div>
 
             {/* Submit Button */}
@@ -151,10 +215,10 @@ export default function LoginPage() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                   </svg>
-                  Iniciando sesión...
+                  Creando cuenta...
                 </span>
               ) : (
-                'Iniciar Sesión'
+                'Crear Cuenta'
               )}
             </button>
           </form>
@@ -162,27 +226,22 @@ export default function LoginPage() {
           {/* Divider */}
           <div className="flex items-center gap-3 my-6">
             <div className="flex-1 h-px" style={{ backgroundColor: 'var(--border)' }} />
-            <span className="text-xs" style={{ color: 'var(--text-disabled)' }}>¿No tienes cuenta?</span>
+            <span className="text-xs" style={{ color: 'var(--text-disabled)' }}>¿Ya tienes cuenta?</span>
             <div className="flex-1 h-px" style={{ backgroundColor: 'var(--border)' }} />
           </div>
 
-          {/* Register Link */}
+          {/* Login Link */}
           <Link
-            href="/registro"
+            href="/"
             className="block w-full py-3 rounded-lg border-2 text-center font-semibold text-sm transition-all hover:shadow-sm"
             style={{
               borderColor: 'var(--primary)',
               color: 'var(--primary)',
             }}
           >
-            Crear Cuenta
+            Iniciar Sesión
           </Link>
         </div>
-
-        {/* Footer info */}
-        <p className="text-center mt-6 text-xs" style={{ color: 'var(--text-disabled)' }}>
-          Credenciales de prueba: daniel.v@epn.edu.ec / 123456
-        </p>
       </div>
     </div>
   );

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { NuevaOfertaModal } from '@/components/ui/Modal/NuevaOfertaModal';
 import { OfertaForm } from '@/components/forms/OfertaForm/OfertaForm';
 import { createOfertaAction } from '@/actions/createOferta';
@@ -11,14 +12,23 @@ import { getTutorOffersAction } from '@/actions/getTutorOffers';
 import { OfertaDto } from '@/interfaces/oferta/OfertaDto';
 import { MisOfertasSection } from '@/components/ofertas/MisOfertasSection';
 import { EmptyOfferState } from '@/components/ofertas/EmptyOfferState';
-import { FiClock } from 'react-icons/fi';
+import { FiClock, FiLogOut } from 'react-icons/fi';
+import { useAuthStore } from '@/lib/stores/authStore';
 
 export function TutorDashboardContent() {
+  const router = useRouter();
+  const { user, logout } = useAuthStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [ofertas, setOfertas] = useState<OfertaDto[]>([]);
   const [isLoadingOfertas, setIsLoadingOfertas] = useState(true);
 
+  // Redirigir si no hay usuario autenticado
+  useEffect(() => {
+    if (!user) {
+      router.push('/');
+    }
+  }, [user, router]);
 
   // Cargar ofertas al montar el componente
   useEffect(() => {
@@ -44,6 +54,11 @@ export function TutorDashboardContent() {
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
+  };
+
+  const handleLogout = () => {
+    logout();
+    router.push('/');
   };
 
   const handleSubmitOferta = async (data: CreateOfertaInput) => {
@@ -84,6 +99,20 @@ export function TutorDashboardContent() {
     }
   };
 
+  // Obtener iniciales del nombre para el avatar
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .slice(0, 2)
+      .join('')
+      .toUpperCase();
+  };
+
+  const userName = user?.name || 'Usuario';
+  const userEmail = user?.email || '';
+  const userInitials = getInitials(userName);
+
   return (
     <>
       <main className="max-w-6xl mx-auto px-4 py-8">
@@ -99,15 +128,24 @@ export function TutorDashboardContent() {
                   className="w-20 h-20 rounded-full flex items-center justify-center text-2xl font-bold text-white"
                   style={{ backgroundColor: 'var(--primary)' }}
                 >
-                  DA
+                  {userInitials}
                 </div>
               </div>
 
               {/* Name & Email */}
               <div className="text-center">
-                <p className="text-base font-bold text-gray-900">Daniel Valdiviezo</p>
-                <p className="text-sm text-gray-500 mt-0.5">daniel.v@epn.edu.ec</p>
+                <p className="text-base font-bold text-gray-900">{userName}</p>
+                <p className="text-sm text-gray-500 mt-0.5">{userEmail}</p>
               </div>
+
+              {/* Logout button */}
+              <button
+                onClick={handleLogout}
+                className="mt-4 w-full flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-colors text-gray-500 hover:text-red-600 hover:bg-red-50"
+              >
+                <FiLogOut size={16} />
+                Cerrar Sesión
+              </button>
             </div>
           </div>
 
