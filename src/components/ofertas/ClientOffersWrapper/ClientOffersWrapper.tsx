@@ -93,8 +93,8 @@ export function ClientOffersWrapper({ initialOffers, header, children, initialSe
   // Estado de filtro de modalidad (HU26)
   const [activeModalidad, setActiveModalidad] = useState<ModalidadFilter>('Todas');
 
-  // Estado de filtro de disponibilidad (HU16)
-  const [activeDay, setActiveDay] = useState<DayLabel | null>(null);
+  // Estado de filtro de disponibilidad (HU16) — multi-selección
+  const [activeDays, setActiveDays] = useState<DayLabel[]>([]);
 
   // Estado de búsqueda (HU17)
   const [activeSearchTerm, setActiveSearchTerm] = useState<string>(initialSearchTerm ?? '');
@@ -102,7 +102,7 @@ export function ClientOffersWrapper({ initialOffers, header, children, initialSe
   // Determinar si hay algún filtro activo
   const isPriceFilterActive = activeMinPrice !== null && activeMaxPrice !== null;
   const isModalidadFilterActive = activeModalidad !== 'Todas';
-  const isDayFilterActive = activeDay !== null;
+  const isDayFilterActive = activeDays.length > 0;
   const isSearchActive = activeSearchTerm.trim().length > 0;
   const isAnyFilterActive = isPriceFilterActive || isModalidadFilterActive || isDayFilterActive || isSearchActive;
   const hasNonSearchFilterActive = isPriceFilterActive || isModalidadFilterActive || isDayFilterActive;
@@ -115,22 +115,22 @@ export function ClientOffersWrapper({ initialOffers, header, children, initialSe
       modalidad?: ModalidadFilter;
       minPrice?: number | null;
       maxPrice?: number | null;
-      day?: DayLabel | null;
+      days?: DayLabel[];
       searchTerm?: string;
     } = {}) => {
       const currentModalidad = overrides.modalidad ?? activeModalidad;
       const currentMinPrice = overrides.minPrice !== undefined ? overrides.minPrice : activeMinPrice;
       const currentMaxPrice = overrides.maxPrice !== undefined ? overrides.maxPrice : activeMaxPrice;
-      const currentDay = overrides.day !== undefined ? overrides.day : activeDay;
+      const currentDays = overrides.days !== undefined ? overrides.days : activeDays;
       const currentSearch = overrides.searchTerm !== undefined ? overrides.searchTerm : activeSearchTerm;
 
       // Si no hay ningún filtro activo, volver a los datos iniciales
       const hasPrice = currentMinPrice !== null && currentMaxPrice !== null;
       const hasModalidad = currentModalidad !== 'Todas';
-      const hasDay = currentDay !== null;
+      const hasDays = currentDays.length > 0;
       const hasSearch = currentSearch.trim().length > 0;
 
-      if (!hasPrice && !hasModalidad && !hasDay && !hasSearch) {
+      if (!hasPrice && !hasModalidad && !hasDays && !hasSearch) {
         setOffers(initialOffers);
         setError(null);
         setCurrentPage(1);
@@ -149,8 +149,9 @@ export function ClientOffersWrapper({ initialOffers, header, children, initialSe
         params.modalidad = MODALIDAD_TO_BACKEND[currentModalidad];
       }
 
-      if (hasDay) {
-        params.disponibilidad = DAY_TO_BACKEND[currentDay!];
+      if (hasDays) {
+        // Enviar como comma-separated: "Lun,Mar,Vie"
+        params.disponibilidad = currentDays.map((d) => DAY_TO_BACKEND[d]).join(',');
       }
 
       if (hasSearch) {
@@ -170,7 +171,7 @@ export function ClientOffersWrapper({ initialOffers, header, children, initialSe
         setCurrentPage(1);
       });
     },
-    [activeModalidad, activeMinPrice, activeMaxPrice, activeDay, activeSearchTerm, initialOffers, startTransition]
+    [activeModalidad, activeMinPrice, activeMaxPrice, activeDays, activeSearchTerm, initialOffers, startTransition]
   );
 
   /**
@@ -213,15 +214,17 @@ export function ClientOffersWrapper({ initialOffers, header, children, initialSe
   );
 
   /**
-   * Handler de cambio de disponibilidad (HU16)
+   * Handler de cambio de disponibilidad (HU16) — multi-selección toggle
    */
   const handleDayChange = useCallback(
     (day: DayLabel) => {
-      const newDay = activeDay === day ? null : day;
-      setActiveDay(newDay);
-      executeFilter({ day: newDay });
+      const newDays = activeDays.includes(day)
+        ? activeDays.filter((d) => d !== day)
+        : [...activeDays, day];
+      setActiveDays(newDays);
+      executeFilter({ days: newDays });
     },
-    [activeDay, executeFilter]
+    [activeDays, executeFilter]
   );
 
   /**
@@ -245,8 +248,8 @@ export function ClientOffersWrapper({ initialOffers, header, children, initialSe
    * Limpiar filtro individual de disponibilidad
    */
   const handleClearDayFilter = useCallback(() => {
-    setActiveDay(null);
-    executeFilter({ day: null });
+    setActiveDays([]);
+    executeFilter({ days: [] });
   }, [executeFilter]);
 
   /**
@@ -283,7 +286,7 @@ export function ClientOffersWrapper({ initialOffers, header, children, initialSe
     setActiveMinPrice(null);
     setActiveMaxPrice(null);
     setActiveModalidad('Todas');
-    setActiveDay(null);
+    setActiveDays([]);
     setActiveSearchTerm('');
     setOffers(initialOffers);
     setError(null);
@@ -346,7 +349,7 @@ export function ClientOffersWrapper({ initialOffers, header, children, initialSe
                     id={`filter-day-${DAY_TO_SAFE_ID[day]}`}
                     data-testid={`filter-day-${DAY_TO_SAFE_ID[day]}`}
                     onClick={() => handleDayChange(day)}
-                    className={`inline-flex items-center justify-center w-10 h-10 rounded-lg text-sm font-medium transition-colors cursor-pointer ${activeDay === day
+                    className={`inline-flex items-center justify-center w-10 h-10 rounded-lg text-sm font-medium transition-colors cursor-pointer ${activeDays.includes(day)
                       ? 'bg-[var(--primary)] text-white border border-[var(--primary)]'
                       : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
                       }`}
@@ -461,7 +464,7 @@ export function ClientOffersWrapper({ initialOffers, header, children, initialSe
                   data-testid="tag-disponibilidad"
                   className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium text-orange-700 bg-orange-50 border border-orange-200"
                 >
-                  {activeDay}
+                  {activeDays.join(', ')}
                   <button
                     id="clear-day-tag"
                     data-testid="clear-day-tag"
