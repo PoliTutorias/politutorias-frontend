@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { jwtVerify } from 'jose';
 
 /**
  * Middleware de autorización por roles.
@@ -24,7 +23,7 @@ export async function middleware(request: NextRequest) {
 
   // Permitir acceso a rutas públicas y assets
   if (
-    PUBLIC_ROUTES.includes(pathname) ||
+    PUBLIC_ROUTES.some((r) => pathname === r || pathname.startsWith(r + '/')) ||
     pathname.startsWith('/_next') ||
     pathname.startsWith('/api') ||
     pathname.includes('.')
