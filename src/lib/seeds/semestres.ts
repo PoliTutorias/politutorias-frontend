@@ -1,5 +1,4 @@
 export const SEMESTRES_SEED = [
-  'Pre-universitario',
   '1° Semestre',
   '2° Semestre',
   '3° Semestre',
@@ -9,4 +8,5 @@ export const SEMESTRES_SEED = [
   '7° Semestre',
   '8° Semestre',
   '9° Semestre',
+  '10° Semestre',
 ] as const;

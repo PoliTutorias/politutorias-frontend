@@ -68,20 +68,20 @@ export async function registrarDatosBasicosAction(
 
       console.log('Enviando datos a:', endpoint);
 
-      // Crear FormData para enviar multipart/form-data
-      const requestFormData = new FormData();
-      requestFormData.append('nombreCompleto', validationResult.data.nombreCompleto);
-      requestFormData.append('numeroWhatsapp', validationResult.data.numeroWhatsapp);
-      requestFormData.append('facultad', validationResult.data.facultad);
-      requestFormData.append('semestreActual', validationResult.data.semestreActual);
-      requestFormData.append('biografiaCorta', validationResult.data.biografiaCorta);
-
+      // Enviar datos como JSON (FormData multipart corrompe caracteres especiales como °)
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
+          'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: requestFormData,
+        body: JSON.stringify({
+          nombreCompleto: validationResult.data.nombreCompleto,
+          numeroWhatsapp: validationResult.data.numeroWhatsapp,
+          facultad: validationResult.data.facultad,
+          semestreActual: validationResult.data.semestreActual,
+          biografiaCorta: validationResult.data.biografiaCorta,
+        }),
       });
 
       // Parsear respuesta del backend
