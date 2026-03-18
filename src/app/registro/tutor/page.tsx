@@ -7,7 +7,7 @@ import { FormDetallesProfesionales } from '@/components/registro/form-detalles-p
 import { completeRegistrationAction } from '@/actions/registro/completeRegistrationAction';
 import { useRegistroStore } from '@/lib/stores/registroStore';
 import Link from 'next/link';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { FiUser, FiArrowLeft, FiCamera } from 'react-icons/fi';
 import { Experiencia } from '@/interfaces/experiencia-tipo/Experiencia';
 import { toast } from 'sonner';
@@ -21,7 +21,14 @@ export default function RegistrarTutorPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Obtener datos del store (fotoPerfil viene del store, no necesita estado local duplicado)
-  const { datosBasicos, disponibilidad, setFotoPerfil: storeFotoPerfil, fotoPerfil: fotoFromStore } = useRegistroStore();
+  const { datosBasicos, disponibilidad, setFotoPerfil: storeFotoPerfil, fotoPerfil: fotoFromStore, clearDatosBasicos, clearDisponibilidad } = useRegistroStore();
+
+  // Limpiar datos de registro anterior cuando la página se monta
+  useEffect(() => {
+    clearDatosBasicos();
+    clearDisponibilidad();
+    storeFotoPerfil(null);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const steps = [
     { number: 1, label: 'Datos Básicos' },

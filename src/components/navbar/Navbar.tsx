@@ -3,15 +3,20 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { montserrat, dancingScript } from '@/lib/fonts';
+import { useAuthStore } from '@/lib/stores/authStore';
 
 interface NavbarProps {
   userName?: string;
 }
 
-export function Navbar({ userName = 'Estudiante' }: NavbarProps) {
+export function Navbar({ userName }: NavbarProps) {
   const router = useRouter();
+  const { user, logout } = useAuthStore();
+
+  const displayName = userName || user?.name || 'Estudiante';
 
   const handleLogout = () => {
+    logout();
     router.push('/');
   };
 
@@ -19,7 +24,7 @@ export function Navbar({ userName = 'Estudiante' }: NavbarProps) {
     <nav className="bg-[var(--primary)] text-white px-6 py-4">
       <div className="max-w-7xl mx-auto flex justify-between items-center">
         {/* Logo */}
-        <Link href="/" className="flex items-center">
+        <Link href="/encuentra-tutoria" className="flex items-center">
           <span className={`${montserrat.className} antialiased font-extrabold text-white text-3xl`}>
             Poli
           </span>
@@ -31,7 +36,7 @@ export function Navbar({ userName = 'Estudiante' }: NavbarProps) {
         {/* User Info and Logout */}
         <div className="flex items-center gap-6">
           <span className="text-sm font-medium">
-            Hola, {userName}
+            Hola, {displayName}
           </span>
           <button
             onClick={handleLogout}

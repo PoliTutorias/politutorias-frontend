@@ -2,6 +2,7 @@
 
 import { cookies } from 'next/headers';
 import { AvailabilityBlock } from '@/interfaces/tutor/AvailabilityBlock';
+import { getServerToken } from '@/lib/server-auth';
 
 interface AvailabilityResponse {
   message: string;
@@ -21,14 +22,11 @@ export async function guardarDisponibilidadAction(
     const cookieStore = await cookies();
     const tutorId = cookieStore.get('tutor-id')?.value;
     
-    // Usar TEMPORARY_TOKEN del .env para disponibilidad
-    const token = process.env.TEMPORARY_TOKEN;
+    const token = await getServerToken();
 
-    // Log de la petición completa
     console.log('=== PETICIÓN GUARDAR DISPONIBILIDAD ===');
     console.log('TutorId (de cookies):', tutorId);
     console.log('Blocks cantidad:', blocks?.length);
-    console.log('Token: TEMPORARY_TOKEN del .env');
     console.log('========================================');
 
     // Validación: Al menos un bloque debe estar seleccionado
@@ -46,13 +44,10 @@ export async function guardarDisponibilidadAction(
     }
 
     if (!token) {
-      console.error('No se encontró TEMPORARY_TOKEN en .env');
       return {
-        error: 'Token de autenticación no configurado en .env',
+        error: 'Token de autenticación no encontrado. Inicia sesión.',
       };
     }
-
-    console.log('Token obtenido del .env para disponibilidad');
 
     // Hacer petición real al backend
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL || 'http://localhost:3000/api/';
@@ -65,7 +60,7 @@ export async function guardarDisponibilidadAction(
 
     console.log('Endpoint:', endpoint);
     console.log('Request body:', JSON.stringify(requestBody, null, 2));
-    console.log('Headers: Content-Type: application/json, Authorization: Bearer [TEMPORARY_TOKEN]');
+    console.log('Headers: Content-Type: application/json, Authorization: Bearer [token]');
 
     try {
       const response = await fetch(endpoint, {

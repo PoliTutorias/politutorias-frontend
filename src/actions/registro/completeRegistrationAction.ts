@@ -1,8 +1,8 @@
 'use server';
 
 import { redirect } from 'next/navigation';
-import { cookies } from 'next/headers';
 import { Experiencia } from '@/interfaces/experiencia-tipo/Experiencia';
+import { getServerToken } from '@/lib/server-auth';
 
 interface PerfilProfesionalPayload {
   experiencias: Experiencia[];
@@ -24,31 +24,16 @@ export async function completeRegistrationAction(
 ): Promise<CompleteRegistrationResponse> {
   try {
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL || 'http://localhost:3000/api/';
-    const temporaryToken = process.env.TEMPORARY_TOKEN;
 
-    const cookieStore = await cookies();
+    // Usar siempre el token real del usuario (auth_token cookie)
+    const authToken = await getServerToken();
 
-    console.log('=== FINALIZAR REGISTRO (HU42) ===');
-    console.log('Endpoint: /perfil/finalizar');
-    console.log('=====================================');
-
-    // Validaciones básicas
-    if (!temporaryToken) {
+    if (!authToken) {
       return {
         success: false,
-        message: 'Token de autenticación no configurado',
+        message: 'Token de autenticación no encontrado. Inicia sesión.',
       };
     }
-
-    // Obtener el token de las cookies (guardado en HU34)
-    let authToken = cookieStore.get('tutor-auth-token')?.value;
-    
-    if (!authToken) {
-      console.log('Token no encontrado en cookies, usando TEMPORARY_TOKEN del .env');
-      authToken = temporaryToken;
-    }
-
-    console.log('Token usado: ', authToken === temporaryToken ? 'TEMPORARY_TOKEN del .env' : 'Token de HU34');
 
     // Limpiar experiencias: excluir el campo 'id' si existe
     // El backend solo espera: puesto, institucion, fechaInicio, fechaFin
@@ -87,6 +72,30 @@ export async function completeRegistrationAction(
     }
 
     console.log('=== REGISTRO COMPLETADO EXITOSAMENTE ===');
+
+    // Refrescar el JWT para obtener role: 'tutor' (antes era 'student')
+    try {
+      const refreshResponse = await fetch(`${backendUrl}auth/refresh`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`,
+        },
+      });
+
+      if (refreshResponse.ok) {
+        const refreshData = await refreshResponse.json();
+        if (refreshData.token) {
+          // Actualizar la cookie con el nuevo JWT que tiene role: 'tutor'
+          const { setServerToken } = await import('@/lib/server-auth');
+          await setServerToken(refreshData.token);
+          console.log('JWT actualizado con role: tutor');
+        }
+      }
+    } catch (refreshError) {
+      console.warn('No se pudo refrescar el JWT:', refreshError);
+    }
+
     redirect('/dashboard/tutor');
   } catch (error) {
     console.error('Error en completeRegistrationAction:', error);

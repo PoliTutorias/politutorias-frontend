@@ -1,6 +1,10 @@
+'use client';
+
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import clsx from 'clsx';
 import { dancingScript, montserrat } from '@/lib/fonts';
+import { useAuthStore } from '@/lib/stores/authStore';
 
 type TutorNavItem = {
   key: 'panel' | 'bandeja' | 'agenda';
@@ -18,8 +22,17 @@ const NAV_ITEMS: TutorNavItem[] = [
   { key: 'bandeja', label: 'Bandeja', href: '/bandeja' },
 ];
 
-export function NavBar({ activeItem, userName = 'Jose' }: TutorNavBarProps) {
-  const userInitial = userName.trim().charAt(0).toUpperCase() || 'T';
+export function NavBar({ activeItem, userName }: TutorNavBarProps) {
+  const router = useRouter();
+  const { user, logout } = useAuthStore();
+
+  const displayName = userName || user?.name || 'Tutor';
+  const userInitial = displayName.trim().charAt(0).toUpperCase() || 'T';
+
+  const handleLogout = () => {
+    logout();
+    router.push('/');
+  };
 
   return (
     <header className="bg-primary px-6 py-3 text-white">
@@ -68,9 +81,13 @@ export function NavBar({ activeItem, userName = 'Jose' }: TutorNavBarProps) {
               <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-yellow text-sm font-bold text-primary">
                 {userInitial}
               </span>
-              <span className="text-sm font-semibold text-white">{userName}</span>
+              <span className="text-sm font-semibold text-white">{displayName}</span>
             </div>
-            <button className="text-sm font-medium text-slate-300 transition-colors hover:text-white" type="button">
+            <button
+              onClick={handleLogout}
+              className="text-sm font-medium text-slate-300 transition-colors hover:text-white cursor-pointer"
+              type="button"
+            >
               Salir
             </button>
           </div>

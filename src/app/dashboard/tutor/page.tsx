@@ -1,5 +1,5 @@
 import { TutorDashboardContent } from '@/components/dashboard/TutorDashboardContent';
-import { NavBar } from '@/components/layout/NavBar/NavBar';
+import { AppNavBar } from '@/components/layout/AppNavBar/AppNavBar';
 
 /**
  * Componente principal del Dashboard del tutor.
@@ -8,7 +8,7 @@ import { NavBar } from '@/components/layout/NavBar/NavBar';
 export default function TutorDashboardPage() {
   return (
     <div className="min-h-screen bg-[#f7fafc]">
-      <NavBar activeItem="panel" userName="Jose" />
+      <AppNavBar role="tutor" activeItem="panel" />
 
       {/* Main Content */}
       <TutorDashboardContent />
