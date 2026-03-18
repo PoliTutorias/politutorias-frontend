@@ -11,6 +11,7 @@ import { useAuthStore } from '@/lib/stores/authStore';
 export default function RegisterPage() {
   const router = useRouter();
   const { login } = useAuthStore();
+  const [selectedRole, setSelectedRole] = useState<'student' | 'tutor'>('student');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -18,16 +19,21 @@ export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
+  const handleRoleChange = (role: 'student' | 'tutor') => {
+    setSelectedRole(role);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!name.trim() || !email.trim() || !password.trim()) {
-      toast.error('Completa todos los campos.');
+    // Nombre solo obligatorio para estudiantes
+    if (selectedRole === 'student' && (!name.trim() || name.trim().length < 3)) {
+      toast.error('El nombre debe tener al menos 3 caracteres.');
       return;
     }
 
-    if (name.trim().length < 3) {
-      toast.error('El nombre debe tener al menos 3 caracteres.');
+    if (!email.trim() || !password.trim()) {
+      toast.error('Completa todos los campos.');
       return;
     }
 
@@ -45,7 +51,7 @@ export default function RegisterPage() {
 
     try {
       const result = await registerAction({
-        name: name.trim(),
+        name: selectedRole === 'student' ? name.trim() : email.trim().split('@')[0],
         email: email.trim(),
         password,
       });
@@ -53,12 +59,17 @@ export default function RegisterPage() {
       if (result.success && result.token && result.user) {
         login(result.token, result.user);
 
-        toast.success('¡Cuenta creada exitosamente!', {
-          duration: 2000,
-        });
-
-        // Nuevo usuario → ir a explorar tutorías
-        router.push('/encuentra-tutoria');
+        if (selectedRole === 'tutor') {
+          toast.success('¡Cuenta creada! Completa tu perfil de tutor.', {
+            duration: 3000,
+          });
+          router.push('/registro/tutor');
+        } else {
+          toast.success('¡Cuenta creada exitosamente!', {
+            duration: 2000,
+          });
+          router.push('/encuentra-tutoria');
+        }
       } else {
         toast.error(result.error || 'Error al registrar.');
       }
@@ -93,12 +104,49 @@ export default function RegisterPage() {
           <h1 className="text-2xl font-bold mb-2" style={{ color: 'var(--foreground)' }}>
             Crear Cuenta
           </h1>
-          <p className="text-sm mb-8" style={{ color: 'var(--text-secondary)' }}>
-            Regístrate como estudiante. Luego podrás registrarte como tutor.
-          </p>
+
+          {/* Role Selector */}
+          <div className="mb-6">
+            <p className="text-sm font-semibold mb-3" style={{ color: 'var(--foreground)' }}>
+              Quiero registrarme como:
+            </p>
+            <div className="flex items-center gap-6">
+              <label
+                className="flex items-center gap-2 cursor-pointer text-sm font-medium"
+                style={{ color: selectedRole === 'student' ? 'var(--primary)' : 'var(--text-secondary)' }}
+              >
+                <input
+                  type="radio"
+                  name="role"
+                  value="student"
+                  checked={selectedRole === 'student'}
+                  onChange={() => handleRoleChange('student')}
+                  className="w-4 h-4 cursor-pointer"
+                  style={{ accentColor: 'var(--yellow)' }}
+                />
+                Estudiante
+              </label>
+              <label
+                className="flex items-center gap-2 cursor-pointer text-sm font-medium"
+                style={{ color: selectedRole === 'tutor' ? 'var(--primary)' : 'var(--text-secondary)' }}
+              >
+                <input
+                  type="radio"
+                  name="role"
+                  value="tutor"
+                  checked={selectedRole === 'tutor'}
+                  onChange={() => handleRoleChange('tutor')}
+                  className="w-4 h-4 cursor-pointer"
+                  style={{ accentColor: 'var(--yellow)' }}
+                />
+                Tutor
+              </label>
+            </div>
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Name */}
+            {/* Name - Solo para estudiantes */}
+            {selectedRole === 'student' && (
             <div>
               <label htmlFor="register-name" className="block text-sm font-semibold mb-1.5" style={{ color: 'var(--foreground)' }}>
                 Nombre Completo
@@ -121,6 +169,7 @@ export default function RegisterPage() {
                 disabled={isLoading}
               />
             </div>
+            )}
 
             {/* Email */}
             <div>
