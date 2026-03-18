@@ -104,14 +104,16 @@ export default function DetallesOfertaPage({
       return;
     }
 
-    const isDuplicate = selectedHorarios.some(
+    // Si ya está seleccionado, deseleccionarlo (toggle)
+    const isAlreadySelected = selectedHorarios.some(
       (h) => h.day === horario.day && h.time === horario.time
     );
-
-    if (isDuplicate) {
+    if (isAlreadySelected) {
+      setSelectedHorarios([]);
       return;
     }
 
+    // SOL-05: verificar si ya hay solicitud previa para este horario
     const checkResult = await verificarSolicitudPreviaAction({
       ofertaId: offerDetails.id,
       horarios: [
@@ -143,7 +145,8 @@ export default function DetallesOfertaPage({
       return;
     }
 
-    setSelectedHorarios((prev) => [...prev, horario]);
+    // SOL-04: Solo un horario por solicitud — reemplazar en vez de agregar
+    setSelectedHorarios([horario]);
   };
 
   const handleHorarioRemove = (horario: HorarioDisponibleDto) => {

@@ -24,7 +24,7 @@ export default function BotonSolicitarTutoria({
           : 'bg-blue-900 hover:bg-blue-800 active:bg-blue-950 shadow-md'
       )}
     >
-      Solicitar Tutoría ({cantidadHorarios})
+      Solicitar Tutoría
     </button>
   );
 }
