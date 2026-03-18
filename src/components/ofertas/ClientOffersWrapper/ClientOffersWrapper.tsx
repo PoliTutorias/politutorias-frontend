@@ -23,7 +23,7 @@ const ABSOLUTE_MIN = 5;
 const ABSOLUTE_MAX = 20;
 const DEFAULT_MIN = 5;
 const DEFAULT_MAX = 20;
-const ITEMS_PER_PAGE = 6;
+const ITEMS_PER_PAGE = 10;
 
 // Tipos de modalidad para el filtro HU26
 type ModalidadFilter = 'Todas' | 'Presencial' | 'Virtual' | 'Ambos';

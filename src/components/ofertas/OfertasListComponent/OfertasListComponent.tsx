@@ -19,7 +19,7 @@ export function OfertasListComponent({ offers }: OfertasListComponentProps) {
   }
 
   return (
-    <div data-testid="offers-filtered-list" className="grid auto-rows-max grid-cols-1 gap-6 md:grid-cols-2">
+    <div data-testid="offers-filtered-list" className="flex flex-col gap-5">
       {offers.map((offer) => (
         <OfferCard key={offer.id} offer={offer} />
       ))}
