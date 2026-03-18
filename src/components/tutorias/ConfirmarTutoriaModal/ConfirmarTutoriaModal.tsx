@@ -39,6 +39,22 @@ export function ConfirmarTutoriaModal({
           <p className="mt-1 text-xs text-slate-500">Tutoría: {tutoriaId}</p>
         </div>
 
+        {modalidad === 'Virtual' && (
+          <div className="mt-8">
+            <label htmlFor="enlaceReunion" className="mb-1 block text-3xl font-semibold text-slate-700">
+              Enlace de la reunión <span className="text-red-500">*</span>
+            </label>
+            <p className="mb-2 text-xl text-slate-500">Zoom, Teams, Meet u otra plataforma</p>
+            <input
+              id="enlaceReunion"
+              name="enlaceReunion"
+              type="text"
+              placeholder="https://zoom.us/j/..."
+              className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-2xl text-slate-700 outline-none transition-colors placeholder:text-slate-400 focus:border-primary"
+            />
+          </div>
+        )}
+
         <div className={clsx('mt-10 flex items-center justify-end gap-4')}>
           <button
             type="button"
