@@ -58,7 +58,7 @@ function ErrorContent() {
 function PageLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-[#f7fafc]">
-      <Navbar userName="Patricio Chancusig" />
+      <Navbar userName="Patricio" activeItem="explorar" />
       <main>
         {children}
       </main>

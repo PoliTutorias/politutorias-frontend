@@ -18,6 +18,8 @@ type ApiSolicitudItem = {
   tutorName?: string;
   subject?: string;
   materia?: string;
+  titulo?: string;
+  title?: string;
   date?: string;
   fechaHora?: string;
   modality?: 'Virtual' | 'Presencial';
@@ -89,7 +91,7 @@ function mapApiItem(item: ApiSolicitudItem): SolicitudListItemDto {
     id: item.id,
     avatarUrl: item.tutorAvatarUrl || item.avatarUrl,
     tutorName: item.tutorName || 'Tutor sin nombre',
-    subject: item.subject || item.materia || 'Materia no especificada',
+    subject: item.titulo || item.title || item.subject || item.materia || 'Oferta sin titulo',
     dateTime: item.date || item.fechaHora || new Date().toISOString(),
     modality: item.modality || item.modalidad || 'Virtual',
     price: item.pricePerHour ?? item.precioHora ?? 0,

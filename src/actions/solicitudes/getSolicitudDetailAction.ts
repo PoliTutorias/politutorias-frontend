@@ -16,6 +16,8 @@ type ApiDetalleSolicitud = {
   tutorAvatarUrl?: string;
   avatarUrl?: string;
   tutorName?: string;
+  titulo?: string;
+  title?: string;
   subject?: string;
   materia?: string;
   date?: string;
@@ -79,7 +81,7 @@ function mapApiDetail(detail: ApiDetalleSolicitud): SolicitudDetailDto {
     tutorId: detail.tutorId || 'tutor-unknown',
     avatarUrl: detail.tutorAvatarUrl || detail.avatarUrl,
     tutorName: detail.tutorName || 'Tutor sin nombre',
-    subject: detail.subject || detail.materia || 'Materia no especificada',
+    subject: detail.titulo || detail.title || detail.subject || detail.materia || 'Oferta sin titulo',
     dateTime: detail.date || detail.fechaHora || new Date().toISOString(),
     modality: detail.modality || detail.modalidad || 'Virtual',
     price: detail.pricePerHour ?? detail.precioHora ?? 0,

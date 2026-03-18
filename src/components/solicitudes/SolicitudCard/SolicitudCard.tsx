@@ -24,7 +24,7 @@ function getStatusConfig(status: SolicitudStatus) {
     return {
       label: 'Pendiente',
       Icon: FiClock,
-      className: 'border-orange-200 bg-orange-50 text-orange-600',
+      className: 'border-amber-200 bg-amber-50 text-amber-500',
     };
   }
 
@@ -65,8 +65,12 @@ export function SolicitudCard({ solicitud, onClick }: SolicitudCardProps) {
     >
       <span
         className={clsx(
-          'absolute bottom-4 left-5 top-4 w-[3px] rounded-sm bg-primary',
-          solicitud.status === SolicitudStatus.EXPIRADA && 'bg-red-400'
+          'absolute bottom-4 left-5 top-4 w-[3px] rounded-sm',
+          solicitud.status === SolicitudStatus.PENDIENTE
+            ? 'bg-amber-400'
+            : solicitud.status === SolicitudStatus.EXPIRADA
+              ? 'bg-red-400'
+              : 'bg-primary'
         )}
       />
       <div className="ml-3">
@@ -83,7 +87,7 @@ export function SolicitudCard({ solicitud, onClick }: SolicitudCardProps) {
           />
 
           <div className="flex-1">
-            <h3 className="text-xl font-bold leading-none text-primary">{solicitud.subject}</h3>
+            <h3 className="text-base font-bold leading-none text-primary">{solicitud.subject}</h3>
             <p className="mt-1 text-sm text-slate-600">{solicitud.tutorName}</p>
 
             <div className="mt-3 rounded-lg bg-[#edf2f7] px-3 py-2 text-sm text-slate-500">
@@ -96,7 +100,7 @@ export function SolicitudCard({ solicitud, onClick }: SolicitudCardProps) {
                   {solicitud.modality === 'Virtual' ? <FiMonitor className="text-slate-400" /> : <FiUser className="text-slate-400" />}
                   {solicitud.modality}
                 </span>
-                <span className="text-base font-bold text-primary">${solicitud.price}/h</span>
+                <span className="text-sm font-bold text-primary">${solicitud.price}/h</span>
               </div>
             </div>
           </div>
