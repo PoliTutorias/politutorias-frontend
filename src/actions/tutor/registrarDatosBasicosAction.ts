@@ -2,6 +2,7 @@
 
 import { cookies } from 'next/headers';
 import { TutorBasicosInput, tutorBasicosSchema } from '@/lib/validations/tutor-basicos-schema';
+import { getServerToken } from '@/lib/server-auth';
 
 interface ServerActionResponse<T = unknown> {
   success: boolean;
@@ -62,7 +63,7 @@ export async function registrarDatosBasicosAction(
     // Hacer petición real al backend
     try {
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL || 'http://localhost:3000/api/';
-      const token = process.env.TEMPORARY_TOKEN;
+      const token = await getServerToken();
       const endpoint = `${backendUrl}tutor/datos-basicos`;
 
       console.log('Enviando datos a:', endpoint);

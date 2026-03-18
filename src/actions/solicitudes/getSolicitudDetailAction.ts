@@ -1,6 +1,7 @@
 'use server';
 
 import { SolicitudDetailDto, SolicitudStatus } from '@/dtos/solicitudes.dto';
+import { getRequestConfig } from '@/lib/server-auth';
 
 type ApiHorario = {
   date?: string;
@@ -37,19 +38,7 @@ type ApiDetalleSolicitud = {
   updatedAt?: string;
 };
 
-function getRequestConfig() {
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
-  const token = process.env.TEMPORARY_TOKEN;
 
-  if (!backendUrl || !token) {
-    throw new Error('NEXT_PUBLIC_BACKEND_API_URL o TEMPORARY_TOKEN no configurado');
-  }
-
-  return {
-    baseUrl: backendUrl.replace(/\/+$/, ''),
-    token,
-  };
-}
 
 function normalizeStatus(rawStatus?: string): SolicitudStatus {
   if (rawStatus === 'PENDIENTE') {
@@ -99,7 +88,7 @@ export async function getSolicitudDetailAction(solicitudId: string): Promise<Sol
     return null;
   }
 
-  const { baseUrl, token } = getRequestConfig();
+  const { baseUrl, token } = await getRequestConfig();
 
   const response = await fetch(`${baseUrl}/solicitudes/${solicitudId}`, {
     method: 'GET',

@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 import { Experiencia } from '@/interfaces/experiencia-tipo/Experiencia';
+import { getServerToken } from '@/lib/server-auth';
 
 interface PerfilProfesionalPayload {
   experiencias: Experiencia[];
@@ -24,31 +25,22 @@ export async function completeRegistrationAction(
 ): Promise<CompleteRegistrationResponse> {
   try {
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL || 'http://localhost:3000/api/';
-    const temporaryToken = process.env.TEMPORARY_TOKEN;
 
     const cookieStore = await cookies();
 
-    console.log('=== FINALIZAR REGISTRO (HU42) ===');
-    console.log('Endpoint: /perfil/finalizar');
-    console.log('=====================================');
-
-    // Validaciones básicas
-    if (!temporaryToken) {
-      return {
-        success: false,
-        message: 'Token de autenticación no configurado',
-      };
-    }
-
-    // Obtener el token de las cookies (guardado en HU34)
+    // Obtener el token de las cookies de HU34, o del auth cookie
     let authToken = cookieStore.get('tutor-auth-token')?.value;
     
     if (!authToken) {
-      console.log('Token no encontrado en cookies, usando TEMPORARY_TOKEN del .env');
-      authToken = temporaryToken;
+      authToken = await getServerToken() ?? undefined;
     }
 
-    console.log('Token usado: ', authToken === temporaryToken ? 'TEMPORARY_TOKEN del .env' : 'Token de HU34');
+    if (!authToken) {
+      return {
+        success: false,
+        message: 'Token de autenticación no encontrado. Inicia sesión.',
+      };
+    }
 
     // Limpiar experiencias: excluir el campo 'id' si existe
     // El backend solo espera: puesto, institucion, fechaInicio, fechaFin

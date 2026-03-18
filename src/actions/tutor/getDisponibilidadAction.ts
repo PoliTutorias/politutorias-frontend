@@ -2,6 +2,7 @@
 
 import { cookies } from 'next/headers';
 import { AvailabilityBlock } from '@/interfaces/tutor/AvailabilityBlock';
+import { getServerToken } from '@/lib/server-auth';
 
 interface GetDisponibilidadResponse {
   blocks: AvailabilityBlock[];
@@ -15,11 +16,10 @@ export async function getDisponibilidadAction(): Promise<
   GetDisponibilidadResponse | { error: string }
 > {
   try {
-    const token = process.env.TEMPORARY_TOKEN;
+    const token = await getServerToken();
 
     if (!token) {
-      console.error('No se encontró TEMPORARY_TOKEN en .env');
-      return { error: 'Token de autenticación no configurado' };
+      return { error: 'Token de autenticación no encontrado. Inicia sesión.' };
     }
 
     const backendUrl =
