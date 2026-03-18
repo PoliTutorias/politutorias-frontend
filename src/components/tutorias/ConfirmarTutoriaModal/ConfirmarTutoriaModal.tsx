@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import clsx from 'clsx';
 
 interface ConfirmarTutoriaModalProps {
@@ -15,6 +16,8 @@ export function ConfirmarTutoriaModal({
   tutoriaId,
   modalidad,
 }: ConfirmarTutoriaModalProps) {
+  const [lugarEncuentro, setLugarEncuentro] = useState('');
+
   if (!isOpen) {
     return null;
   }
@@ -52,6 +55,25 @@ export function ConfirmarTutoriaModal({
               placeholder="https://zoom.us/j/..."
               className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-2xl text-slate-700 outline-none transition-colors placeholder:text-slate-400 focus:border-primary"
             />
+          </div>
+        )}
+
+        {modalidad === 'Presencial' && (
+          <div className="mt-8">
+            <label htmlFor="lugarEncuentro" className="mb-1 block text-3xl font-semibold text-slate-700">
+              Lugar de encuentro <span className="text-red-500">*</span>
+            </label>
+            <textarea
+              id="lugarEncuentro"
+              name="lugarEncuentro"
+              maxLength={100}
+              value={lugarEncuentro}
+              onChange={(event) => setLugarEncuentro(event.target.value)}
+              rows={3}
+              placeholder="Ej. Edificio H, aula 205, campus principal"
+              className="w-full resize-none rounded-xl border border-slate-300 bg-white px-4 py-3 text-2xl text-slate-700 outline-none transition-colors placeholder:text-slate-400 focus:border-primary"
+            />
+            <p className="mt-1 text-right text-xl text-slate-500">{lugarEncuentro.length}/100</p>
           </div>
         )}
 
