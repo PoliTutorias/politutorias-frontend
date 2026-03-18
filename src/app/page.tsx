@@ -179,10 +179,7 @@ export default function LoginPage() {
           </Link>
         </div>
 
-        {/* Footer info */}
-        <p className="text-center mt-6 text-xs" style={{ color: 'var(--text-disabled)' }}>
-          Credenciales de prueba: daniel.v@epn.edu.ec / 123456
-        </p>
+
       </div>
     </div>
   );
