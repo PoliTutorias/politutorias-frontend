@@ -23,6 +23,7 @@ const ABSOLUTE_MIN = 5;
 const ABSOLUTE_MAX = 20;
 const DEFAULT_MIN = 5;
 const DEFAULT_MAX = 20;
+const ITEMS_PER_PAGE = 6;
 
 // Tipos de modalidad para el filtro HU26
 type ModalidadFilter = 'Todas' | 'Presencial' | 'Virtual' | 'Ambos';
@@ -76,6 +77,14 @@ export function ClientOffersWrapper({ initialOffers, header, children, initialSe
   const [offers, setOffers] = useState<OfertaEntity[]>(initialOffers);
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Paginación client-side
+  const totalPages = Math.ceil(offers.length / ITEMS_PER_PAGE);
+  const paginatedOffers = offers.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
   // Estado de filtro de precio (HU27)
   const [activeMinPrice, setActiveMinPrice] = useState<number | null>(null);
@@ -124,6 +133,7 @@ export function ClientOffersWrapper({ initialOffers, header, children, initialSe
       if (!hasPrice && !hasModalidad && !hasDay && !hasSearch) {
         setOffers(initialOffers);
         setError(null);
+        setCurrentPage(1);
         return;
       }
 
@@ -157,6 +167,7 @@ export function ClientOffersWrapper({ initialOffers, header, children, initialSe
           setError(null);
           setOffers((result as OfertasResult).ofertas);
         }
+        setCurrentPage(1);
       });
     },
     [activeModalidad, activeMinPrice, activeMaxPrice, activeDay, activeSearchTerm, initialOffers, startTransition]
@@ -495,15 +506,107 @@ export function ClientOffersWrapper({ initialOffers, header, children, initialSe
           {isAnyFilterActive ? (
             <>
               {!isPending && offers.length > 0 && (
-                <OfertasListComponent offers={offers} />
+                <>
+                  <OfertasListComponent offers={paginatedOffers} />
+                  {totalPages > 1 && (
+                    <div className="mt-8 flex items-center justify-center gap-2">
+                      <button
+                        onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                        disabled={currentPage === 1}
+                        className={`flex h-8 w-8 items-center justify-center rounded text-sm transition-colors ${
+                          currentPage === 1
+                            ? 'border border-gray-200 text-gray-400 cursor-not-allowed'
+                            : 'border border-gray-300 text-gray-600 hover:bg-gray-100'
+                        }`}
+                        aria-label="Página anterior"
+                      >
+                        ‹
+                      </button>
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                        <button
+                          key={page}
+                          onClick={() => setCurrentPage(page)}
+                          className={`flex h-8 w-8 items-center justify-center rounded text-sm font-medium transition-colors ${
+                            currentPage === page
+                              ? 'bg-[var(--primary)] text-white'
+                              : 'text-gray-700 hover:bg-gray-100'
+                          }`}
+                        >
+                          {page}
+                        </button>
+                      ))}
+                      <button
+                        onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                        disabled={currentPage === totalPages}
+                        className={`flex h-8 w-8 items-center justify-center rounded text-sm transition-colors ${
+                          currentPage === totalPages
+                            ? 'border border-gray-200 text-gray-400 cursor-not-allowed'
+                            : 'border border-gray-300 text-gray-600 hover:bg-gray-100'
+                        }`}
+                        aria-label="Página siguiente"
+                      >
+                        ›
+                      </button>
+                    </div>
+                  )}
+                </>
               )}
               {!isPending && offers.length === 0 && (
                 <NoOffersMessageComponent onClearFilters={handleClearAllFilters} />
               )}
             </>
           ) : (
-            /* Sin filtros activos: mostrar contenido original (children) */
-            children
+            /* Sin filtros activos: mostrar contenido original con paginación */
+            <>
+              {offers.length > 0 ? (
+                <>
+                  <OfertasListComponent offers={paginatedOffers} />
+                  {totalPages > 1 && (
+                    <div className="mt-8 flex items-center justify-center gap-2">
+                      <button
+                        onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                        disabled={currentPage === 1}
+                        className={`flex h-8 w-8 items-center justify-center rounded text-sm transition-colors ${
+                          currentPage === 1
+                            ? 'border border-gray-200 text-gray-400 cursor-not-allowed'
+                            : 'border border-gray-300 text-gray-600 hover:bg-gray-100'
+                        }`}
+                        aria-label="Página anterior"
+                      >
+                        ‹
+                      </button>
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                        <button
+                          key={page}
+                          onClick={() => setCurrentPage(page)}
+                          className={`flex h-8 w-8 items-center justify-center rounded text-sm font-medium transition-colors ${
+                            currentPage === page
+                              ? 'bg-[var(--primary)] text-white'
+                              : 'text-gray-700 hover:bg-gray-100'
+                          }`}
+                        >
+                          {page}
+                        </button>
+                      ))}
+                      <button
+                        onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                        disabled={currentPage === totalPages}
+                        className={`flex h-8 w-8 items-center justify-center rounded text-sm transition-colors ${
+                          currentPage === totalPages
+                            ? 'border border-gray-200 text-gray-400 cursor-not-allowed'
+                            : 'border border-gray-300 text-gray-600 hover:bg-gray-100'
+                        }`}
+                        aria-label="Página siguiente"
+                      >
+                        ›
+                      </button>
+                    </div>
+                  )}
+                </>
+              ) : (
+                children
+              )}
+            </>
           )}
         </div>
       </div>

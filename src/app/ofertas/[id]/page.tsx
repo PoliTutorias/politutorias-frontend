@@ -30,7 +30,6 @@ export default function DetallesOfertaPage({
   const [offerDetails, setOfferDetails] = useState<DetallesOfertaDto | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedHorarios, setSelectedHorarios] = useState<HorarioDisponibleDto[]>([]);
-  const [blockedHorarios, setBlockedHorarios] = useState<HorarioDisponibleDto[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [alertaVisible, setAlertaVisible] = useState(false);
   const [alertaMessage, setAlertaMessage] = useState('');
@@ -74,20 +73,6 @@ export default function DetallesOfertaPage({
       
       if (result.success && result.data) {
         setOfferDetails(result.data);
-        
-        // Verificar solicitudes previas para cada horario disponible
-        const blocked: HorarioDisponibleDto[] = [];
-        for (const slot of result.data.availability) {
-          const fecha = getDateForDay(slot.day);
-          const checkResult = await verificarSolicitudPreviaAction({
-            ofertaId: result.data.id,
-            horarios: [{ fecha, hora: slot.time }],
-          });
-          if (checkResult.existe || (checkResult.mensaje && checkResult.mensaje.trim().length > 0)) {
-            blocked.push({ day: slot.day, time: slot.time });
-          }
-        }
-        setBlockedHorarios(blocked);
       } else {
         console.error('Failed to load offer:', result.error);
         setOfferDetails(null);
@@ -202,8 +187,6 @@ export default function DetallesOfertaPage({
         );
         setNotificacionVisible(true);
         setShowModal(false);
-        // Mover horarios seleccionados a bloqueados
-        setBlockedHorarios((prev) => [...prev, ...selectedHorarios]);
         setSelectedHorarios([]);
       } else {
         setAlertaMessage(result.message || 'Error al enviar la solicitud');
@@ -228,7 +211,6 @@ export default function DetallesOfertaPage({
               categories={offerDetails.categories}
               availability={offerDetails.availability}
               selectedHorarios={selectedHorarios}
-              blockedHorarios={blockedHorarios}
               onHorarioSelect={handleHorarioSelect}
               onHorarioRemove={handleHorarioRemove}
             />

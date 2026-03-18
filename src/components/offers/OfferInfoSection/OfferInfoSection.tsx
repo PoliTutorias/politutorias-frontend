@@ -12,7 +12,6 @@ interface OfferInfoSectionProps {
   categories: CategoryDto[];
   availability: AvailabilityDto[];
   selectedHorarios: HorarioDisponibleDto[];
-  blockedHorarios?: HorarioDisponibleDto[];
   onHorarioSelect: (horario: HorarioDisponibleDto) => void;
   onHorarioRemove: (horario: HorarioDisponibleDto) => void;
 }
@@ -90,7 +89,6 @@ export default function OfferInfoSection({
   categories,
   availability,
   selectedHorarios,
-  blockedHorarios = [],
   onHorarioSelect,
   onHorarioRemove,
 }: OfferInfoSectionProps) {
@@ -224,9 +222,6 @@ export default function OfferInfoSection({
                       const isSelected = selectedHorarios.some(
                         (h) => h.day === day && h.time === time
                       );
-                      const isBlocked = blockedHorarios.some(
-                        (h) => h.day === day && h.time === time
-                      );
 
                       return (
                         <ChipHorario
@@ -234,7 +229,6 @@ export default function OfferInfoSection({
                           horario={horario}
                           isSelected={isSelected}
                           isDayPassed={isPassed}
-                          isBlocked={isBlocked}
                           onSelect={() => handleHorarioClick(day, time)}
                         />
                       );
