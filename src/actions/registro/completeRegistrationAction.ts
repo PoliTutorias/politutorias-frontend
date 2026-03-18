@@ -79,6 +79,30 @@ export async function completeRegistrationAction(
     }
 
     console.log('=== REGISTRO COMPLETADO EXITOSAMENTE ===');
+
+    // Refrescar el JWT para obtener role: 'tutor' (antes era 'student')
+    try {
+      const refreshResponse = await fetch(`${backendUrl}auth/refresh`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`,
+        },
+      });
+
+      if (refreshResponse.ok) {
+        const refreshData = await refreshResponse.json();
+        if (refreshData.token) {
+          // Actualizar la cookie con el nuevo JWT que tiene role: 'tutor'
+          const { setServerToken } = await import('@/lib/server-auth');
+          await setServerToken(refreshData.token);
+          console.log('JWT actualizado con role: tutor');
+        }
+      }
+    } catch (refreshError) {
+      console.warn('No se pudo refrescar el JWT:', refreshError);
+    }
+
     redirect('/dashboard/tutor');
   } catch (error) {
     console.error('Error en completeRegistrationAction:', error);
