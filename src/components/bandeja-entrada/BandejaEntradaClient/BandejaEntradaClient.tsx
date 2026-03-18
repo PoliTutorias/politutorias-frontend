@@ -25,8 +25,10 @@ export function BandejaEntradaClient({ initialSolicitudes, globalCounts }: Bande
   const [totalPages, setTotalPages] = React.useState<number>(initialSolicitudes.totalPages);
   const [activeTab, setActiveTab] = React.useState<'PENDIENTE' | 'EXPIRADA'>('PENDIENTE');
   const [isPending, startTransition] = React.useTransition();
+  const [counts, setCounts] = React.useState<GlobalCountsDto>(globalCounts);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = React.useState(false);
   const [selectedSolicitud, setSelectedSolicitud] = React.useState<SolicitudDetailsDto | null>(null);
+  const [modalInstanceKey, setModalInstanceKey] = React.useState(0);
 
   const handleTabChange = (newStatus: 'PENDIENTE' | 'EXPIRADA') => {
     setActiveTab(newStatus);
@@ -72,11 +74,25 @@ export function BandejaEntradaClient({ initialSolicitudes, globalCounts }: Bande
     }
 
     setIsConfirmModalOpen(true);
+    setModalInstanceKey((previous) => previous + 1);
   };
 
   const handleCloseModal = () => {
     setIsConfirmModalOpen(false);
     setSelectedSolicitud(null);
+  };
+
+  const handleConfirmSuccess = () => {
+    if (!selectedSolicitud) {
+      return;
+    }
+
+    setCurrentSolicitudes((previous) => previous.filter((item) => item.id !== selectedSolicitud.id));
+    setCounts((previous) => ({
+      pending: Math.max(0, previous.pending - 1),
+      expired: previous.expired,
+      responded: previous.responded + 1,
+    }));
   };
 
   return (
@@ -87,12 +103,12 @@ export function BandejaEntradaClient({ initialSolicitudes, globalCounts }: Bande
           <p className="mt-1 text-base text-slate-500">Solicitudes de tutoria recibidas</p>
         </div>
 
-        <GlobalPendingCount pendingCount={globalCounts.pending} />
+        <GlobalPendingCount pendingCount={counts.pending} />
       </div>
 
       <TabsComponent
-        initialPendingCount={globalCounts.pending}
-        initialExpiredCount={globalCounts.expired}
+        initialPendingCount={counts.pending}
+        initialExpiredCount={counts.expired}
         onTabChange={handleTabChange}
       />
 
@@ -112,10 +128,15 @@ export function BandejaEntradaClient({ initialSolicitudes, globalCounts }: Bande
 
       {selectedSolicitud && (
         <ConfirmarTutoriaModal
+          key={`${selectedSolicitud.id}-${modalInstanceKey}`}
           isOpen={isConfirmModalOpen}
           onClose={handleCloseModal}
           tutoriaId={selectedSolicitud.id}
           modalidad={selectedSolicitud.modalidad}
+          materia={selectedSolicitud.materia}
+          estudiante={selectedSolicitud.estudiante}
+          fechaHora={selectedSolicitud.fechaHora}
+          onConfirmed={handleConfirmSuccess}
         />
       )}
     </section>
