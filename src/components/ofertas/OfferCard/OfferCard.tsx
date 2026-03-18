@@ -140,7 +140,7 @@ export function OfferCard({ offer }: OfferCardProps) {
         <div className="flex flex-col items-end justify-center px-5 py-5 shrink-0 border-l border-gray-100">
           <p className="text-xs text-gray-500 font-medium mb-1 font-inter">Precio</p>
           <p className="text-2xl font-bold text-[var(--yellow)] font-inter">
-            ${offer.precio}
+            ${Math.round(offer.precio)}
             <span className="text-sm font-normal text-gray-500">/h</span>
           </p>
         </div>
