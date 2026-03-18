@@ -2,32 +2,34 @@
 
 import { ApiResponse } from '@/interfaces/api/ApiResponse';
 import { OfertaDto } from '@/interfaces/oferta/OfertaDto';
-import { cookies } from 'next/headers';
+import { getServerToken } from '@/lib/server-auth';
 
 /**
- * Obtiene el listado de ofertas de tutoría de un tutor específico
- * Usa el tutorId guardado en cookies durante el registro (HU34)
+ * Obtiene el listado de ofertas del tutor autenticado.
+ * Usa JWT auth — el backend resuelve el tutorId automáticamente.
  * @returns ApiResponse con un array de OfertaDto
  */
 export async function getTutorOffersAction(): Promise<ApiResponse<OfertaDto[]>> {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL || 'http://localhost:3000/api/';
-    const cookieStore = await cookies();
-    
-    // Obtener tutorId de las cookies (guardado en HU34)
-    const tutorIdFromCookie = cookieStore.get('tutor-id')?.value;
-    
-    // Usar tutorId de cookies, fallback a NEXT_PUBLIC_TUTOR_ID
-    const TUTOR_ID = tutorIdFromCookie || process.env.NEXT_PUBLIC_TUTOR_ID || '550e8400-e29b-41d4-a716-446655440000';
 
-    console.log('Obteniendo ofertas para tutorId:', TUTOR_ID);
-    console.log('Fuente de tutorId:', tutorIdFromCookie ? 'Cookies (HU34)' : 'NEXT_PUBLIC_TUTOR_ID');
+    // Obtener JWT token
+    const token = await getServerToken();
+    if (!token) {
+      return {
+        statusCode: 401,
+        message: 'No se encontró sesión activa.',
+        error: 'Unauthorized',
+      };
+    }
 
-    const response = await fetch(`${baseUrl}tutor/${TUTOR_ID}/ofertas`, {
+    console.log('[getTutorOffersAction] Obteniendo mis ofertas via JWT');
+
+    const response = await fetch(`${baseUrl}ofertas/mis-ofertas`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        // 'Authorization': `Bearer ${token}`, // Si requiere autenticación
+        'Authorization': `Bearer ${token}`,
       },
       cache: 'no-store',
     });
