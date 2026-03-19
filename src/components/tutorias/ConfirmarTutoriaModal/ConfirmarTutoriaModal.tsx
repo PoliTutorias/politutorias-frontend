@@ -154,17 +154,20 @@ export function ConfirmarTutoriaModal({
             <label htmlFor="lugarEncuentro" className="mb-1 block text-lg font-semibold text-slate-700">
               Lugar de encuentro <span className="text-red-500">*</span>
             </label>
+            <p className="mb-2 text-sm text-slate-500">Describe un punto claro para reunirse</p>
             <textarea
               id="lugarEncuentro"
               name="lugarEncuentro"
               maxLength={100}
               value={lugarEncuentro}
-              onChange={(event) => setLugarEncuentro(event.target.value)}
+              onChange={(event) => setLugarEncuentro(event.target.value.slice(0, 100))}
               rows={3}
               placeholder="Ej. Edificio H, aula 205, campus principal"
               className="w-full resize-none rounded-xl border border-slate-300 bg-white px-4 py-3 text-base text-slate-700 outline-none transition-colors placeholder:text-slate-400 focus:border-primary"
             />
-            <p className="mt-1 text-right text-sm text-slate-500">{lugarEncuentro.length}/100</p>
+            <p className={`mt-1 text-right text-sm ${lugarEncuentro.length === 100 ? 'font-semibold text-slate-700' : 'text-slate-500'}`}>
+              {lugarEncuentro.length}/100
+            </p>
             {fieldError && <p className="mt-2 text-sm font-medium text-red-600">{fieldError}</p>}
             {!fieldError && fieldSuccess && <p className="mt-2 text-sm font-medium text-green-700">{fieldSuccess}</p>}
           </div>
