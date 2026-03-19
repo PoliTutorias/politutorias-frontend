@@ -1,10 +1,10 @@
 'use server';
 
 import { SolicitudPayload, SolicitudEntity } from '@/interfaces/solicitudes/SolicitudDto';
+import { getRequestConfig } from '@/lib/server-auth';
 
 /**
  * Server Action para enviar una solicitud de tutoría
- * En desarrollo, usa seed data; en producción, hace fetch al backend
  */
 export async function enviarSolicitudTutoriaAction(
   payload: SolicitudPayload
@@ -17,18 +17,7 @@ export async function enviarSolicitudTutoriaAction(
   }
 
   try {
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
-    const token = process.env.TEMPORARY_TOKEN;
-
-    if (!backendUrl || !token) {
-      console.error('NEXT_PUBLIC_BACKEND_API_URL o TEMPORARY_TOKEN no está definido');
-      return {
-        success: false,
-        message: 'Error al conectar con el servidor.',
-      };
-    }
-
-    const normalizedBackendUrl = backendUrl.replace(/\/+$/, '');
+    const { baseUrl, token } = await getRequestConfig();
     const payloadToSend: {
       ofertaId: string;
       mensaje: string;
@@ -45,7 +34,7 @@ export async function enviarSolicitudTutoriaAction(
         payload.modalidad === 'virtual' ? 'Virtual' : 'Presencial';
     }
 
-    const response = await fetch(`${normalizedBackendUrl}/solicitudes`, {
+    const response = await fetch(`${baseUrl}/solicitudes`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

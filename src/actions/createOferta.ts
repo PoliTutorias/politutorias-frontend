@@ -2,7 +2,7 @@
 
 import { CreateOfertaInput } from '@/schemas/createOfertaSchema';
 import { getCategoriesSeed } from '@/seed/CategoriesSeedData';
-import { cookies } from 'next/headers';
+import { getServerToken } from '@/lib/server-auth';
 
 export interface CreateOfertaResponse {
   success: boolean;
@@ -23,16 +23,8 @@ export interface CreateOfertaResponse {
 
 /**
  * Server Action para crear una nueva oferta de tutoría
- * 
- * @param data - Datos de la oferta validados con Zod
- * @returns Respuesta con el resultado de la operación
+ * Usa JWT auth para que el backend resuelva el tutorId correcto.
  */
-
-async function getTutorIdFromCookies(): Promise<string> {
-  const cookieStore = await cookies();
-  const tutorIdFromCookie = cookieStore.get('tutor-id')?.value;
-  return tutorIdFromCookie || process.env.NEXT_PUBLIC_TUTOR_ID || '550e8400-e29b-41d4-a716-446655440000';
-}
 
 export async function createOfertaAction(
   data: CreateOfertaInput
@@ -42,6 +34,15 @@ export async function createOfertaAction(
 
     if (!backendUrl) {
       throw new Error('NEXT_PUBLIC_BACKEND_API_URL no está configurada');
+    }
+
+    // Obtener JWT token
+    const token = await getServerToken();
+    if (!token) {
+      return {
+        success: false,
+        message: 'No se encontró sesión activa. Por favor, inicia sesión.',
+      };
     }
 
     // Mapear IDs de categorías a nombres
@@ -65,7 +66,6 @@ export async function createOfertaAction(
       }
     };
 
-    const tutorId = await getTutorIdFromCookies();
     const payload = {
       title: data.title,
       price: data.price,
@@ -75,18 +75,13 @@ export async function createOfertaAction(
     };
 
     console.log('[createOfertaAction] Request URL:', `${backendUrl}ofertas`);
-    console.log('[createOfertaAction] Request Method:', 'POST');
-    console.log('[createOfertaAction] Request Headers:', {
-      'Content-Type': 'application/json',
-      'X-Tutor-Id': tutorId,
-    });
     console.log('[createOfertaAction] Request Body:', payload);
 
     const response = await fetch(`${backendUrl}ofertas`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-Tutor-Id': tutorId,
+        'Authorization': `Bearer ${token}`,
       },
       body: JSON.stringify(payload),
     });

@@ -3,121 +3,52 @@
 import { OfertaEntity } from '@/interfaces/ofertas/OfertaEntity';
 import Image from 'next/image';
 import Link from 'next/link';
-import { IoLocationOutline } from 'react-icons/io5';
-import { MdComputer, MdPerson } from 'react-icons/md';
-import { FiStar, FiClock } from 'react-icons/fi';
+import { MapPin, Clock, Star, Monitor, Users } from 'lucide-react';
 
 interface OfferCardProps {
   offer: OfertaEntity;
 }
 
 /**
- * OfferCard para ofertas filtradas (HU27)
- * 
- * Tarjeta individual que muestra la información de una oferta
- * usando la interfaz OfertaEntity del seed data.
+ * OfferCard — Horizontal card matching the prototype design.
+ *
+ * Layout: [Tutor Avatar + Name + Rating] | [Title + Modality + Desc + Tags + Horarios] | [Price]
  */
 export function OfferCard({ offer }: OfferCardProps) {
-  // Renderizar icono de modalidad
-  const renderModalityIcon = (modality: string) => {
-    const iconProps = { className: 'w-4 h-4' };
-    if (modality === 'Virtual') return <MdComputer {...iconProps} />;
-    if (modality === 'Presencial') return <MdPerson {...iconProps} />;
-    return <IoLocationOutline {...iconProps} />;
-  };
-
-  // Limitar tags a 2 y mostrar +N si hay más
+  // Limitar tags a 2
   const tags = offer.tags ?? [];
   const displayTags = tags.slice(0, 2);
-  const remainingTags = tags.length - 2;
 
-  // Horarios a mostrar (máximo 2) — nombre completo del día
+  // Horarios a mostrar (máximo 3) con nombre completo del día
   const dayFullName: Record<string, string> = {
     Lun: 'Lunes', Mar: 'Martes', Mié: 'Miércoles', Jue: 'Jueves',
     Vie: 'Viernes', Sáb: 'Sábado', Dom: 'Domingo',
   };
   const horariosRaw = offer.horarios ?? [];
   const slots = horariosRaw.map((h) => `${dayFullName[h.day] ?? h.day} ${h.hour}`);
-  const displayHorarios = slots.slice(0, 2);
-  const remainingHorarios = slots.length - 2;
+  const displayHorarios = slots.slice(0, 3);
+  const remainingHorarios = slots.length - 3;
+
+  // Modality icon
+  const renderModalityIcon = () => {
+    if (offer.modalidad === 'Virtual') return <Monitor size={14} className="text-gray-500" />;
+    if (offer.modalidad === 'Presencial') return <Users size={14} className="text-gray-500" />;
+    return <MapPin size={14} className="text-gray-500" />;
+  };
 
   return (
     <Link href={`/ofertas/${offer.id}`}>
-      <div data-testid="offer-card" className="flex h-full flex-col rounded-lg bg-white p-5 shadow-md transition-all cursor-pointer hover:shadow-lg hover:-translate-y-1 border-t-[3px] border-t-[var(--yellow)]">
-      {/* Encabezado: Título y Precio */}
-      <div className="mb-2 flex items-start justify-between gap-3">
-        <div className="flex-1 min-w-0">
-          <h3 className="text-[17px] font-semibold text-gray-900 line-clamp-2 leading-tight font-inter">
-            {offer.titulo}
-          </h3>
-        </div>
-        <div className="shrink-0 whitespace-nowrap">
-          <span className="text-lg font-bold text-[var(--yellow)]">
-            ${offer.precio}
-            <span className="text-xs font-normal text-gray-600">/h</span>
-          </span>
-        </div>
-      </div>
+      <div
+        data-testid="offer-card"
+        className="flex rounded-xl bg-white shadow-sm hover:shadow-md transition-all cursor-pointer border border-gray-100 overflow-hidden"
+      >
+        {/* Left accent bar */}
+        <div className="w-1 shrink-0 bg-[var(--yellow)]" />
 
-      {/* Modalidad */}
-      <div className="mb-3 flex items-center gap-1.5 text-[11px] text-gray-600">
-        {renderModalityIcon(offer.modalidad)}
-        <span className="text-[11px]">{offer.modalidad}</span>
-      </div>
-
-      {/* Descripción */}
-      <div className="mb-3 flex items-center min-h-[2.5rem]">
-        <p className="line-clamp-2 text-[13px] text-gray-600 leading-relaxed font-inter">
-          {offer.descripcion}
-        </p>
-      </div>
-
-      {/* Tags */}
-      {displayTags.length > 0 && (
-        <div className="mb-3 flex flex-wrap gap-1.5">
-          {displayTags.map((tag, index) => (
-            <span
-              key={`tag-${index}`}
-              className="inline-block rounded-full bg-gray-100 px-2.5 py-0.5 text-xs text-gray-700 font-inter"
-            >
-              {tag}
-            </span>
-          ))}
-          {remainingTags > 0 && (
-            <span className="inline-block rounded-full bg-gray-100 px-2.5 py-0.5 text-xs text-gray-700">
-              +{remainingTags}
-            </span>
-          )}
-        </div>
-      )}
-
-      {/* Horarios de Disponibilidad */}
-      {displayHorarios.length > 0 && (
-        <div className="mb-3 flex items-center gap-2 flex-wrap">
-          <FiClock className="w-4 h-4 text-gray-400 shrink-0" />
-          {displayHorarios.map((slot, index) => (
-            <span
-              key={`slot-${index}`}
-              className="inline-block rounded-md bg-gray-100 px-2.5 py-1 text-[12px] text-gray-700 font-medium font-inter"
-            >
-              {slot}
-            </span>
-          ))}
-          {remainingHorarios > 0 && (
-            <p className="text-[12px] text-gray-400 font-inter">
-              +{remainingHorarios} más
-            </p>
-          )}
-        </div>
-      )}
-
-      {/* Separador */}
-      <div className="mt-auto mb-3 border-t border-gray-200" />
-
-      {/* Tutor + Rating */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 min-w-0">
-          <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full bg-[var(--primary)] flex items-center justify-center">
+        {/* Tutor column */}
+        <div className="flex flex-col items-center justify-center px-5 py-5 shrink-0 w-[130px]">
+          {/* Avatar */}
+          <div className="relative h-16 w-16 rounded-full overflow-hidden bg-[var(--primary)] flex items-center justify-center mb-2">
             {offer.tutor.fotoUrl ? (
               <Image
                 src={offer.tutor.fotoUrl}
@@ -126,27 +57,93 @@ export function OfferCard({ offer }: OfferCardProps) {
                 className="object-cover"
               />
             ) : (
-              <span className="text-white text-sm font-bold select-none">
+              <span className="text-white text-xl font-bold select-none">
                 {offer.tutor.nombre.charAt(0).toUpperCase()}
               </span>
             )}
           </div>
-          <p className="truncate text-[13px] font-bold text-[var(--primary)] font-inter">
+
+          {/* Tutor name */}
+          <p className="text-sm font-semibold text-[var(--primary)] text-center leading-tight mb-1 font-inter">
             {offer.tutor.nombre}
           </p>
+
+          {/* Rating */}
+          {offer.calificacionPromedio !== undefined && (
+            <div className="flex items-center gap-1">
+              <Star size={14} className="text-amber-400 fill-amber-400" />
+              <span className="text-sm font-semibold text-gray-700">{offer.calificacionPromedio}</span>
+              {offer.totalReseñas !== undefined && (
+                <span className="text-xs text-gray-400">({offer.totalReseñas})</span>
+              )}
+            </div>
+          )}
         </div>
 
-        {/* Calificación */}
-        {offer.calificacionPromedio !== undefined && (
-          <div className="flex items-center gap-1 shrink-0">
-            <FiStar className="w-4 h-4 text-[var(--yellow)] fill-[var(--yellow)]" />
-            <span className="text-sm font-semibold text-gray-700">{offer.calificacionPromedio}</span>
-            {offer.totalReseñas !== undefined && (
-              <span className="text-xs text-gray-400">({offer.totalReseñas})</span>
+        {/* Center content */}
+        <div className="flex-1 py-5 pr-4 min-w-0">
+          {/* Title */}
+          <h3 className="text-lg font-bold text-gray-900 leading-tight mb-1 font-inter">
+            {offer.titulo}
+          </h3>
+
+          {/* Modality */}
+          <div className="flex items-center gap-1.5 mb-2">
+            {renderModalityIcon()}
+            <span className="text-sm text-gray-500 font-inter">{offer.modalidad}</span>
+          </div>
+
+          {/* Description */}
+          <p className="text-sm text-gray-600 leading-relaxed line-clamp-2 mb-3 font-inter">
+            {offer.descripcion}
+          </p>
+
+          {/* Tags + Horarios */}
+          <div className="flex flex-col gap-2">
+            {/* Tags */}
+            {displayTags.length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {displayTags.map((tag, index) => (
+                  <span
+                    key={`tag-${index}`}
+                    className="inline-block rounded-full bg-gray-100 px-3 py-0.5 text-xs font-medium text-gray-600 font-inter"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            {/* Horarios */}
+            {displayHorarios.length > 0 && (
+              <div className="flex items-center gap-2 flex-wrap">
+                <Clock size={14} className="text-gray-400 shrink-0" />
+                {displayHorarios.map((slot, index) => (
+                  <span
+                    key={`slot-${index}`}
+                    className="inline-block rounded-md bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600 font-inter"
+                  >
+                    {slot}
+                  </span>
+                ))}
+                {remainingHorarios > 0 && (
+                  <span className="text-xs text-gray-400 font-inter">
+                    +{remainingHorarios} más
+                  </span>
+                )}
+              </div>
             )}
           </div>
-        )}
-      </div>
+        </div>
+
+        {/* Price column */}
+        <div className="flex flex-col items-end justify-center px-5 py-5 shrink-0 border-l border-gray-100">
+          <p className="text-xs text-gray-500 font-medium mb-1 font-inter">Precio</p>
+          <p className="text-2xl font-bold text-[var(--yellow)] font-inter">
+            ${Math.round(offer.precio)}
+            <span className="text-sm font-normal text-gray-500">/h</span>
+          </p>
+        </div>
       </div>
     </Link>
   );

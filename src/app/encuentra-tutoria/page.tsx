@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import { OfertasListComponent } from '@/components/ofertas/OfertasListComponent/OfertasListComponent';
-import { Navbar } from '@/components/navbar/Navbar';
+import { AppNavBar } from '@/components/layout/AppNavBar/AppNavBar';
 import { ClientOffersWrapper } from '@/components/ofertas/ClientOffersWrapper/ClientOffersWrapper';
 import { filtrarOfertasAction } from '@/actions/ofertas/filtrarOfertasAction';
 import { OfertaEntity } from '@/interfaces/ofertas/OfertaEntity';
@@ -58,7 +58,7 @@ function ErrorContent() {
 function PageLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-[#f7fafc]">
-      <Navbar userName="Patricio Chancusig" />
+      <AppNavBar role="student" activeItem="explorar" />
       <main>
         {children}
       </main>

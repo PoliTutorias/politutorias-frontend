@@ -1,13 +1,13 @@
 import { fetchInitialDataAction } from '@/actions/solicitudes/solicitudes';
 import { BandejaEntradaClient } from '@/components/bandeja-entrada/BandejaEntradaClient/BandejaEntradaClient';
-import { NavBar } from '@/components/layout/NavBar/NavBar';
+import { AppNavBar } from '@/components/layout/AppNavBar/AppNavBar';
 
 export default async function BandejaEntradaPage() {
   const { solicitudes: initialSolicitudes, counts: globalCounts } = await fetchInitialDataAction(1, 10);
 
   return (
     <div className="min-h-screen bg-[#f3f6fa]">
-      <NavBar activeItem="bandeja" userName="Jose" />
+      <AppNavBar role="tutor" activeItem="bandeja" />
       <BandejaEntradaClient initialSolicitudes={initialSolicitudes} globalCounts={globalCounts} />
     </div>
   );

@@ -4,6 +4,7 @@ import {
   VerificarSolicitudPreviaPayload,
   VerificarSolicitudPreviaResponseDto,
 } from '@/interfaces/solicitudes/SolicitudDto';
+import { getServerToken } from '@/lib/server-auth';
 
 /**
  * Server Action para verificar si existe una solicitud previa
@@ -13,16 +14,14 @@ export async function verificarSolicitudPreviaAction(
   payload: VerificarSolicitudPreviaPayload
 ): Promise<VerificarSolicitudPreviaResponseDto> {
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
-  const token = process.env.TEMPORARY_TOKEN;
+  const token = await getServerToken();
 
   if (!backendUrl || !token) {
-    const msg = '❌ Backend URL or token not configured';
-    console.error(msg);
+    console.error('❌ Backend URL or token not configured');
     return { existe: false, mensaje: null };
   }
 
   try {
-    console.log('🔍 Verificando solicitud previa...');
     const normalizedBackendUrl = backendUrl.replace(/\/+$/, '');
 
     const response = await fetch(`${normalizedBackendUrl}/solicitudes/verificar-previa`, {

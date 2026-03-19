@@ -2,6 +2,7 @@
 
 import { cookies } from 'next/headers';
 import { PerfilProfesional } from '@/interfaces/perfil-profesional-tipo/PerfilProfesional';
+import { getServerToken } from '@/lib/server-auth';
 
 interface FinalizarRegistroResponse {
   success: boolean;
@@ -14,13 +15,12 @@ export async function actionFinalizarRegistro(
   perfilData: PerfilProfesional
 ): Promise<FinalizarRegistroResponse> {
   try {
-    // Obtener el token: primero de cookies (guardado en HU34), sino usar TEMPORARY_TOKEN
+    // Obtener el token: primero de cookies (HU34), luego de auth cookie, luego fallback
     const cookieStore = await cookies();
     let token = cookieStore.get('tutor-auth-token')?.value;
     
     if (!token) {
-      console.log('Token no encontrado en cookies, usando TEMPORARY_TOKEN del .env');
-      token = process.env.TEMPORARY_TOKEN;
+      token = await getServerToken() ?? undefined;
     }
 
     if (!token) {

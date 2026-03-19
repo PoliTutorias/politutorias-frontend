@@ -7,6 +7,7 @@ import {
   SolicitudDetailsDto,
   SolicitudStatus,
 } from '@/interfaces/solicitudes/SolicitudesDTO';
+import { getRequestConfig } from '@/lib/server-auth';
 
 function normalizeApiStatus(rawStatus: string): SolicitudStatus {
   if (rawStatus === 'PENDIENTE') {
@@ -34,19 +35,7 @@ function mapApiItem(item: ApiSolicitudesResponse['data'][number]): SolicitudDeta
   };
 }
 
-function getRequestConfig() {
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
-  const token = process.env.TEMPORARY_TOKEN;
 
-  if (!backendUrl || !token) {
-    throw new Error('NEXT_PUBLIC_BACKEND_API_URL o TEMPORARY_TOKEN no configurado');
-  }
-
-  return {
-    baseUrl: backendUrl.replace(/\/+$/, ''),
-    token,
-  };
-}
 
 /**
  * Carga inicial de Bandeja:
@@ -58,7 +47,7 @@ export async function fetchInitialDataAction(
   limit: number
 ): Promise<InitialFetchResponse> {
   try {
-    const { baseUrl, token } = getRequestConfig();
+    const { baseUrl, token } = await getRequestConfig();
 
     const [countsResponse, solicitudesResponse] = await Promise.all([
       fetch(`${baseUrl}/solicitudes/counts`, {
@@ -126,7 +115,7 @@ export async function getSolicitudesAction(
   limit: number
 ): Promise<PaginatedSolicitudesDto> {
   try {
-    const { baseUrl, token } = getRequestConfig();
+    const { baseUrl, token } = await getRequestConfig();
 
     const response = await fetch(
       `${baseUrl}/solicitudes?status=${status}&page=${page}&limit=${limit}`,

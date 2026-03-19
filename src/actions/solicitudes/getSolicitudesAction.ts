@@ -6,6 +6,7 @@ import {
   SolicitudListParams,
   SolicitudStatus,
 } from '@/dtos/solicitudes.dto';
+import { getRequestConfig } from '@/lib/server-auth';
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 5;
@@ -38,19 +39,7 @@ type ApiListResponse = {
   itemsPerPage?: number;
 };
 
-function getRequestConfig() {
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
-  const token = process.env.TEMPORARY_TOKEN;
 
-  if (!backendUrl || !token) {
-    throw new Error('NEXT_PUBLIC_BACKEND_API_URL o TEMPORARY_TOKEN no configurado');
-  }
-
-  return {
-    baseUrl: backendUrl.replace(/\/+$/, ''),
-    token,
-  };
-}
 
 function normalizeStatus(rawStatus?: string): SolicitudStatus {
   if (rawStatus === 'PENDIENTE') {
@@ -168,7 +157,7 @@ export async function getSolicitudesAction(
   const page = Math.max(DEFAULT_PAGE, params.page ?? DEFAULT_PAGE);
   const limit = Math.max(1, params.limit ?? DEFAULT_LIMIT);
 
-  const { baseUrl, token } = getRequestConfig();
+  const { baseUrl, token } = await getRequestConfig();
 
   if (status === 'TODAS' || status === SolicitudStatus.ACEPTADA || status === SolicitudStatus.RECHAZADA) {
     const [pendingRawItems, expiredRawItems] = await Promise.all([

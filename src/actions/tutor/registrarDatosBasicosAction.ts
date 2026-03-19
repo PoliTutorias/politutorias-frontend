@@ -2,6 +2,7 @@
 
 import { cookies } from 'next/headers';
 import { TutorBasicosInput, tutorBasicosSchema } from '@/lib/validations/tutor-basicos-schema';
+import { getServerToken } from '@/lib/server-auth';
 
 interface ServerActionResponse<T = unknown> {
   success: boolean;
@@ -62,25 +63,25 @@ export async function registrarDatosBasicosAction(
     // Hacer petición real al backend
     try {
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL || 'http://localhost:3000/api/';
-      const token = process.env.TEMPORARY_TOKEN;
+      const token = await getServerToken();
       const endpoint = `${backendUrl}tutor/datos-basicos`;
 
       console.log('Enviando datos a:', endpoint);
 
-      // Crear FormData para enviar multipart/form-data
-      const requestFormData = new FormData();
-      requestFormData.append('nombreCompleto', validationResult.data.nombreCompleto);
-      requestFormData.append('numeroWhatsapp', validationResult.data.numeroWhatsapp);
-      requestFormData.append('facultad', validationResult.data.facultad);
-      requestFormData.append('semestreActual', validationResult.data.semestreActual);
-      requestFormData.append('biografiaCorta', validationResult.data.biografiaCorta);
-
+      // Enviar datos como JSON (FormData multipart corrompe caracteres especiales como °)
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
+          'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: requestFormData,
+        body: JSON.stringify({
+          nombreCompleto: validationResult.data.nombreCompleto,
+          numeroWhatsapp: validationResult.data.numeroWhatsapp,
+          facultad: validationResult.data.facultad,
+          semestreActual: validationResult.data.semestreActual,
+          biografiaCorta: validationResult.data.biografiaCorta,
+        }),
       });
 
       // Parsear respuesta del backend
