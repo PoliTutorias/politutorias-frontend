@@ -8,7 +8,7 @@ import { SolicitudDetailsDto } from '@/interfaces/solicitudes/SolicitudesDTO';
 
 interface SolicitudesTableProps {
   solicitudes: SolicitudDetailsDto[];
-  activeTabStatus: 'PENDIENTE' | 'EXPIRADA';
+  activeTabStatus: 'PENDIENTE' | 'RESPONDIDA' | 'EXPIRADA';
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;

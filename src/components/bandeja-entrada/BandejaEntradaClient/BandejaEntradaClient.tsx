@@ -23,14 +23,14 @@ export function BandejaEntradaClient({ initialSolicitudes, globalCounts }: Bande
   );
   const [currentPage, setCurrentPage] = React.useState<number>(initialSolicitudes.page);
   const [totalPages, setTotalPages] = React.useState<number>(initialSolicitudes.totalPages);
-  const [activeTab, setActiveTab] = React.useState<'PENDIENTE' | 'EXPIRADA'>('PENDIENTE');
+  const [activeTab, setActiveTab] = React.useState<'PENDIENTE' | 'RESPONDIDA' | 'EXPIRADA'>('PENDIENTE');
   const [isPending, startTransition] = React.useTransition();
   const [counts, setCounts] = React.useState<GlobalCountsDto>(globalCounts);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = React.useState(false);
   const [selectedSolicitud, setSelectedSolicitud] = React.useState<SolicitudDetailsDto | null>(null);
   const [modalInstanceKey, setModalInstanceKey] = React.useState(0);
 
-  const handleTabChange = (newStatus: 'PENDIENTE' | 'EXPIRADA') => {
+  const handleTabChange = (newStatus: 'PENDIENTE' | 'RESPONDIDA' | 'EXPIRADA') => {
     setActiveTab(newStatus);
 
     startTransition(async () => {
@@ -104,6 +104,7 @@ export function BandejaEntradaClient({ initialSolicitudes, globalCounts }: Bande
 
       <TabsComponent
         initialPendingCount={counts.pending}
+        initialRespondedCount={counts.responded}
         initialExpiredCount={counts.expired}
         onTabChange={handleTabChange}
       />

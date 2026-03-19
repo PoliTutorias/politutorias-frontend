@@ -1,9 +1,11 @@
 import { Suspense } from 'react';
 import { OfertasListComponent } from '@/components/ofertas/OfertasListComponent/OfertasListComponent';
-import { AppNavBar } from '@/components/layout/AppNavBar/AppNavBar';
 import { ClientOffersWrapper } from '@/components/ofertas/ClientOffersWrapper/ClientOffersWrapper';
 import { filtrarOfertasAction } from '@/actions/ofertas/filtrarOfertasAction';
 import { OfertaEntity } from '@/interfaces/ofertas/OfertaEntity';
+import Link from 'next/link';
+import clsx from 'clsx';
+import { dancingScript, montserrat } from '@/lib/fonts';
 
 export const dynamic = 'force-dynamic';
 
@@ -58,7 +60,49 @@ function ErrorContent() {
 function PageLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-[#f7fafc]">
-      <AppNavBar role="student" activeItem="explorar" />
+      <header className="bg-primary px-6 py-4 text-white">
+        <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4">
+          <Link href="/encuentra-tutoria" className="flex items-center">
+            <span className={`${montserrat.className} antialiased text-3xl font-extrabold leading-none text-white`}>
+              Poli
+            </span>
+            <span className={`${dancingScript.className} antialiased text-base text-yellow`}>
+              Tutorías
+            </span>
+          </Link>
+
+          <div className="flex items-center gap-5">
+            <nav className="flex items-center gap-6 text-sm font-semibold">
+              <Link
+                href="/encuentra-tutoria"
+                className={clsx(
+                  'border-b-2 pb-1 transition-colors',
+                  'border-yellow text-white',
+                  'hover:text-white'
+                )}
+              >
+                Explorar
+              </Link>
+              <Link
+                href="/dashboard/solicitudes"
+                className="border-b-2 border-transparent pb-1 text-slate-300 transition-colors hover:text-white"
+              >
+                Mis Solicitudes
+              </Link>
+            </nav>
+
+            <div className="h-8 border-l border-slate-500" />
+
+            <div className="inline-flex items-center gap-2 rounded-full border border-slate-500 bg-slate-700/30 px-3 py-1.5">
+              <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-yellow text-xs font-bold text-primary">P</span>
+              <span className="text-sm font-semibold text-white">Patricio</span>
+            </div>
+            <button type="button" className="text-sm font-medium text-slate-300 transition-colors hover:text-white">
+              Salir
+            </button>
+          </div>
+        </div>
+      </header>
       <main>
         {children}
       </main>

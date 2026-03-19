@@ -30,16 +30,27 @@ export interface ConfirmarTutoriaActionState {
   };
 }
 
-export const initialConfirmarTutoriaActionState: ConfirmarTutoriaActionState = {
-  success: false,
-};
+function normalizeModalidad(rawModalidad: string): 'Virtual' | 'Presencial' | null {
+  const normalized = rawModalidad.trim().toLowerCase();
+
+  if (normalized === 'virtual') {
+    return 'Virtual';
+  }
+
+  if (normalized === 'presencial') {
+    return 'Presencial';
+  }
+
+  return null;
+}
 
 export async function confirmarTutoriaAction(
   _previousState: ConfirmarTutoriaActionState,
   formData: FormData
 ): Promise<ConfirmarTutoriaActionState> {
   const tutoriaId = String(formData.get('tutoriaId') ?? '').trim();
-  const modalidad = String(formData.get('modalidad') ?? '').trim();
+  const rawModalidad = String(formData.get('modalidad') ?? '').trim();
+  const modalidad = normalizeModalidad(rawModalidad);
   const enlaceReunion = String(formData.get('enlaceReunion') ?? '');
   const lugarEncuentro = String(formData.get('lugarEncuentro') ?? '');
 
@@ -51,7 +62,7 @@ export async function confirmarTutoriaAction(
       };
     }
 
-    if (modalidad !== 'Virtual' && modalidad !== 'Presencial') {
+    if (!modalidad) {
       return {
         success: false,
         message: 'Modalidad inválida para confirmar la tutoría.',

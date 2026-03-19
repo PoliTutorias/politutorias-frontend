@@ -3,28 +3,32 @@
 import React from 'react';
 import clsx from 'clsx';
 
-type TabStatus = 'PENDIENTE' | 'EXPIRADA';
+type TabStatus = 'PENDIENTE' | 'RESPONDIDA' | 'EXPIRADA';
 
 interface TabsComponentProps {
   initialPendingCount: number;
   initialExpiredCount: number;
+  initialRespondedCount: number;
   onTabChange: (status: TabStatus) => void;
 }
 
 const TAB_META: Array<{ status: TabStatus; label: string }> = [
   { status: 'PENDIENTE', label: 'Pendientes' },
+  { status: 'RESPONDIDA', label: 'Respondidas' },
   { status: 'EXPIRADA', label: 'Expiradas' },
 ];
 
 export function TabsComponent({
   initialPendingCount,
   initialExpiredCount,
+  initialRespondedCount,
   onTabChange,
 }: TabsComponentProps) {
   const [activeTab, setActiveTab] = React.useState<TabStatus>('PENDIENTE');
 
   const countMap: Record<TabStatus, number> = {
     PENDIENTE: initialPendingCount,
+    RESPONDIDA: initialRespondedCount,
     EXPIRADA: initialExpiredCount,
   };
 
