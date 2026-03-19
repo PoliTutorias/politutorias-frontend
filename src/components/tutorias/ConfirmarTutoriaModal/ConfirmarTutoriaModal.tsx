@@ -37,15 +37,6 @@ export function ConfirmarTutoriaModal({
   const [lugarEncuentro, setLugarEncuentro] = useState('');
 
   useEffect(() => {
-    if (!isOpen) {
-      return;
-    }
-
-    setEnlaceReunion('');
-    setLugarEncuentro('');
-  }, [isOpen, tutoriaId, modalidad]);
-
-  useEffect(() => {
     if (!state.success || !isOpen) {
       return;
     }

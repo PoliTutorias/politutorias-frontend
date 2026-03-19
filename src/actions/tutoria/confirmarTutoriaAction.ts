@@ -58,10 +58,12 @@ export async function confirmarTutoriaAction(
       };
     }
 
-    const validatedData =
-      modalidad === 'Virtual'
-        ? confirmarVirtualSchema.parse({ enlaceReunion })
-        : confirmarPresencialSchema.parse({ lugarEncuentro });
+    const validatedVirtualData = modalidad === 'Virtual'
+      ? confirmarVirtualSchema.parse({ enlaceReunion })
+      : undefined;
+    const validatedPresencialData = modalidad === 'Presencial'
+      ? confirmarPresencialSchema.parse({ lugarEncuentro })
+      : undefined;
 
     await new Promise((resolve) => setTimeout(resolve, 700));
 
@@ -72,10 +74,10 @@ export async function confirmarTutoriaAction(
       target.updatedAt = new Date().toISOString();
 
       if (modalidad === 'Virtual') {
-        target.enlaceReunion = validatedData.enlaceReunion;
+        target.enlaceReunion = validatedVirtualData?.enlaceReunion;
         target.lugarEncuentro = undefined;
       } else {
-        target.lugarEncuentro = validatedData.lugarEncuentro;
+        target.lugarEncuentro = validatedPresencialData?.lugarEncuentro;
         target.enlaceReunion = undefined;
       }
     }
@@ -92,7 +94,7 @@ export async function confirmarTutoriaAction(
     //   body: JSON.stringify({
     //     tutoriaId,
     //     modalidad,
-    //     ...validatedData,
+    //     ...(validatedVirtualData ?? validatedPresencialData),
     //   }),
     // });
     //

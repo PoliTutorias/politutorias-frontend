@@ -50,7 +50,6 @@ export async function cancelarSolicitudAction(
   // - 404: solicitud no encontrada
   // - 500: error interno del servidor
 
-  /* eslint-disable sonarjs/no-commented-code */
   // const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/solicitudes/${solicitudId}/cancel`, {
   //   method: 'PATCH',
   //   headers: {
@@ -79,5 +78,4 @@ export async function cancelarSolicitudAction(
 
   // const data = (await response.json()) as APIResponse<{ id: string; status: 'CANCELADA' }>;
   // return data;
-  /* eslint-enable sonarjs/no-commented-code */
 }
