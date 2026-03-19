@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
-import { tutoriasSeedData } from '@/lib/seeds/tutorias';
+import { getServerToken } from '@/lib/server-auth';
 
 const confirmarVirtualSchema = z.object({
   enlaceReunion: z
@@ -76,49 +76,49 @@ export async function confirmarTutoriaAction(
       ? confirmarPresencialSchema.parse({ lugarEncuentro })
       : undefined;
 
-    await new Promise((resolve) => setTimeout(resolve, 700));
+    const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
+    const token = await getServerToken();
 
-    const target = tutoriasSeedData.find((item) => item.id === tutoriaId);
-
-    if (target) {
-      target.estado = 'aceptada';
-      target.updatedAt = new Date().toISOString();
-
-      if (modalidad === 'Virtual') {
-        target.enlaceReunion = validatedVirtualData?.enlaceReunion;
-        target.lugarEncuentro = undefined;
-      } else {
-        target.lugarEncuentro = validatedPresencialData?.lugarEncuentro;
-        target.enlaceReunion = undefined;
-      }
+    if (!apiUrl || !token) {
+      return {
+        success: false,
+        message: 'Error de configuración: no se puede conectar al backend.',
+      };
     }
 
-    // Integracion backend real (T9): dejar comentado en esta etapa
-    // const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
-    // const token = process.env.TEMPORARY_TOKEN;
-    // const response = await fetch(`${apiUrl}/tutorias/${tutoriaId}/confirmar`, {
-    //   method: 'PUT',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //     Authorization: `Bearer ${token}`,
-    //   },
-    //   body: JSON.stringify({
-    //     tutoriaId,
-    //     modalidad,
-    //     ...(validatedVirtualData ?? validatedPresencialData),
-    //   }),
-    // });
-    //
-    // if (!response.ok) {
-    //   return { success: false, message: 'Error al confirmar la tutoría.' };
-    // }
+    const response = await fetch(`${apiUrl}solicitudes/${tutoriaId}/confirm`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        modalidad,
+        acceptedMeetingLink: modalidad === 'Virtual' ? validatedVirtualData?.enlaceReunion : undefined,
+        acceptedMeetingLocation: modalidad === 'Presencial' ? validatedPresencialData?.lugarEncuentro : undefined,
+      }),
+    });
+
+    if (!response.ok) {
+      let errorMessage = 'Error al confirmar la tutoría.';
+      
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.message || errorData.error || `Error ${response.status}: ${response.statusText}`;
+      } catch {
+        errorMessage = `Error ${response.status}: ${response.statusText}`;
+      }
+      
+      console.error('[confirmarTutoriaAction] Error response:', { status: response.status, message: errorMessage });
+      return { success: false, message: errorMessage };
+    }
 
     revalidatePath('/bandeja');
     revalidatePath('/tutor/inbox');
 
     return {
       success: true,
-      message: 'Tutoría confirmada exitosamente (SEED).',
+      message: 'Tutoría confirmada exitosamente.',
     };
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -127,6 +127,8 @@ export async function confirmarTutoriaAction(
         errors: error.flatten().fieldErrors,
       };
     }
+
+    console.error('[confirmarTutoriaAction] Exception:', error);
 
     return {
       success: false,

@@ -1,6 +1,7 @@
 'use server';
 
 import { APIResponse, CancelSolicitudDto } from '@/dtos/solicitudes.dto';
+import { getServerToken } from '@/lib/server-auth';
 
 export async function cancelarSolicitudAction(
   solicitudId: string,
@@ -24,58 +25,51 @@ export async function cancelarSolicitudAction(
     };
   }
 
-  return {
-    success: true,
-    message: 'Solicitud cancelada exitosamente.',
-    data: {
-      id: solicitudId,
-      status: 'CANCELADA',
-    },
-  };
+  try {
+    const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
+    const token = await getServerToken();
 
-  // Estructura esperada del endpoint PATCH /api/solicitudes/:id/cancel
-  // Request body: CancelSolicitudDto -> { reason?: string }
-  // Respuesta exitosa:
-  // {
-  //   success: boolean;
-  //   message: string;
-  //   data?: {
-  //     id: string;
-  //     status: 'CANCELADA';
-  //   }
-  // }
-  // Errores esperados:
-  // - 400: operación no permitida por estado / body inválido
-  // - 401: no autorizado
-  // - 404: solicitud no encontrada
-  // - 500: error interno del servidor
+    if (!apiUrl || !token) {
+      return {
+        success: false,
+        message: 'Error de configuración: no se puede conectar al backend.',
+      };
+    }
 
-  // const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/solicitudes/${solicitudId}/cancel`, {
-  //   method: 'PATCH',
-  //   headers: {
-  //     'Content-Type': 'application/json',
-  //     Accept: 'application/json',
-  //   },
-  //   body: JSON.stringify(cancelPayload),
-  //   cache: 'no-store',
-  // });
+    const response = await fetch(`${apiUrl}solicitudes/${solicitudId}/cancel`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(cancelPayload),
+      cache: 'no-store',
+    });
 
-  // if (!response.ok) {
-  //   let errorMessage = 'No se pudo cancelar la solicitud';
+    if (!response.ok) {
+      let errorMessage = 'No se pudo cancelar la solicitud';
 
-  //   try {
-  //     const errorBody = await response.json();
-  //     errorMessage = errorBody.message ?? errorMessage;
-  //   } catch {
-  //     errorMessage = response.statusText || errorMessage;
-  //   }
+      try {
+        const errorBody = await response.json();
+        errorMessage = errorBody.message ?? errorMessage;
+      } catch {
+        errorMessage = response.statusText || errorMessage;
+      }
 
-  //   return {
-  //     success: false,
-  //     message: errorMessage,
-  //   };
-  // }
+      return {
+        success: false,
+        message: errorMessage,
+      };
+    }
 
-  // const data = (await response.json()) as APIResponse<{ id: string; status: 'CANCELADA' }>;
-  // return data;
+    const data = (await response.json()) as APIResponse<{ id: string; status: 'CANCELADA' }>;
+    return data;
+  } catch (error) {
+    console.error('Error en cancelarSolicitudAction:', error);
+    return {
+      success: false,
+      message: 'Error al cancelar la solicitud.',
+    };
+  }
 }

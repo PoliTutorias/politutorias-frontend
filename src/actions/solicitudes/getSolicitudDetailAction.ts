@@ -1,6 +1,7 @@
 'use server';
 
 import { SolicitudDetailDto, SolicitudStatus } from '@/dtos/solicitudes.dto';
+import { getRequestConfig } from '@/lib/server-auth';
 
 type ApiHorario = {
   date?: string;
@@ -62,20 +63,6 @@ type ApiListResponse = {
   items?: ApiSolicitudListItem[];
   data?: ApiSolicitudListItem[];
 };
-
-function getRequestConfig() {
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
-  const token = process.env.TEMPORARY_TOKEN;
-
-  if (!backendUrl || !token) {
-    throw new Error('NEXT_PUBLIC_BACKEND_API_URL o TEMPORARY_TOKEN no configurado');
-  }
-
-  return {
-    baseUrl: backendUrl.replace(/\/+$/, ''),
-    token,
-  };
-}
 
 function normalizeStatus(rawStatus?: string): SolicitudStatus {
   if (rawStatus === 'PENDIENTE') {
@@ -180,12 +167,16 @@ async function findSolicitudInListFallback(
   token: string,
   solicitudId: string
 ): Promise<SolicitudDetailDto | null> {
-  const [pendingItems, expiredItems] = await Promise.all([
+  const [pendingItems, expiredItems, acceptedItems, rejectedItems] = await Promise.all([
     fetchSolicitudesByStatus(baseUrl, token, SolicitudStatus.PENDIENTE),
     fetchSolicitudesByStatus(baseUrl, token, SolicitudStatus.EXPIRADA),
+    fetchSolicitudesByStatus(baseUrl, token, SolicitudStatus.ACEPTADA),
+    fetchSolicitudesByStatus(baseUrl, token, SolicitudStatus.RECHAZADA),
   ]);
 
-  const matched = [...pendingItems, ...expiredItems].find((item) => item.id === solicitudId);
+  const matched = [...pendingItems, ...expiredItems, ...acceptedItems, ...rejectedItems].find(
+    (item) => item.id === solicitudId
+  );
 
   if (!matched) {
     return null;
@@ -210,11 +201,12 @@ export async function getSolicitudDetailAction(solicitudId: string): Promise<Sol
     cache: 'no-store',
   });
 
-  if (response.status === 404) {
-    return findSolicitudInListFallback(baseUrl, token, solicitudId);
-  }
-
   if (!response.ok) {
+    const fallbackDetail = await findSolicitudInListFallback(baseUrl, token, solicitudId);
+    if (fallbackDetail) {
+      return fallbackDetail;
+    }
+
     let errorMessage = 'No se pudo obtener el detalle de la solicitud';
 
     try {
