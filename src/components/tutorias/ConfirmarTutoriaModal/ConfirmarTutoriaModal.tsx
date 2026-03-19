@@ -1,7 +1,7 @@
 'use client';
 
 import { useActionState, useEffect, useMemo, useState } from 'react';
-import { FiBookOpen, FiCheck, FiLink2, FiMonitor, FiX } from 'react-icons/fi';
+import { FiBookOpen, FiCheck, FiLink2, FiLoader, FiMonitor, FiX } from 'react-icons/fi';
 import { toast } from 'sonner';
 import {
   confirmarTutoriaAction,
@@ -59,8 +59,12 @@ export function ConfirmarTutoriaModal({
       },
     });
 
-    onConfirmed?.(tutoriaId);
-    onClose();
+    const closeTimeout = setTimeout(() => {
+      onConfirmed?.(tutoriaId);
+      onClose();
+    }, 250);
+
+    return () => clearTimeout(closeTimeout);
   }, [isOpen, onClose, onConfirmed, state.success, tutoriaId]);
 
   useEffect(() => {
@@ -144,8 +148,16 @@ export function ConfirmarTutoriaModal({
               placeholder="https://zoom.us/j/..."
               className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-base text-slate-700 outline-none transition-colors placeholder:text-slate-400 focus:border-primary"
             />
-            {fieldError && <p className="mt-2 text-sm font-medium text-red-600">{fieldError}</p>}
-            {!fieldError && fieldSuccess && <p className="mt-2 text-sm font-medium text-green-700">{fieldSuccess}</p>}
+            {fieldError && (
+              <p className="mt-2 text-sm font-medium text-red-600" aria-live="polite">
+                {fieldError}
+              </p>
+            )}
+            {!fieldError && fieldSuccess && (
+              <p className="mt-2 text-sm font-medium text-green-700" aria-live="polite">
+                {fieldSuccess}
+              </p>
+            )}
           </div>
         )}
 
@@ -168,8 +180,16 @@ export function ConfirmarTutoriaModal({
             <p className={`mt-1 text-right text-sm ${lugarEncuentro.length === 100 ? 'font-semibold text-slate-700' : 'text-slate-500'}`}>
               {lugarEncuentro.length}/100
             </p>
-            {fieldError && <p className="mt-2 text-sm font-medium text-red-600">{fieldError}</p>}
-            {!fieldError && fieldSuccess && <p className="mt-2 text-sm font-medium text-green-700">{fieldSuccess}</p>}
+            {fieldError && (
+              <p className="mt-2 text-sm font-medium text-red-600" aria-live="polite">
+                {fieldError}
+              </p>
+            )}
+            {!fieldError && fieldSuccess && (
+              <p className="mt-2 text-sm font-medium text-green-700" aria-live="polite">
+                {fieldSuccess}
+              </p>
+            )}
           </div>
         )}
 
@@ -194,7 +214,10 @@ export function ConfirmarTutoriaModal({
             className="inline-flex items-center gap-2 rounded-xl bg-primary px-7 py-2 text-lg font-semibold text-white transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-70"
           >
             {isSubmitting ? (
-              'Confirmando...'
+              <>
+                <FiLoader size={18} className="animate-spin" />
+                Confirmando...
+              </>
             ) : (
               <>
                 <FiCheck size={18} />
