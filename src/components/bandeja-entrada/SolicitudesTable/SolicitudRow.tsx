@@ -82,9 +82,9 @@ export function SolicitudRow({ solicitud, isExpanded, onToggleExpand, onAcceptCl
                       event.stopPropagation();
                       onAcceptClick?.(solicitud.id, solicitud.modalidad);
                     }}
-                    className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-2.5 text-xl font-semibold text-white transition-colors hover:bg-primary/95"
+                    className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary/95"
                   >
-                    <FiCheck size={20} />
+                    <FiCheck size={16} />
                     Aceptar
                   </button>
                 </div>
