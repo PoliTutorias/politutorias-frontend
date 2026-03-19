@@ -81,12 +81,13 @@ export async function confirmarTutoriaAction(
     }
 
     // Integracion backend real (T9): dejar comentado en esta etapa
-    // const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    // const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
+    // const token = process.env.TEMPORARY_TOKEN;
     // const response = await fetch(`${apiUrl}/tutorias/${tutoriaId}/confirmar`, {
     //   method: 'PUT',
     //   headers: {
     //     'Content-Type': 'application/json',
-    //     // Authorization: `Bearer ${token}`,
+    //     Authorization: `Bearer ${token}`,
     //   },
     //   body: JSON.stringify({
     //     tutoriaId,
@@ -99,6 +100,7 @@ export async function confirmarTutoriaAction(
     //   return { success: false, message: 'Error al confirmar la tutoría.' };
     // }
 
+    revalidatePath('/bandeja');
     revalidatePath('/tutor/inbox');
 
     return {
