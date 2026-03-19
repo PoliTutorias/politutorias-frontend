@@ -128,12 +128,17 @@ export function ConfirmarTutoriaModal({
   }, [enlaceReunion, isEnlaceTouched, isLugarTouched, lugarEncuentro, normalizedModalidad]);
 
   const fieldError = useMemo(() => {
+    // Si la validación local es exitosa, ignorar errores del servidor
+    if (localValidation.success) {
+      return undefined;
+    }
+
     const serverError = normalizedModalidad === 'Virtual'
       ? state.errors?.enlaceReunion?.[0]
       : state.errors?.lugarEncuentro?.[0];
 
     return localValidation.error ?? serverError;
-  }, [localValidation.error, normalizedModalidad, state.errors]);
+  }, [localValidation.error, localValidation.success, normalizedModalidad, state.errors]);
 
   const fieldSuccess = useMemo(() => {
     if (fieldError) {
@@ -207,9 +212,10 @@ export function ConfirmarTutoriaModal({
                   </p>
                 )}
                 {!fieldError && fieldSuccess && (
-                  <p className="truncate text-[14px] font-medium text-green-700" aria-live="polite">
-                    {fieldSuccess}
-                  </p>
+                  <div className="inline-flex items-center gap-1 truncate text-[14px] font-medium text-green-700" aria-live="polite">
+                    <FiCheck size={14} className="flex-shrink-0" />
+                    <span className="truncate">{fieldSuccess}</span>
+                  </div>
                 )}
               </div>
             </div>
@@ -243,7 +249,13 @@ export function ConfirmarTutoriaModal({
                     {fieldError}
                   </p>
                 )}
-                {!fieldError && (
+                {!fieldError && fieldSuccess && (
+                  <div className="inline-flex items-center gap-1 truncate text-[14px] font-medium text-green-700" aria-live="polite">
+                    <FiCheck size={14} className="flex-shrink-0" />
+                    <span className="truncate">{fieldSuccess}</span>
+                  </div>
+                )}
+                {!fieldError && !fieldSuccess && (
                   <p className="truncate text-[14px] font-medium text-slate-400" aria-live="polite">
                     Minimo 10 caracteres
                   </p>
