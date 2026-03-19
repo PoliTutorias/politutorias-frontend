@@ -82,12 +82,8 @@ export function BandejaEntradaClient({ initialSolicitudes, globalCounts }: Bande
     setSelectedSolicitud(null);
   };
 
-  const handleConfirmSuccess = () => {
-    if (!selectedSolicitud) {
-      return;
-    }
-
-    setCurrentSolicitudes((previous) => previous.filter((item) => item.id !== selectedSolicitud.id));
+  const handleConfirmSuccess = (acceptedTutoriaId: string) => {
+    setCurrentSolicitudes((previous) => previous.filter((item) => item.id !== acceptedTutoriaId));
     setCounts((previous) => ({
       pending: Math.max(0, previous.pending - 1),
       expired: previous.expired,
