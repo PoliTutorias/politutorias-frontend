@@ -21,6 +21,16 @@ function normalizeApiStatus(rawStatus: string): SolicitudStatus {
   return 'RESPONDIDA';
 }
 
+function normalizeApiModalidad(rawModalidad?: string): 'Virtual' | 'Presencial' {
+  const normalized = (rawModalidad ?? '').trim().toLowerCase();
+
+  if (normalized === 'presencial') {
+    return 'Presencial';
+  }
+
+  return 'Virtual';
+}
+
 function mapApiItem(item: ApiSolicitudesResponse['data'][number]): SolicitudDetailsDto {
   return {
     id: item.id,
@@ -29,7 +39,7 @@ function mapApiItem(item: ApiSolicitudesResponse['data'][number]): SolicitudDeta
     fechaHora: item.fechaHora,
     mensajeResumen: item.mensajeResumen,
     estado: normalizeApiStatus(item.estado),
-    modalidad: item.modalidad ?? 'Virtual',
+    modalidad: normalizeApiModalidad(item.modalidad),
     precioHora: item.precioHora ?? 0,
     mensajeCompleto: item.mensajeCompleto ?? item.mensajeResumen,
   };

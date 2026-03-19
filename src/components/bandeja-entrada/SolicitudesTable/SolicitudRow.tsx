@@ -1,6 +1,6 @@
 'use client';
 
-import { FiCalendar, FiChevronDown, FiChevronUp, FiMapPin, FiMessageSquare, FiMonitor } from 'react-icons/fi';
+import { FiCalendar, FiCheck, FiChevronDown, FiChevronUp, FiMapPin, FiMessageSquare, FiMonitor } from 'react-icons/fi';
 import { StatusTag } from '@/components/common/StatusTag/StatusTag';
 import { SolicitudDetailsDto } from '@/interfaces/solicitudes/SolicitudesDTO';
 
@@ -8,6 +8,7 @@ interface SolicitudRowProps {
   solicitud: SolicitudDetailsDto;
   isExpanded: boolean;
   onToggleExpand: (id: string) => void;
+  onAcceptClick?: (tutoriaId: string, modalidad: 'Virtual' | 'Presencial') => void;
 }
 
 function getInitials(estudiante: string): string {
@@ -15,7 +16,7 @@ function getInitials(estudiante: string): string {
   return words.slice(0, 2).map((word) => word[0]?.toUpperCase() ?? '').join('');
 }
 
-export function SolicitudRow({ solicitud, isExpanded, onToggleExpand }: SolicitudRowProps) {
+export function SolicitudRow({ solicitud, isExpanded, onToggleExpand, onAcceptClick }: SolicitudRowProps) {
   const initials = getInitials(solicitud.estudiante);
   const leftAccent = solicitud.estado === 'PENDIENTE' ? 'bg-orange-400' : 'bg-red-400';
   const modalityIcon = solicitud.modalidad === 'Virtual' ? <FiMonitor size={18} /> : <FiMapPin size={18} />;
@@ -72,6 +73,22 @@ export function SolicitudRow({ solicitud, isExpanded, onToggleExpand }: Solicitu
                 </p>
                 <p className="text-sm italic text-primary">&quot;{solicitud.mensajeCompleto}&quot;</p>
               </div>
+
+              {solicitud.estado === 'PENDIENTE' && (
+                <div className="mt-4 flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      onAcceptClick?.(solicitud.id, solicitud.modalidad);
+                    }}
+                    className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary/95"
+                  >
+                    <FiCheck size={16} />
+                    Aceptar
+                  </button>
+                </div>
+              )}
             </div>
           </td>
         </tr>

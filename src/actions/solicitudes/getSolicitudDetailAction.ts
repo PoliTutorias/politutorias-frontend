@@ -38,7 +38,31 @@ type ApiDetalleSolicitud = {
   updatedAt?: string;
 };
 
+type ApiSolicitudListItem = {
+  id: string;
+  tutorAvatarUrl?: string;
+  avatarUrl?: string;
+  tutorName?: string;
+  subject?: string;
+  materia?: string;
+  date?: string;
+  fechaHora?: string;
+  modality?: 'Virtual' | 'Presencial';
+  modalidad?: 'Virtual' | 'Presencial';
+  pricePerHour?: number;
+  precioHora?: number;
+  status?: string;
+  estado?: string;
+  mensaje?: string;
+  studentMessage?: string;
+  horarios?: ApiHorario[];
+  proposedSchedules?: ApiHorario[];
+};
 
+type ApiListResponse = {
+  items?: ApiSolicitudListItem[];
+  data?: ApiSolicitudListItem[];
+};
 
 function normalizeStatus(rawStatus?: string): SolicitudStatus {
   if (rawStatus === 'PENDIENTE') {
@@ -83,6 +107,84 @@ function mapApiDetail(detail: ApiDetalleSolicitud): SolicitudDetailDto {
   };
 }
 
+function mapListItemToDetail(item: ApiSolicitudListItem): SolicitudDetailDto {
+  const proposedSchedules = (item.proposedSchedules ?? item.horarios ?? []).map((schedule) => ({
+    date: schedule.date || schedule.fecha || '',
+    time: schedule.time || schedule.hora || '',
+  }));
+
+  return {
+    id: item.id,
+    studentId: 'student-unknown',
+    tutorId: 'tutor-unknown',
+    avatarUrl: item.tutorAvatarUrl || item.avatarUrl,
+    tutorName: item.tutorName || 'Tutor sin nombre',
+    subject: item.subject || item.materia || 'Materia no especificada',
+    dateTime: item.date || item.fechaHora || new Date().toISOString(),
+    modality: item.modality || item.modalidad || 'Virtual',
+    price: item.pricePerHour ?? item.precioHora ?? 0,
+    status: normalizeStatus(item.status ?? item.estado),
+    studentMessage: item.studentMessage || item.mensaje || '',
+    proposedSchedules,
+    acceptedMeetingLocation: undefined,
+    acceptedMeetingLink: undefined,
+    rejectionReason: undefined,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+}
+
+async function fetchSolicitudesByStatus(
+  baseUrl: string,
+  token: string,
+  status: SolicitudStatus
+): Promise<ApiSolicitudListItem[]> {
+  const queryParams = new URLSearchParams({
+    status,
+    page: '1',
+    limit: '100',
+  });
+
+  const response = await fetch(`${baseUrl}/solicitudes?${queryParams}`, {
+    method: 'GET',
+    headers: {
+      Accept: 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    cache: 'no-store',
+  });
+
+  if (!response.ok) {
+    return [];
+  }
+
+  const data = (await response.json()) as ApiListResponse;
+  return data.items ?? data.data ?? [];
+}
+
+async function findSolicitudInListFallback(
+  baseUrl: string,
+  token: string,
+  solicitudId: string
+): Promise<SolicitudDetailDto | null> {
+  const [pendingItems, expiredItems, acceptedItems, rejectedItems] = await Promise.all([
+    fetchSolicitudesByStatus(baseUrl, token, SolicitudStatus.PENDIENTE),
+    fetchSolicitudesByStatus(baseUrl, token, SolicitudStatus.EXPIRADA),
+    fetchSolicitudesByStatus(baseUrl, token, SolicitudStatus.ACEPTADA),
+    fetchSolicitudesByStatus(baseUrl, token, SolicitudStatus.RECHAZADA),
+  ]);
+
+  const matched = [...pendingItems, ...expiredItems, ...acceptedItems, ...rejectedItems].find(
+    (item) => item.id === solicitudId
+  );
+
+  if (!matched) {
+    return null;
+  }
+
+  return mapListItemToDetail(matched);
+}
+
 export async function getSolicitudDetailAction(solicitudId: string): Promise<SolicitudDetailDto | null> {
   if (!solicitudId) {
     return null;
@@ -99,11 +201,12 @@ export async function getSolicitudDetailAction(solicitudId: string): Promise<Sol
     cache: 'no-store',
   });
 
-  if (response.status === 404) {
-    return null;
-  }
-
   if (!response.ok) {
+    const fallbackDetail = await findSolicitudInListFallback(baseUrl, token, solicitudId);
+    if (fallbackDetail) {
+      return fallbackDetail;
+    }
+
     let errorMessage = 'No se pudo obtener el detalle de la solicitud';
 
     try {

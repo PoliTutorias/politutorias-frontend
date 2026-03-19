@@ -5,6 +5,7 @@ import { getSolicitudesAction } from '@/actions/solicitudes/solicitudes';
 import { SolicitudesTable } from '@/components/bandeja-entrada/SolicitudesTable/SolicitudesTable';
 import { TabsComponent } from '@/components/bandeja-entrada/TabsComponent/TabsComponent';
 import { GlobalPendingCount } from '@/components/layout/GlobalPendingCount/GlobalPendingCount';
+import { ConfirmarTutoriaModal } from '@/components/tutorias/ConfirmarTutoriaModal/ConfirmarTutoriaModal';
 import {
   GlobalCountsDto,
   PaginatedSolicitudesDto,
@@ -22,10 +23,14 @@ export function BandejaEntradaClient({ initialSolicitudes, globalCounts }: Bande
   );
   const [currentPage, setCurrentPage] = React.useState<number>(initialSolicitudes.page);
   const [totalPages, setTotalPages] = React.useState<number>(initialSolicitudes.totalPages);
-  const [activeTab, setActiveTab] = React.useState<'PENDIENTE' | 'EXPIRADA'>('PENDIENTE');
+  const [activeTab, setActiveTab] = React.useState<'PENDIENTE' | 'RESPONDIDA' | 'EXPIRADA'>('PENDIENTE');
   const [isPending, startTransition] = React.useTransition();
+  const [counts, setCounts] = React.useState<GlobalCountsDto>(globalCounts);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = React.useState(false);
+  const [selectedSolicitud, setSelectedSolicitud] = React.useState<SolicitudDetailsDto | null>(null);
+  const [modalInstanceKey, setModalInstanceKey] = React.useState(0);
 
-  const handleTabChange = (newStatus: 'PENDIENTE' | 'EXPIRADA') => {
+  const handleTabChange = (newStatus: 'PENDIENTE' | 'RESPONDIDA' | 'EXPIRADA') => {
     setActiveTab(newStatus);
 
     startTransition(async () => {
@@ -49,6 +54,43 @@ export function BandejaEntradaClient({ initialSolicitudes, globalCounts }: Bande
     });
   };
 
+  const handleAcceptClick = (tutoriaId: string, modalidad: 'Virtual' | 'Presencial') => {
+    const solicitud = currentSolicitudes.find((item) => item.id === tutoriaId) ?? null;
+
+    if (solicitud) {
+      setSelectedSolicitud(solicitud);
+    } else {
+      setSelectedSolicitud({
+        id: tutoriaId,
+        modalidad,
+        estudiante: '',
+        materia: '',
+        fechaHora: '',
+        mensajeResumen: '',
+        estado: 'PENDIENTE',
+        precioHora: 0,
+        mensajeCompleto: '',
+      });
+    }
+
+    setIsConfirmModalOpen(true);
+    setModalInstanceKey((previous) => previous + 1);
+  };
+
+  const handleCloseModal = () => {
+    setIsConfirmModalOpen(false);
+    setSelectedSolicitud(null);
+  };
+
+  const handleConfirmSuccess = (acceptedTutoriaId: string) => {
+    setCurrentSolicitudes((previous) => previous.filter((item) => item.id !== acceptedTutoriaId));
+    setCounts((previous) => ({
+      pending: Math.max(0, previous.pending - 1),
+      expired: previous.expired,
+      responded: previous.responded + 1,
+    }));
+  };
+
   return (
     <section className="mx-auto w-full max-w-310 px-6 py-8">
       <div className="mb-7 flex flex-wrap items-start justify-between gap-4">
@@ -57,12 +99,13 @@ export function BandejaEntradaClient({ initialSolicitudes, globalCounts }: Bande
           <p className="mt-1 text-base text-slate-500">Solicitudes de tutoria recibidas</p>
         </div>
 
-        <GlobalPendingCount pendingCount={globalCounts.pending} />
+        <GlobalPendingCount pendingCount={counts.pending} />
       </div>
 
       <TabsComponent
-        initialPendingCount={globalCounts.pending}
-        initialExpiredCount={globalCounts.expired}
+        initialPendingCount={counts.pending}
+        initialRespondedCount={counts.responded}
+        initialExpiredCount={counts.expired}
         onTabChange={handleTabChange}
       />
 
@@ -75,7 +118,22 @@ export function BandejaEntradaClient({ initialSolicitudes, globalCounts }: Bande
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={handlePageChange}
+          onAcceptClick={handleAcceptClick}
           isLoading={isPending}
+        />
+      )}
+
+      {selectedSolicitud && (
+        <ConfirmarTutoriaModal
+          key={`${selectedSolicitud.id}-${modalInstanceKey}`}
+          isOpen={isConfirmModalOpen}
+          onClose={handleCloseModal}
+          tutoriaId={selectedSolicitud.id}
+          modalidad={selectedSolicitud.modalidad}
+          materia={selectedSolicitud.materia}
+          estudiante={selectedSolicitud.estudiante}
+          fechaHora={selectedSolicitud.fechaHora}
+          onConfirmed={handleConfirmSuccess}
         />
       )}
     </section>
