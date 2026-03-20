@@ -15,11 +15,17 @@ interface RechazarSolicitudModalProps {
   isOpen: boolean;
   onClose: () => void;
   solicitudId: string;
+  onRejected?: (solicitudId: string) => void;
 }
 
 const rejectionReasons = rejectionReasonEnum.options;
 
-export function RechazarSolicitudModal({ isOpen, onClose, solicitudId }: RechazarSolicitudModalProps) {
+export function RechazarSolicitudModal({
+  isOpen,
+  onClose,
+  solicitudId,
+  onRejected,
+}: RechazarSolicitudModalProps) {
   const [isPending, startTransition] = useTransition();
 
   const {
@@ -52,6 +58,7 @@ export function RechazarSolicitudModal({ isOpen, onClose, solicitudId }: Rechaza
       });
 
       if (response.success) {
+        onRejected?.(solicitudId);
         reset({ comment: '' });
         onClose();
         return;

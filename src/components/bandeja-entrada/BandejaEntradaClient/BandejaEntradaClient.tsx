@@ -104,6 +104,15 @@ export function BandejaEntradaClient({ initialSolicitudes, globalCounts }: Bande
     }));
   };
 
+  const handleRejectSuccess = (rejectedSolicitudId: string) => {
+    setCurrentSolicitudes((previous) => previous.filter((item) => item.id !== rejectedSolicitudId));
+    setCounts((previous) => ({
+      pending: Math.max(0, previous.pending - 1),
+      expired: previous.expired,
+      responded: previous.responded + 1,
+    }));
+  };
+
   return (
     <section className="mx-auto w-full max-w-310 px-6 py-8">
       <div className="mb-7 flex flex-wrap items-start justify-between gap-4">
@@ -142,6 +151,7 @@ export function BandejaEntradaClient({ initialSolicitudes, globalCounts }: Bande
           isOpen={isRejectModalOpen}
           onClose={handleCloseRejectModal}
           solicitudId={selectedRejectSolicitudId}
+          onRejected={handleRejectSuccess}
         />
       )}
 
