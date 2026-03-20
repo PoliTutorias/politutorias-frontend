@@ -46,9 +46,16 @@ export function RechazarSolicitudModal({
 
   const selectedReason = watch('reason');
   const commentValue = watch('comment') ?? '';
-  watch('comment');
 
   const isOtherSelected = selectedReason === 'Otro';
+
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    reset();
+  }, [isOpen, reset]);
 
   const onFormSubmit = handleSubmit((values) => {
     startTransition(async () => {
@@ -61,7 +68,7 @@ export function RechazarSolicitudModal({
 
         if (response.success) {
           onRejected?.(solicitudId);
-          reset({ comment: '' });
+          reset();
           onClose();
           return;
         }
@@ -100,7 +107,7 @@ export function RechazarSolicitudModal({
   }, [isOtherSelected, setValue]);
 
   const handleClose = () => {
-    reset({ comment: '' });
+    reset();
     onClose();
   };
 
@@ -115,7 +122,7 @@ export function RechazarSolicitudModal({
         className="w-full max-w-[560px] rounded-2xl border border-slate-200 bg-[#f7f7f8] px-6 pb-6 pt-5 shadow-[0_18px_44px_rgba(15,23,42,0.23)]"
       >
         <div className="mb-5 flex items-center justify-between">
-          <h2 className="text-[39px] font-bold leading-tight text-[#1f2937] sm:text-[31px]">Rechazar Solicitud</h2>
+          <h2 className="text-[24px] font-bold leading-tight text-[#1f2937]">Rechazar Solicitud</h2>
           <button
             type="button"
             onClick={handleClose}
@@ -126,7 +133,7 @@ export function RechazarSolicitudModal({
           </button>
         </div>
 
-        <div className="rounded-xl border border-slate-300 bg-[#f3f4f6] p-4">
+        <div className="rounded-xl border border-slate-300 border-l-3 border-l-[#1f3251] bg-[#f3f4f6] p-4">
           <p className="text-[17px] font-semibold text-[#243349]">Notificación al estudiante</p>
           <p className="mt-2 text-[15px] leading-snug text-slate-600">
             El estudiante será notificado del rechazo. Selecciona un motivo para ayudarle a entender la situación.
@@ -169,11 +176,7 @@ export function RechazarSolicitudModal({
           </div>
         )}
 
-        <div className="mt-3 mb-4">
-          <p className="text-xs text-slate-400">Solicitud: {solicitudId}</p>
-        </div>
-
-        <div className="mt-8 flex items-center justify-end gap-4">
+        <div className="mt-8 flex items-center justify-between gap-4">
           <button
             type="button"
             onClick={handleClose}
