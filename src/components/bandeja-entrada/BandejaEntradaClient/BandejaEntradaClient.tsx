@@ -5,6 +5,7 @@ import { getSolicitudesAction } from '@/actions/solicitudes/solicitudes';
 import { SolicitudesTable } from '@/components/bandeja-entrada/SolicitudesTable/SolicitudesTable';
 import { TabsComponent } from '@/components/bandeja-entrada/TabsComponent/TabsComponent';
 import { GlobalPendingCount } from '@/components/layout/GlobalPendingCount/GlobalPendingCount';
+import { RechazarSolicitudModal } from '@/components/modals/rechazar-solicitud-modal/RechazarSolicitudModal';
 import { ConfirmarTutoriaModal } from '@/components/tutorias/ConfirmarTutoriaModal/ConfirmarTutoriaModal';
 import {
   GlobalCountsDto,
@@ -136,8 +137,12 @@ export function BandejaEntradaClient({ initialSolicitudes, globalCounts }: Bande
         />
       )}
 
-      {isRejectModalOpen && selectedRejectSolicitudId && (
-        <div className="hidden" aria-hidden="true" data-solicitud-id={selectedRejectSolicitudId} onClick={handleCloseRejectModal} />
+      {selectedRejectSolicitudId && (
+        <RechazarSolicitudModal
+          isOpen={isRejectModalOpen}
+          onClose={handleCloseRejectModal}
+          solicitudId={selectedRejectSolicitudId}
+        />
       )}
 
       {selectedSolicitud && (
