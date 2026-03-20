@@ -35,6 +35,7 @@ export function RechazarSolicitudModal({ isOpen, onClose, solicitudId }: Rechaza
   });
 
   const selectedReason = watch('reason');
+  const commentValue = watch('comment') ?? '';
   watch('comment');
 
   const isOtherSelected = selectedReason === 'Otro';
@@ -111,11 +112,13 @@ export function RechazarSolicitudModal({ isOpen, onClose, solicitudId }: Rechaza
             <textarea
               id={`rechazo-comment-${solicitudId}`}
               {...register('comment')}
+              maxLength={300}
               rows={4}
               placeholder="Explica brevemente el motivo..."
               className="mt-2 w-full resize-none rounded-xl border border-slate-300 bg-[#f2f5f8] px-4 py-3 text-[15px] text-slate-700 outline-none transition-colors placeholder:text-slate-400 focus:border-slate-400"
             />
             {errors.comment && <p className="mt-2 text-sm text-red-600">{errors.comment.message}</p>}
+            <p className="mt-2 text-right text-sm text-slate-400">{commentValue.length}/300</p>
           </div>
         )}
 
