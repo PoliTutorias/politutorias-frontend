@@ -4,6 +4,7 @@ import { useEffect, useTransition } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { FiX } from 'react-icons/fi';
+import { toast } from 'sonner';
 import { rechazarSolicitudAction } from '@/actions/solicitudes/rechazarSolicitudAction';
 import {
   RechazarSolicitudFormValues,
@@ -51,20 +52,42 @@ export function RechazarSolicitudModal({
 
   const onFormSubmit = handleSubmit((values) => {
     startTransition(async () => {
-      const response = await rechazarSolicitudAction({
-        solicitudId,
-        reason: values.reason,
-        comment: values.comment,
-      });
+      try {
+        const response = await rechazarSolicitudAction({
+          solicitudId,
+          reason: values.reason,
+          comment: values.comment,
+        });
 
-      if (response.success) {
-        onRejected?.(solicitudId);
-        reset({ comment: '' });
-        onClose();
-        return;
+        if (response.success) {
+          onRejected?.(solicitudId);
+          reset({ comment: '' });
+          onClose();
+          return;
+        }
+
+        toast.error('No se pudo rechazar la solicitud', {
+          description: response.message,
+          style: {
+            background: '#c53030',
+            color: '#ffffff',
+            border: '1px solid #c53030',
+          },
+        });
+
+        console.error('Error al rechazar solicitud:', response.message);
+      } catch (error) {
+        toast.error('Error inesperado al rechazar la solicitud', {
+          description: 'Intenta nuevamente en unos segundos.',
+          style: {
+            background: '#c53030',
+            color: '#ffffff',
+            border: '1px solid #c53030',
+          },
+        });
+
+        console.error('Error inesperado al rechazar solicitud:', error);
       }
-
-      console.error('Error al rechazar solicitud:', response.message);
     });
   });
 
