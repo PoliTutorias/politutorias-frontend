@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useTransition } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { FiX } from 'react-icons/fi';
+import { rechazarSolicitudAction } from '@/actions/solicitudes/rechazarSolicitudAction';
 import {
   RechazarSolicitudFormValues,
   rechazarSolicitudSchema,
@@ -19,6 +20,8 @@ interface RechazarSolicitudModalProps {
 const rejectionReasons = rejectionReasonEnum.options;
 
 export function RechazarSolicitudModal({ isOpen, onClose, solicitudId }: RechazarSolicitudModalProps) {
+  const [isPending, startTransition] = useTransition();
+
   const {
     register,
     watch,
@@ -40,8 +43,22 @@ export function RechazarSolicitudModal({ isOpen, onClose, solicitudId }: Rechaza
 
   const isOtherSelected = selectedReason === 'Otro';
 
-  const onFormSubmit = handleSubmit(() => {
-    // El submit real se integra en T8.
+  const onFormSubmit = handleSubmit((values) => {
+    startTransition(async () => {
+      const response = await rechazarSolicitudAction({
+        solicitudId,
+        reason: values.reason,
+        comment: values.comment,
+      });
+
+      if (response.success) {
+        reset({ comment: '' });
+        onClose();
+        return;
+      }
+
+      console.error('Error al rechazar solicitud:', response.message);
+    });
   });
 
   useEffect(() => {
@@ -137,10 +154,10 @@ export function RechazarSolicitudModal({ isOpen, onClose, solicitudId }: Rechaza
 
           <button
             type="submit"
-            disabled={!selectedReason || !isValid}
+            disabled={!selectedReason || !isValid || isPending}
             className="h-[50px] rounded-xl border border-primary px-7 text-[18px] font-semibold text-primary transition-opacity disabled:text-primary/60"
           >
-            Confirmar Rechazo
+            {isPending ? 'Procesando...' : 'Confirmar Rechazo'}
           </button>
         </div>
       </form>
