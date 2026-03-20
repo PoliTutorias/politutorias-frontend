@@ -28,6 +28,8 @@ export function BandejaEntradaClient({ initialSolicitudes, globalCounts }: Bande
   const [counts, setCounts] = React.useState<GlobalCountsDto>(globalCounts);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = React.useState(false);
   const [selectedSolicitud, setSelectedSolicitud] = React.useState<SolicitudDetailsDto | null>(null);
+  const [isRejectModalOpen, setIsRejectModalOpen] = React.useState(false);
+  const [selectedRejectSolicitudId, setSelectedRejectSolicitudId] = React.useState<string | null>(null);
   const [modalInstanceKey, setModalInstanceKey] = React.useState(0);
 
   const handleTabChange = (newStatus: 'PENDIENTE' | 'RESPONDIDA' | 'EXPIRADA') => {
@@ -82,6 +84,16 @@ export function BandejaEntradaClient({ initialSolicitudes, globalCounts }: Bande
     setSelectedSolicitud(null);
   };
 
+  const handleRejectClick = (solicitudId: string) => {
+    setSelectedRejectSolicitudId(solicitudId);
+    setIsRejectModalOpen(true);
+  };
+
+  const handleCloseRejectModal = () => {
+    setIsRejectModalOpen(false);
+    setSelectedRejectSolicitudId(null);
+  };
+
   const handleConfirmSuccess = (acceptedTutoriaId: string) => {
     setCurrentSolicitudes((previous) => previous.filter((item) => item.id !== acceptedTutoriaId));
     setCounts((previous) => ({
@@ -119,8 +131,13 @@ export function BandejaEntradaClient({ initialSolicitudes, globalCounts }: Bande
           totalPages={totalPages}
           onPageChange={handlePageChange}
           onAcceptClick={handleAcceptClick}
+          onRejectClick={handleRejectClick}
           isLoading={isPending}
         />
+      )}
+
+      {isRejectModalOpen && selectedRejectSolicitudId && (
+        <div className="hidden" aria-hidden="true" data-solicitud-id={selectedRejectSolicitudId} onClick={handleCloseRejectModal} />
       )}
 
       {selectedSolicitud && (

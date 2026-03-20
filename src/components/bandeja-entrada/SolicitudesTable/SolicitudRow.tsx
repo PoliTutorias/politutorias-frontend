@@ -1,6 +1,6 @@
 'use client';
 
-import { FiCalendar, FiCheck, FiChevronDown, FiChevronUp, FiMapPin, FiMessageSquare, FiMonitor } from 'react-icons/fi';
+import { FiCalendar, FiCheck, FiChevronDown, FiChevronUp, FiMapPin, FiMessageSquare, FiMonitor, FiX } from 'react-icons/fi';
 import { StatusTag } from '@/components/common/StatusTag/StatusTag';
 import { SolicitudDetailsDto } from '@/interfaces/solicitudes/SolicitudesDTO';
 
@@ -9,6 +9,7 @@ interface SolicitudRowProps {
   isExpanded: boolean;
   onToggleExpand: (id: string) => void;
   onAcceptClick?: (tutoriaId: string, modalidad: 'Virtual' | 'Presencial') => void;
+  onRejectClick?: (solicitudId: string) => void;
 }
 
 function getInitials(estudiante: string): string {
@@ -16,7 +17,13 @@ function getInitials(estudiante: string): string {
   return words.slice(0, 2).map((word) => word[0]?.toUpperCase() ?? '').join('');
 }
 
-export function SolicitudRow({ solicitud, isExpanded, onToggleExpand, onAcceptClick }: SolicitudRowProps) {
+export function SolicitudRow({
+  solicitud,
+  isExpanded,
+  onToggleExpand,
+  onAcceptClick,
+  onRejectClick,
+}: SolicitudRowProps) {
   const initials = getInitials(solicitud.estudiante);
   const leftAccent = solicitud.estado === 'PENDIENTE' ? 'bg-orange-400' : 'bg-red-400';
   const modalityIcon = solicitud.modalidad === 'Virtual' ? <FiMonitor size={18} /> : <FiMapPin size={18} />;
@@ -86,6 +93,18 @@ export function SolicitudRow({ solicitud, isExpanded, onToggleExpand, onAcceptCl
                   >
                     <FiCheck size={16} />
                     Aceptar
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      onRejectClick?.(solicitud.id);
+                    }}
+                    className="inline-flex items-center gap-2 rounded-xl border border-primary bg-white px-5 py-2 text-sm font-semibold text-primary transition-colors hover:bg-slate-100"
+                  >
+                    <FiX size={16} />
+                    Rechazar
                   </button>
                 </div>
               )}

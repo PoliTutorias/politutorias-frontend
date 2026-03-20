@@ -13,6 +13,7 @@ interface SolicitudesTableProps {
   totalPages: number;
   onPageChange: (page: number) => void;
   onAcceptClick?: (tutoriaId: string, modalidad: 'Virtual' | 'Presencial') => void;
+  onRejectClick?: (solicitudId: string) => void;
   isLoading?: boolean;
 }
 
@@ -23,6 +24,7 @@ export function SolicitudesTable({
   totalPages,
   onPageChange,
   onAcceptClick,
+  onRejectClick,
   isLoading = false,
 }: SolicitudesTableProps) {
   const [expandedRowId, setExpandedRowId] = React.useState<string | null>(null);
@@ -58,6 +60,7 @@ export function SolicitudesTable({
                 isExpanded={expandedRowId === solicitud.id}
                 onToggleExpand={toggleRowExpansion}
                 onAcceptClick={onAcceptClick}
+                onRejectClick={onRejectClick}
               />
             ))}
           </tbody>
