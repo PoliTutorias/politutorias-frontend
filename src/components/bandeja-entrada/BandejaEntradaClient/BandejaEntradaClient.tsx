@@ -5,6 +5,7 @@ import { getSolicitudesAction } from '@/actions/solicitudes/solicitudes';
 import { SolicitudesTable } from '@/components/bandeja-entrada/SolicitudesTable/SolicitudesTable';
 import { TabsComponent } from '@/components/bandeja-entrada/TabsComponent/TabsComponent';
 import { GlobalPendingCount } from '@/components/layout/GlobalPendingCount/GlobalPendingCount';
+import { RechazarSolicitudModal } from '@/components/modals/rechazar-solicitud-modal/RechazarSolicitudModal';
 import { ConfirmarTutoriaModal } from '@/components/tutorias/ConfirmarTutoriaModal/ConfirmarTutoriaModal';
 import {
   GlobalCountsDto,
@@ -28,6 +29,8 @@ export function BandejaEntradaClient({ initialSolicitudes, globalCounts }: Bande
   const [counts, setCounts] = React.useState<GlobalCountsDto>(globalCounts);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = React.useState(false);
   const [selectedSolicitud, setSelectedSolicitud] = React.useState<SolicitudDetailsDto | null>(null);
+  const [isRejectModalOpen, setIsRejectModalOpen] = React.useState(false);
+  const [selectedRejectSolicitudId, setSelectedRejectSolicitudId] = React.useState<string | null>(null);
   const [modalInstanceKey, setModalInstanceKey] = React.useState(0);
 
   const handleTabChange = (newStatus: 'PENDIENTE' | 'RESPONDIDA' | 'EXPIRADA') => {
@@ -82,8 +85,27 @@ export function BandejaEntradaClient({ initialSolicitudes, globalCounts }: Bande
     setSelectedSolicitud(null);
   };
 
+  const handleRejectClick = (solicitudId: string) => {
+    setSelectedRejectSolicitudId(solicitudId);
+    setIsRejectModalOpen(true);
+  };
+
+  const handleCloseRejectModal = () => {
+    setIsRejectModalOpen(false);
+    setSelectedRejectSolicitudId(null);
+  };
+
   const handleConfirmSuccess = (acceptedTutoriaId: string) => {
     setCurrentSolicitudes((previous) => previous.filter((item) => item.id !== acceptedTutoriaId));
+    setCounts((previous) => ({
+      pending: Math.max(0, previous.pending - 1),
+      expired: previous.expired,
+      responded: previous.responded + 1,
+    }));
+  };
+
+  const handleRejectSuccess = (rejectedSolicitudId: string) => {
+    setCurrentSolicitudes((previous) => previous.filter((item) => item.id !== rejectedSolicitudId));
     setCounts((previous) => ({
       pending: Math.max(0, previous.pending - 1),
       expired: previous.expired,
@@ -119,7 +141,17 @@ export function BandejaEntradaClient({ initialSolicitudes, globalCounts }: Bande
           totalPages={totalPages}
           onPageChange={handlePageChange}
           onAcceptClick={handleAcceptClick}
+          onRejectClick={handleRejectClick}
           isLoading={isPending}
+        />
+      )}
+
+      {selectedRejectSolicitudId && (
+        <RechazarSolicitudModal
+          isOpen={isRejectModalOpen}
+          onClose={handleCloseRejectModal}
+          solicitudId={selectedRejectSolicitudId}
+          onRejected={handleRejectSuccess}
         />
       )}
 

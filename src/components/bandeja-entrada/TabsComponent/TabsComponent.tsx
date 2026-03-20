@@ -14,7 +14,7 @@ interface TabsComponentProps {
 
 const TAB_META: Array<{ status: TabStatus; label: string }> = [
   { status: 'PENDIENTE', label: 'Pendientes' },
-  { status: 'RESPONDIDA', label: 'Respondidas' },
+  // { status: 'RESPONDIDA', label: 'Respondidas' },
   { status: 'EXPIRADA', label: 'Expiradas' },
 ];
 
