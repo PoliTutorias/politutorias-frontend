@@ -1,8 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { getRequestConfig } from '@/lib/server-auth';
-import { RECHAZO_SOLICITUD_SEED_RESPONSE } from '@/seed/RechazoSolicitudResponseSeed';
+import { getServerToken } from '@/lib/server-auth';
 
 const validReasons = [
   'Imprevisto personal',
@@ -22,7 +21,7 @@ export interface RechazarSolicitudPayload {
 export interface RechazarSolicitudActionResponse {
   success: boolean;
   message: string;
-  solicitud?: typeof RECHAZO_SOLICITUD_SEED_RESPONSE;
+  solicitud?: unknown;
 }
 
 export async function rechazarSolicitudAction(
@@ -58,32 +57,30 @@ export async function rechazarSolicitudAction(
     };
   }
 
-  const normalizedComment = reason === 'Otro' ? (comment?.trim() || null) : null;
-
-  // Simulación temporal usando seed, mientras se habilita la integración real.
-  const simulatedSolicitud = {
-    ...RECHAZO_SOLICITUD_SEED_RESPONSE,
-    id: solicitudId,
-    rejectionReason: reason,
-    rejectionComment: normalizedComment,
-    respondedAt: new Date().toISOString(),
-  };
-
-  /*
   try {
-    const { baseUrl, token } = await getRequestConfig();
+    const apiUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
+    const token = await getServerToken();
 
-    const response = await fetch(`${baseUrl}/solicitudes/${solicitudId}/rechazar`, {
-      method: 'POST',
+    if (!apiUrl || !token) {
+      return {
+        success: false,
+        message: 'Error de configuración: no se puede conectar al backend.',
+      };
+    }
+
+    const normalizedComment = reason === 'Otro' ? (comment?.trim() || null) : null;
+    const bodyPayload = reason === 'Otro'
+      ? { reason, comment: normalizedComment }
+      : { reason };
+
+    const response = await fetch(`${apiUrl}solicitudes/${solicitudId}/reject`, {
+      method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json',
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({
-        reason,
-        comment: normalizedComment,
-      }),
+      body: JSON.stringify(bodyPayload),
       cache: 'no-store',
     });
 
@@ -121,15 +118,4 @@ export async function rechazarSolicitudAction(
       message: 'Error al rechazar la solicitud.',
     };
   }
-  */
-
-  await getRequestConfig();
-  revalidatePath('/tutor/inbox');
-  revalidatePath('/bandeja');
-
-  return {
-    success: true,
-    message: 'Solicitud rechazada exitosamente.',
-    solicitud: simulatedSolicitud,
-  };
 }

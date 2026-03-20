@@ -3,7 +3,7 @@
 import { useEffect, useTransition } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { FiX } from 'react-icons/fi';
+import { FiInfo, FiX } from 'react-icons/fi';
 import { toast } from 'sonner';
 import { rechazarSolicitudAction } from '@/actions/solicitudes/rechazarSolicitudAction';
 import {
@@ -67,6 +67,14 @@ export function RechazarSolicitudModal({
         });
 
         if (response.success) {
+          toast('Solicitud rechazada', {
+            icon: <FiInfo size={16} />,
+            style: {
+              background: '#2f6fb3',
+              color: '#ffffff',
+              border: '1px solid #2f6fb3',
+            },
+          });
           onRejected?.(solicitudId);
           reset();
           onClose();
@@ -122,7 +130,7 @@ export function RechazarSolicitudModal({
         className="w-full max-w-[560px] rounded-2xl border border-slate-200 bg-[#f7f7f8] px-6 pb-6 pt-5 shadow-[0_18px_44px_rgba(15,23,42,0.23)]"
       >
         <div className="mb-5 flex items-center justify-between">
-          <h2 className="text-[24px] font-bold leading-tight text-[#1f2937]">Rechazar Solicitud</h2>
+          <h2 className="text-[22px] font-bold leading-tight text-[#1f2937]">Rechazar Solicitud</h2>
           <button
             type="button"
             onClick={handleClose}
@@ -134,17 +142,17 @@ export function RechazarSolicitudModal({
         </div>
 
         <div className="rounded-xl border border-slate-300 border-l-3 border-l-[#1f3251] bg-[#f3f4f6] p-4">
-          <p className="text-[17px] font-semibold text-[#243349]">Notificación al estudiante</p>
-          <p className="mt-2 text-[15px] leading-snug text-slate-600">
+          <p className="text-[15px] font-semibold text-[#243349]">Notificación al estudiante</p>
+          <p className="mt-2 text-[14px] leading-snug text-slate-600">
             El estudiante será notificado del rechazo. Selecciona un motivo para ayudarle a entender la situación.
           </p>
         </div>
 
         <div className="mt-6">
-          <h3 className="text-[19px] font-semibold text-[#334155]">Motivo del rechazo</h3>
+          <h3 className="text-[17px] font-semibold text-[#334155]">Motivo del rechazo</h3>
           <div className="mt-3 space-y-3">
             {rejectionReasons.map((reason) => (
-              <label key={reason} className="flex cursor-pointer items-center gap-3 text-[16px] text-slate-700">
+              <label key={reason} className="flex cursor-pointer items-center gap-3 text-[15px] text-slate-700">
                 <input
                   type="radio"
                   value={reason}
@@ -160,7 +168,7 @@ export function RechazarSolicitudModal({
 
         {isOtherSelected && (
           <div className="mt-5">
-            <label htmlFor={`rechazo-comment-${solicitudId}`} className="text-[16px] font-semibold text-[#334155]">
+            <label htmlFor={`rechazo-comment-${solicitudId}`} className="text-[15px] font-semibold text-[#334155]">
               Comentario adicional (opcional)
             </label>
             <textarea
@@ -169,10 +177,10 @@ export function RechazarSolicitudModal({
               maxLength={300}
               rows={4}
               placeholder="Explica brevemente el motivo..."
-              className="mt-2 w-full resize-none rounded-xl border border-slate-300 bg-[#f2f5f8] px-4 py-3 text-[15px] text-slate-700 outline-none transition-colors placeholder:text-slate-400 focus:border-slate-400"
+              className="mt-2 w-full resize-none rounded-xl border border-slate-300 bg-[#f2f5f8] px-4 py-3 text-[14px] text-slate-700 outline-none transition-colors placeholder:text-slate-400 focus:border-slate-400"
             />
             {errors.comment && <p className="mt-2 text-sm text-red-600">{errors.comment.message}</p>}
-            <p className="mt-2 text-right text-sm text-slate-400">{commentValue.length}/300</p>
+            <p className="mt-2 text-right text-xs text-slate-400">{commentValue.length}/300</p>
           </div>
         )}
 
@@ -180,7 +188,7 @@ export function RechazarSolicitudModal({
           <button
             type="button"
             onClick={handleClose}
-            className="h-[48px] rounded-xl px-6 text-[18px] font-semibold text-slate-600 transition-colors hover:bg-slate-200"
+            className="h-[48px] rounded-xl px-6 text-[16px] font-semibold text-slate-600 transition-colors hover:bg-slate-200"
           >
             Cancelar
           </button>
@@ -188,7 +196,7 @@ export function RechazarSolicitudModal({
           <button
             type="submit"
             disabled={!selectedReason || !isValid || isPending}
-            className="h-[50px] rounded-xl border border-primary px-7 text-[18px] font-semibold text-primary transition-opacity disabled:text-primary/60"
+            className="h-[50px] rounded-xl border border-primary px-7 text-[16px] font-semibold text-primary transition-opacity disabled:text-primary/60"
           >
             {isPending ? 'Procesando...' : 'Confirmar Rechazo'}
           </button>
