@@ -3,12 +3,7 @@
 import type { InitialAgendaData, SelectedDayInfo } from '@/interfaces/agenda/AgendaInterfaces';
 import type { SessionDetailDTO } from '@/interfaces/session/SessionInterfaces';
 import { getServerToken } from '@/lib/server-auth';
-import {
-  initialAgendaDataSeed,
-  monthlySessionsSeed,
-  selectedDayInfoSeed,
-  sessionDetailDTOSeeds,
-} from '@/seed/AgendaSeedData';
+import { sessionDetailDTOSeeds } from '@/seed/AgendaSeedData';
 import { getTutorIdFromSession } from '@/utils/auth/authUtils';
 
 type AgendaActionResult<T> = {
@@ -60,61 +55,34 @@ export async function fetchDaySessions(dateString: string): Promise<AgendaAction
     return { success: false, error: 'No se pudo identificar al tutor autenticado.' };
   }
 
-  const sessionsForDate = monthlySessionsSeed.filter((session) => session.date === dateString);
+  try {
+    const token = await getServerToken();
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
 
-  if (sessionsForDate.length > 0) {
-    return {
-      success: true,
-      data: {
-        date: dateString,
-        totalSessions: sessionsForDate.length,
-        sessions: sessionsForDate,
+    if (!backendUrl) {
+      return { success: false, error: 'NEXT_PUBLIC_BACKEND_API_URL no esta configurada.' };
+    }
+
+    const normalizedBase = backendUrl.replace(/\/+$/, '');
+    const queryParams = new URLSearchParams({ tutorId, date: dateString });
+    const response = await fetch(`${normalizedBase}/tutor/agenda/sessions?${queryParams}`, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
-    };
+      next: { revalidate: 0 },
+    });
+
+    if (!response.ok) {
+      return { success: false, error: 'No fue posible cargar sesiones para el dia seleccionado.' };
+    }
+
+    const data = (await response.json()) as SelectedDayInfo;
+    return { success: true, data };
+  } catch {
+    return { success: false, error: 'Fallo inesperado cargando sesiones del dia.' };
   }
-
-  if (dateString === selectedDayInfoSeed.date) {
-    return { success: true, data: selectedDayInfoSeed };
-  }
-
-  return {
-    success: true,
-    data: {
-      date: dateString,
-      totalSessions: 0,
-      sessions: [],
-    },
-  };
-
-  // Integration phase: real backend fetch.
-  // try {
-  //   const token = await getServerToken();
-  //   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
-  //
-  //   if (!backendUrl) {
-  //     return { success: false, error: 'NEXT_PUBLIC_BACKEND_API_URL no esta configurada.' };
-  //   }
-  //
-  //   const normalizedBase = backendUrl.replace(/\/+$/, '');
-  //   const queryParams = new URLSearchParams({ tutorId, date: dateString });
-  //   const response = await fetch(`${normalizedBase}/tutor/agenda/sessions?${queryParams}`, {
-  //     method: 'GET',
-  //     headers: {
-  //       Accept: 'application/json',
-  //       ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  //     },
-  //     next: { revalidate: 0 },
-  //   });
-  //
-  //   if (!response.ok) {
-  //     return { success: false, error: 'No fue posible cargar sesiones para el dia seleccionado.' };
-  //   }
-  //
-  //   const data = (await response.json()) as SelectedDayInfo;
-  //   return { success: true, data };
-  // } catch {
-  //   return { success: false, error: 'Fallo inesperado cargando sesiones del dia.' };
-  // }
 }
 
 export async function fetchSessionDetails(sessionId: string): Promise<AgendaActionResult<SessionDetailDTO>> {
