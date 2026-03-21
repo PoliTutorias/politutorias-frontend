@@ -27,7 +27,7 @@ export function DayCell({
   onDaySelect,
 }: DayCellProps) {
   if (!isCurrentMonth || !dayNumber || !date) {
-    return <div className="min-h-[92px] border-r border-b border-[#edf1f7] bg-white" />;
+    return <div className="min-h-23 border-r border-b border-[#edf1f7] bg-white" />;
   }
 
   const handleClick = () => {
@@ -39,18 +39,18 @@ export function DayCell({
       type="button"
       onClick={handleClick}
       className={clsx(
-        'min-h-[92px] w-full border-r border-b border-[#edf1f7] p-2 text-left transition-colors',
+        'min-h-23 w-full border-r border-b border-[#edf1f7] p-2 text-left transition-colors',
         isPastDay ? 'bg-[#f6f8fb]' : 'bg-white hover:bg-[#f8fbff]'
       )}
     >
-      <div className="mb-1 flex items-center justify-between">
+      <div className="mb-1 flex items-start justify-center">
         <span
           className={clsx(
-            'inline-flex h-7 min-w-7 items-center justify-center rounded-full px-2 text-sm font-semibold',
+            'inline-flex h-7 min-w-7 items-center justify-center rounded-full px-2 text-sm font-normal',
             isToday
-              ? 'bg-[#14284b] text-white'
+              ? 'bg-[#14284b] font-bold text-white'
               : isSelected
-                ? 'bg-[#e6ebf3] text-[#21324b]'
+                ? 'bg-[#e6ebf3] font-bold text-[#21324b]'
                 : isPastDay
                   ? 'text-[#aeb8c8]'
                   : 'text-[#5f6f87]'
@@ -67,7 +67,7 @@ export function DayCell({
               key={`${date}-${label.time}-${index}`}
               className={clsx(
                 'truncate rounded-sm px-1 py-0.5 text-[11px] font-semibold',
-                isPastDay ? 'bg-[#e9eef5] text-[#99a7bd]' : 'bg-[#eef3fb] text-[#8ea0bb]'
+                isPastDay ? 'bg-[#e9eef5] text-[#99a7bd]' : 'bg-[#f4ad2f] text-[#1b2a43]'
               )}
             >
               {label.time} {label.subject}

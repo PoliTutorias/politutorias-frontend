@@ -35,6 +35,16 @@ export function CalendarComponent({
   onDaySelect,
 }: CalendarComponentProps) {
   const fallbackMonthDate = useMemo(() => {
+    if (selectedDate) {
+      const [yearRaw, monthRaw] = selectedDate.split('-');
+      const parsedYear = Number(yearRaw);
+      const parsedMonth = Number(monthRaw);
+
+      if (!Number.isNaN(parsedYear) && !Number.isNaN(parsedMonth) && parsedMonth >= 1 && parsedMonth <= 12) {
+        return new Date(parsedYear, parsedMonth - 1, 1);
+      }
+    }
+
     const monthValueFromSeed = calendarDays[0]?.date?.slice(5, 7);
 
     if (monthValueFromSeed) {
@@ -42,8 +52,9 @@ export function CalendarComponent({
       return new Date(currentYear, month, 1);
     }
 
-    return new Date(currentYear, 0, 1);
-  }, [calendarDays, currentYear]);
+    const today = new Date();
+    return new Date(today.getFullYear(), today.getMonth(), 1);
+  }, [calendarDays, currentYear, selectedDate]);
 
   const [viewDate, setViewDate] = useState<Date>(fallbackMonthDate);
   const maxNextMonth = addMonths(fallbackMonthDate, 1);

@@ -10,8 +10,8 @@ export default async function MiAgendaPage() {
       <div className="min-h-screen bg-[#f3f6fa]">
         <AppNavBar role="tutor" activeItem="mi-agenda" />
         <main className="mx-auto max-w-5xl px-4 py-8 md:px-6 md:py-10">
-          <h1 className="text-[44px] font-bold text-[#1f2b3d]">Mi Agenda</h1>
-          <p className="mt-3 rounded-2xl border border-[#f3c8c8] bg-[#fff1f1] px-4 py-3 text-[20px] text-[#a13f3f]">
+          <h1 className="text-[34px] font-bold text-[#1f2b3d]">Mi Agenda</h1>
+          <p className="mt-3 rounded-2xl border border-[#f3c8c8] bg-[#fff1f1] px-4 py-3 text-[14px] text-[#a13f3f]">
             {response.error ?? 'No se pudo cargar la agenda en este momento.'}
           </p>
         </main>
@@ -27,8 +27,8 @@ export default async function MiAgendaPage() {
 
       <main className="mx-auto w-full max-w-5xl px-4 py-8 md:px-6 md:py-10">
         <header className="mb-6">
-          <h1 className="text-[48px] font-bold text-[#1f2b3d]">Mi Agenda</h1>
-          <p className="mt-1 text-[18px] text-[#7c8ca3]">Calendario de sesiones confirmadas</p>
+          <h1 className="text-[36px] font-bold text-[#1f2b3d]">Mi Agenda</h1>
+          <p className="mt-1 text-[15px] text-[#7c8ca3]">Calendario de sesiones confirmadas</p>
         </header>
 
         <MiAgendaClient initialData={initialData} />

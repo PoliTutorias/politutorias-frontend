@@ -6,7 +6,7 @@ import { fetchDaySessions, fetchSessionDetails } from '@/actions/agenda/agendaAc
 import { RightPanel } from '@/components/agenda/RightPanel/RightPanel';
 import { CalendarComponent } from '@/components/calendar/CalendarComponent/CalendarComponent';
 import { SessionDetailModal } from '@/components/session/SessionDetailModal/SessionDetailModal';
-import type { InitialAgendaData, SelectedDayInfo } from '@/interfaces/agenda/AgendaInterfaces';
+import type { InitialAgendaData, SelectedDayInfo, SessionSummary } from '@/interfaces/agenda/AgendaInterfaces';
 import type { SessionDetailDTO } from '@/interfaces/session/SessionInterfaces';
 
 interface MiAgendaClientProps {
@@ -44,12 +44,58 @@ export function MiAgendaClient({ initialData }: MiAgendaClientProps) {
     setSelectedDate(date);
   };
 
+  const buildFallbackSessionDetail = (sessionId: string): SessionDetailDTO | null => {
+    const sessionsPool: SessionSummary[] = [
+      ...(selectedDayInfo?.sessions ?? []),
+      ...initialData.monthlySummary.sessions,
+    ];
+
+    const summary = sessionsPool.find((session) => session.id === sessionId);
+    if (!summary) {
+      return null;
+    }
+
+    const initials = summary.studentName
+      .split(' ')
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase() ?? '')
+      .join('');
+
+    const isPast = summary.status === 'COMPLETED';
+
+    return {
+      id: summary.id,
+      tutorId: process.env.NEXT_PUBLIC_TUTOR_ID ?? 'unknown-tutor',
+      courseName: summary.courseName,
+      student: {
+        id: `fallback-${summary.id}`,
+        name: summary.studentName,
+        initials: initials || 'NA',
+      },
+      date: summary.date,
+      time: summary.time,
+      modality: 'VIRTUAL',
+      pricePerHour: 10,
+      studentMessage: 'Detalle temporal cargado desde resumen de agenda.',
+      link: 'https://zoom.us/j/000000000',
+      status: isPast ? 'COMPLETED' : 'PENDING',
+    };
+  };
+
   const handleSessionClick = (sessionId: string) => {
     startTransition(async () => {
       const response = await fetchSessionDetails(sessionId);
 
       if (response.success && response.data) {
         setSessionDetail(response.data);
+        setShowModal(true);
+        return;
+      }
+
+      const fallbackDetail = buildFallbackSessionDetail(sessionId);
+      if (fallbackDetail) {
+        setSessionDetail(fallbackDetail);
         setShowModal(true);
       }
     });
