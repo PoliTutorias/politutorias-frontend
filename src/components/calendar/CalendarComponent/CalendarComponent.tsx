@@ -42,6 +42,7 @@ export function CalendarComponent({
   }, [calendarDays, currentYear]);
 
   const [viewDate, setViewDate] = useState<Date>(fallbackMonthDate);
+  const maxNextMonth = addMonths(fallbackMonthDate, 1);
 
   const monthMap = useMemo(() => {
     return new Map(calendarDays.map((day) => [day.date, day]));
@@ -51,16 +52,16 @@ export function CalendarComponent({
   const startWeekDay = firstDay.getDay();
   const daysInMonth = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 0).getDate();
   const totalGridCells = 42;
-  const today = new Date('2026-03-20T00:00:00');
+  const today = new Date();
 
   const canGoNext =
-    viewDate.getFullYear() < fallbackMonthDate.getFullYear() ||
-    (viewDate.getFullYear() === fallbackMonthDate.getFullYear() &&
-      viewDate.getMonth() < fallbackMonthDate.getMonth() + 1);
+    viewDate.getFullYear() < maxNextMonth.getFullYear() ||
+    (viewDate.getFullYear() === maxNextMonth.getFullYear() && viewDate.getMonth() < maxNextMonth.getMonth());
 
-  const monthLabel = `${currentMonthName || formatMonthLabel(viewDate)} ${
-    viewDate.getFullYear() === currentYear ? currentYear : viewDate.getFullYear()
-  }`;
+  const isInitialMonthView =
+    viewDate.getFullYear() === currentYear && viewDate.getMonth() === fallbackMonthDate.getMonth();
+  const monthNameLabel = isInitialMonthView ? currentMonthName : formatMonthLabel(viewDate);
+  const monthLabel = `${monthNameLabel} ${viewDate.getFullYear()}`;
 
   const cells = Array.from({ length: totalGridCells }, (_, index) => {
     const dayNumber = index - startWeekDay + 1;
@@ -94,7 +95,7 @@ export function CalendarComponent({
 
   return (
     <section className="overflow-hidden rounded-2xl border border-[#dde5ef] bg-white shadow-[0_2px_8px_rgba(15,23,42,0.04)]">
-      <div className="flex items-center justify-between px-4 py-4">
+      <div className="flex items-center justify-between px-4 py-3">
         <button
           type="button"
           onClick={() => setViewDate((previous) => addMonths(previous, -1))}
@@ -104,7 +105,7 @@ export function CalendarComponent({
           <FiChevronLeft size={22} />
         </button>
 
-        <h2 className="text-[36px] font-bold capitalize text-[#1f2f49]">{monthLabel}</h2>
+        <h2 className="text-[22px] font-bold capitalize text-[#1f2f49]">{monthLabel}</h2>
 
         <button
           type="button"
@@ -119,27 +120,41 @@ export function CalendarComponent({
 
       <div className="grid grid-cols-7 border-t border-[#edf1f7] bg-[#f5f8fc]">
         {WEEK_DAYS.map((day) => (
-          <div key={day} className="border-r border-[#edf1f7] px-2 py-2 text-center text-[18px] font-bold text-[#7d8ca1] last:border-r-0">
+          <div key={day} className="border-r border-[#edf1f7] px-2 py-2 text-center text-[13px] font-bold text-[#7d8ca1] last:border-r-0">
             {day}
           </div>
         ))}
       </div>
 
       <div className="grid grid-cols-7">
-        {cells.map((cell) => (
-          <DayCell
-            key={cell.key}
-            dayNumber={'dayNumber' in cell ? cell.dayNumber : undefined}
-            date={'date' in cell ? cell.date : undefined}
-            isCurrentMonth={cell.isCurrentMonth}
-            isToday={'isToday' in cell ? cell.isToday : false}
-            isPastDay={'isPastDay' in cell ? cell.isPastDay : false}
-            isSelected={'isSelected' in cell ? cell.isSelected : false}
-            sessionCount={'sessionCount' in cell ? cell.sessionCount : 0}
-            sessionLabels={'sessionLabels' in cell ? cell.sessionLabels : []}
-            onDaySelect={onDaySelect}
-          />
-        ))}
+        {cells.map((cell) => {
+          if (!cell.isCurrentMonth) {
+            return (
+              <DayCell
+                key={cell.key}
+                isCurrentMonth={false}
+                isToday={false}
+                isPastDay={false}
+                sessionCount={0}
+              />
+            );
+          }
+
+          return (
+            <DayCell
+              key={cell.key}
+              dayNumber={cell.dayNumber}
+              date={cell.date}
+              isCurrentMonth
+              isToday={cell.isToday ?? false}
+              isPastDay={cell.isPastDay ?? false}
+              isSelected={cell.isSelected}
+              sessionCount={cell.sessionCount ?? 0}
+              sessionLabels={cell.sessionLabels ?? []}
+              onDaySelect={onDaySelect}
+            />
+          );
+        })}
       </div>
     </section>
   );

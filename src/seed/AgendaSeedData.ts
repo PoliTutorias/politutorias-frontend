@@ -8,7 +8,7 @@ import type { SessionDetailDTO } from '@/interfaces/session/SessionInterfaces';
 
 const TUTOR_ID = '550e8400-e29b-41d4-a716-446655440000';
 
-const monthlySessionsSeed: SessionSummary[] = [
+export const monthlySessionsSeed: SessionSummary[] = [
   { id: 'sess-0306-0900-cv-diego', time: '09:00', courseName: 'Calculo Vectorial', studentName: 'Diego Castillo', date: '2026-03-06', status: 'COMPLETED' },
   { id: 'sess-0306-0900-fi-valeria', time: '09:00', courseName: 'Fisica I', studentName: 'Valeria Sanchez', date: '2026-03-06', status: 'COMPLETED' },
   { id: 'sess-0306-1100-est-diego', time: '11:00', courseName: 'Estatica', studentName: 'Diego Castillo', date: '2026-03-06', status: 'COMPLETED' },
