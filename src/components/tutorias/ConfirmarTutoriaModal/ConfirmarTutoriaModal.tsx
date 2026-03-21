@@ -21,12 +21,23 @@ interface ConfirmarTutoriaModalProps {
 
 function normalizeModalidad(rawModalidad: string): 'Virtual' | 'Presencial' {
   const normalized = rawModalidad.trim().toLowerCase();
-
-  if (normalized === 'presencial') {
-    return 'Presencial';
-  }
-
+  if (normalized === 'presencial') return 'Presencial';
   return 'Virtual';
+}
+
+/**
+ * Formatea '2026-03-23T15:00:00' (local-naive) → '23 mar 2026 · 15:00'
+ * sin conversión UTC para evitar desfase de dia en Ecuador (UTC-5).
+ */
+function formatFechaHoraDisplay(fechaHora?: string): string {
+  if (!fechaHora) return '';
+  const date = new Date(fechaHora);
+  if (isNaN(date.getTime())) return fechaHora;
+  const day   = new Intl.DateTimeFormat('es-EC', { day: 'numeric' }).format(date);
+  const month = new Intl.DateTimeFormat('es-EC', { month: 'short' }).format(date);
+  const year  = new Intl.DateTimeFormat('es-EC', { year: 'numeric' }).format(date);
+  const time  = new Intl.DateTimeFormat('es-EC', { hour: '2-digit', minute: '2-digit', hour12: false }).format(date);
+  return `${day} ${month} ${year} · ${time}`;
 }
 
 export function ConfirmarTutoriaModal({
@@ -177,7 +188,7 @@ export function ConfirmarTutoriaModal({
           </p>
           <p className="mt-1 text-[16px] text-slate-500">
             {estudiante ?? 'Estudiante'}
-            {fechaHora ? ` · ${fechaHora}` : ''}
+            {fechaHora ? ` · ${formatFechaHoraDisplay(fechaHora)}` : ''}
           </p>
           <p className="mt-3 inline-flex items-center gap-2 text-[17px] font-semibold text-slate-600">
             {normalizedModalidad === 'Virtual' ? <FiMonitor size={15} /> : <FiUsers size={15} />}
