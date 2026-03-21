@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import clsx from 'clsx';
 import { dancingScript, montserrat } from '@/lib/fonts';
 import { useAuthStore } from '@/lib/stores/authStore';
+import { logoutAction } from '@/actions/auth/authActions';
 
 type TutorNavItem = {
   key: 'panel' | 'bandeja' | 'agenda';
@@ -29,8 +30,9 @@ export function NavBar({ activeItem, userName }: TutorNavBarProps) {
   const displayName = userName || user?.name || 'Tutor';
   const userInitial = displayName.trim().charAt(0).toUpperCase() || 'T';
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logoutAction(); // Limpia la cookie httpOnly del servidor
+    logout();             // Limpia el Zustand store
     router.push('/');
   };
 

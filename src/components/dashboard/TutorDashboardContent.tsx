@@ -14,6 +14,7 @@ import { MisOfertasSection } from '@/components/ofertas/MisOfertasSection';
 import { EmptyOfferState } from '@/components/ofertas/EmptyOfferState';
 import { FiClock, FiLogOut } from 'react-icons/fi';
 import { useAuthStore } from '@/lib/stores/authStore';
+import { logoutAction } from '@/actions/auth/authActions';
 
 export function TutorDashboardContent() {
   const router = useRouter();
@@ -56,8 +57,9 @@ export function TutorDashboardContent() {
     setIsModalOpen(false);
   };
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logoutAction(); // Limpia la cookie httpOnly del servidor
+    logout();             // Limpia el Zustand store
     router.push('/');
   };
 

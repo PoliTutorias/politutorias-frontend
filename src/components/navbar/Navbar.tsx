@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { montserrat, dancingScript } from '@/lib/fonts';
 import { useAuthStore } from '@/lib/stores/authStore';
+import { logoutAction } from '@/actions/auth/authActions';
 
 interface NavbarProps {
   userName?: string;
@@ -15,8 +16,9 @@ export function Navbar({ userName }: NavbarProps) {
 
   const displayName = userName || user?.name || 'Estudiante';
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logoutAction(); // Limpia la cookie httpOnly del servidor
+    logout();             // Limpia el Zustand store
     router.push('/');
   };
 
