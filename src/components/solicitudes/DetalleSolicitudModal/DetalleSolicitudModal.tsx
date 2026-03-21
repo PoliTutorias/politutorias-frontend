@@ -1,25 +1,27 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
+  FiAlertCircle,
   FiBookOpen,
   FiCalendar,
   FiClock,
+  FiMapPin,
   FiMessageSquare,
   FiMonitor,
-  FiMapPin,
-  FiAlertCircle,
   FiTrash2,
   FiX,
 } from 'react-icons/fi';
+import { toast } from 'sonner';
 import { SolicitudDetailDto, SolicitudStatus } from '@/dtos/solicitudes.dto';
 import { getSolicitudDetailAction } from '@/actions/solicitudes/getSolicitudDetailAction';
+import { cancelarSolicitudAction } from '@/actions/solicitudes/cancelarSolicitudAction';
 
 interface DetalleSolicitudModalProps {
   readonly isOpen: boolean;
   readonly onClose: () => void;
   readonly solicitudId: string | null;
-  /** Callback opcional para cancelar la solicitud desde el modal */
+  /** Callback opcional ejecutado DESPUÉS de cancelar exitosamente */
   readonly onCancelSolicitud?: (solicitudId: string) => void;
 }
 
@@ -32,6 +34,24 @@ export function DetalleSolicitudModal({
   const [solicitudDetail, setSolicitudDetail] = useState<SolicitudDetailDto | null>(null);
   const [isLoadingDetail, setIsLoadingDetail] = useState<boolean>(false);
   const [detailError, setDetailError] = useState<string | null>(null);
+  const [isCancelling, setIsCancelling] = useState(false);
+
+  const handleCancelClick = async () => {
+    if (!solicitudId || isCancelling) return;
+    setIsCancelling(true);
+    try {
+      const result = await cancelarSolicitudAction(solicitudId);
+      if (result.success) {
+        toast.success('Solicitud cancelada correctamente.');
+        onCancelSolicitud?.(solicitudId);
+        onClose();
+      } else {
+        toast.error(result.message || 'No se pudo cancelar la solicitud.');
+      }
+    } finally {
+      setIsCancelling(false);
+    }
+  };
 
   useEffect(() => {
     if (!isOpen || !solicitudId) {
@@ -198,8 +218,8 @@ export function DetalleSolicitudModal({
           </div>
         </div>
 
-        {/* ── Mensaje ── */}
-        <div className="rounded-xl border border-slate-200 bg-[#f9fbff] p-4">
+        {/* Mensaje — franja amarilla izquierda como en el prototipo */}
+        <div className="rounded-xl border border-slate-200 bg-[#f9fbff] p-4 border-l-4 border-l-yellow">
           <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wide text-primary">
             <FiMessageSquare size={13} />
             <span>Tu mensaje</span>
@@ -251,17 +271,15 @@ export function DetalleSolicitudModal({
 
         {/* Footer */}
         <footer className="flex items-center justify-end gap-3 border-t border-slate-100 px-5 py-3">
-          {isPendiente && onCancelSolicitud && solicitudId && (
+          {isPendiente && solicitudId && (
             <button
               type="button"
-              onClick={() => {
-                onCancelSolicitud(solicitudId);
-                onClose();
-              }}
-              className="inline-flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-600 transition-colors hover:bg-red-100"
+              onClick={handleCancelClick}
+              disabled={isCancelling}
+              className="inline-flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-600 transition-colors hover:bg-red-100 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <FiTrash2 size={14} />
-              Cancelar Solicitud
+              {isCancelling ? 'Cancelando...' : 'Cancelar Solicitud'}
             </button>
           )}
           <button
