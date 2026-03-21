@@ -24,37 +24,33 @@ export async function fetchAgendaInitialData(): Promise<AgendaActionResult<Initi
     return { success: false, error: 'No se pudo identificar al tutor autenticado.' };
   }
 
-  // Development phase: use seed data.
-  return { success: true, data: initialAgendaDataSeed };
+  try {
+    const token = await getServerToken();
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
 
-  // Integration phase: real backend fetch.
-  // try {
-  //   const token = await getServerToken();
-  //   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
-  //
-  //   if (!backendUrl) {
-  //     return { success: false, error: 'NEXT_PUBLIC_BACKEND_API_URL no esta configurada.' };
-  //   }
-  //
-  //   const normalizedBase = backendUrl.replace(/\/+$/, '');
-  //   const response = await fetch(`${normalizedBase}/tutor/agenda/${tutorId}`, {
-  //     method: 'GET',
-  //     headers: {
-  //       Accept: 'application/json',
-  //       ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  //     },
-  //     next: { revalidate: 0 },
-  //   });
-  //
-  //   if (!response.ok) {
-  //     return { success: false, error: 'No fue posible cargar la agenda inicial.' };
-  //   }
-  //
-  //   const data = (await response.json()) as InitialAgendaData;
-  //   return { success: true, data };
-  // } catch {
-  //   return { success: false, error: 'Fallo inesperado cargando agenda inicial.' };
-  // }
+    if (!backendUrl) {
+      return { success: false, error: 'NEXT_PUBLIC_BACKEND_API_URL no esta configurada.' };
+    }
+
+    const normalizedBase = backendUrl.replace(/\/+$/, '');
+    const response = await fetch(`${normalizedBase}/tutor/agenda/${tutorId}`, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      next: { revalidate: 0 },
+    });
+
+    if (!response.ok) {
+      return { success: false, error: 'No fue posible cargar la agenda inicial.' };
+    }
+
+    const data = (await response.json()) as InitialAgendaData;
+    return { success: true, data };
+  } catch {
+    return { success: false, error: 'Fallo inesperado cargando agenda inicial.' };
+  }
 }
 
 export async function fetchDaySessions(dateString: string): Promise<AgendaActionResult<SelectedDayInfo>> {
