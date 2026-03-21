@@ -79,6 +79,9 @@ function mapApiItem(item: ApiSolicitudItem): SolicitudListItemDto {
     avatarUrl: item.tutorAvatarUrl || item.avatarUrl,
     tutorName: item.tutorName || 'Tutor sin nombre',
     subject: item.subject || item.materia || 'Materia no especificada',
+    // El backend devuelve 'YYYY-MM-DDTHH:MM:00' (local naive, sin Z).
+    // Se usa directamente para que el navegador lo parsee como hora local
+    // y no haya desfase de dia por conversion UTC en Ecuador (UTC-5).
     dateTime: item.date || item.fechaHora || new Date().toISOString(),
     modality: item.modality || item.modalidad || 'Virtual',
     price: item.pricePerHour ?? item.precioHora ?? 0,

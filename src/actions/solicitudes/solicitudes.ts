@@ -59,6 +59,14 @@ export async function fetchInitialDataAction(
   try {
     const { baseUrl, token } = await getRequestConfig();
 
+    // Si no hay token aún (SSR pre-auth), devolver datos vacíos sin crashear
+    if (!token) {
+      return {
+        solicitudes: { data: [], total: 0, page, limit, totalPages: 1 },
+        counts: { pending: 0, expired: 0, responded: 0 },
+      };
+    }
+
     const [countsResponse, solicitudesResponse] = await Promise.all([
       fetch(`${baseUrl}/solicitudes/counts`, {
         method: 'GET',
@@ -79,7 +87,13 @@ export async function fetchInitialDataAction(
     ]);
 
     if (!countsResponse.ok || !solicitudesResponse.ok) {
-      throw new Error('Error al obtener datos iniciales de solicitudes');
+      console.error(
+        `[fetchInitialDataAction] HTTP error — counts: ${countsResponse.status}, solicitudes: ${solicitudesResponse.status}`,
+      );
+      return {
+        solicitudes: { data: [], total: 0, page, limit, totalPages: 1 },
+        counts: { pending: 0, expired: 0, responded: 0 },
+      };
     }
 
     const counts = await countsResponse.json();

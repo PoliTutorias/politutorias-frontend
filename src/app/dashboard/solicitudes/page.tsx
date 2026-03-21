@@ -47,6 +47,7 @@ export default function MisSolicitudesPage() {
 
   const handleCloseModal = useCallback(() => {
     setIsModalOpen(false);
+    setSelectedSolicitudId(null);
   }, []);
 
   const loadSolicitudes = useCallback(async (status: Hu33FilterStatus, page: number) => {
@@ -77,6 +78,11 @@ export default function MisSolicitudesPage() {
       setIsLoading(false);
     }
   }, []);
+
+  const handleCancelSolicitud = useCallback(async (_solicitudId: string) => {
+    // Refrescar la lista tras cancelar
+    void loadSolicitudes(currentStatusFilter, currentPage);
+  }, [loadSolicitudes, currentStatusFilter, currentPage]);
 
   useEffect(() => {
     void loadSolicitudes(currentStatusFilter, currentPage);
@@ -134,6 +140,7 @@ export default function MisSolicitudesPage() {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         solicitudId={selectedSolicitudId}
+        onCancelSolicitud={handleCancelSolicitud}
       />
     </div>
   );

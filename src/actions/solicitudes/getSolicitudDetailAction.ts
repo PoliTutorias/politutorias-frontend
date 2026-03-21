@@ -93,7 +93,17 @@ function mapApiDetail(detail: ApiDetalleSolicitud): SolicitudDetailDto {
     avatarUrl: detail.tutorAvatarUrl || detail.avatarUrl,
     tutorName: detail.tutorName || 'Tutor sin nombre',
     subject: detail.subject || detail.materia || 'Materia no especificada',
-    dateTime: detail.date || detail.fechaHora || new Date().toISOString(),
+    dateTime: (() => {
+      // Priorizar horarios[0]: string naive local (sin Z) para evitar
+      // desplazamiento de dia al convertir UTC en cliente Ecuador (UTC-5)
+      const h = (detail.horarios ?? detail.proposedSchedules)?.[0];
+      if (h) {
+        const fecha = h.fecha || h.date || '';
+        const hora  = h.hora  || h.time || '';
+        if (fecha && hora) return `${fecha}T${hora}:00`;
+      }
+      return detail.date || detail.fechaHora || new Date().toISOString();
+    })(),
     modality: detail.modality || detail.modalidad || 'Virtual',
     price: detail.pricePerHour ?? detail.precioHora ?? 0,
     status: normalizeStatus(detail.status ?? detail.estado),
@@ -120,7 +130,15 @@ function mapListItemToDetail(item: ApiSolicitudListItem): SolicitudDetailDto {
     avatarUrl: item.tutorAvatarUrl || item.avatarUrl,
     tutorName: item.tutorName || 'Tutor sin nombre',
     subject: item.subject || item.materia || 'Materia no especificada',
-    dateTime: item.date || item.fechaHora || new Date().toISOString(),
+    dateTime: (() => {
+      const h = (item.horarios ?? item.proposedSchedules)?.[0];
+      if (h) {
+        const fecha = h.fecha || h.date || '';
+        const hora  = h.hora  || h.time || '';
+        if (fecha && hora) return `${fecha}T${hora}:00`;
+      }
+      return item.date || item.fechaHora || new Date().toISOString();
+    })(),
     modality: item.modality || item.modalidad || 'Virtual',
     price: item.pricePerHour ?? item.precioHora ?? 0,
     status: normalizeStatus(item.status ?? item.estado),

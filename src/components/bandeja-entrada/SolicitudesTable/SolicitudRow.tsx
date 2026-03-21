@@ -17,6 +17,21 @@ function getInitials(estudiante: string): string {
   return words.slice(0, 2).map((word) => word[0]?.toUpperCase() ?? '').join('');
 }
 
+/**
+ * Formatea un string ISO local-naive ('YYYY-MM-DDTHH:MM:00') a '23 mar 2026 · 15:00'.
+ * No usa toISOString() para evitar desfase por timezone (backend Ecuador UTC-5).
+ */
+function formatFechaHora(fechaHora: string): string {
+  if (!fechaHora) return '';
+  const date = new Date(fechaHora);
+  if (isNaN(date.getTime())) return fechaHora;
+  const day   = new Intl.DateTimeFormat('es-EC', { day: 'numeric' }).format(date);
+  const month = new Intl.DateTimeFormat('es-EC', { month: 'short' }).format(date);
+  const year  = new Intl.DateTimeFormat('es-EC', { year: 'numeric' }).format(date);
+  const time  = new Intl.DateTimeFormat('es-EC', { hour: '2-digit', minute: '2-digit', hour12: false }).format(date);
+  return `${day} ${month} ${year} · ${time}`;
+}
+
 export function SolicitudRow({
   solicitud,
   isExpanded,
@@ -47,7 +62,7 @@ export function SolicitudRow({
         <td className="px-3 py-3">
           <span className="inline-flex items-center gap-2 rounded-md bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-500">
             <FiCalendar size={13} />
-            {solicitud.fechaHora}
+            {formatFechaHora(solicitud.fechaHora)}
           </span>
         </td>
         <td className="px-3 py-3 text-xs italic text-slate-400">
