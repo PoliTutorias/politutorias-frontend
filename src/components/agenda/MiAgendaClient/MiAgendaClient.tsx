@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import { fetchDaySessions, fetchSessionDetails } from '@/actions/agenda/agendaActions';
 import { RightPanel } from '@/components/agenda/RightPanel/RightPanel';
 import { CalendarComponent } from '@/components/calendar/CalendarComponent/CalendarComponent';
@@ -13,6 +14,7 @@ interface MiAgendaClientProps {
 }
 
 export function MiAgendaClient({ initialData }: MiAgendaClientProps) {
+  const router = useRouter();
   const [selectedDate, setSelectedDate] = useState('2026-03-20');
   const [selectedDayInfo, setSelectedDayInfo] = useState<SelectedDayInfo | null>(null);
   const [sessionDetail, setSessionDetail] = useState<SessionDetailDTO | null>(null);
@@ -48,6 +50,11 @@ export function MiAgendaClient({ initialData }: MiAgendaClientProps) {
     setSessionDetail(null);
   };
 
+  const cancelTutoriaHandler = (sessionId: string) => {
+    closeModalHandler();
+    router.push(`/tutor/cancelar-tutoria?sessionId=${sessionId}`);
+  };
+
   return (
     <section className="grid grid-cols-1 gap-6 lg:grid-cols-[2.3fr_1fr]">
       <CalendarComponent
@@ -66,7 +73,12 @@ export function MiAgendaClient({ initialData }: MiAgendaClientProps) {
         onSessionClick={handleSessionClick}
       />
 
-      <SessionDetailModal isOpen={showModal} sessionDetails={sessionDetail} onClose={closeModalHandler} />
+      <SessionDetailModal
+        isOpen={showModal}
+        sessionDetails={sessionDetail}
+        onClose={closeModalHandler}
+        onCancelTutoria={cancelTutoriaHandler}
+      />
     </section>
   );
 }

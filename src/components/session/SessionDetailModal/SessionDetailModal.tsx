@@ -8,6 +8,7 @@ interface SessionDetailModalProps {
   isOpen: boolean;
   sessionDetails: SessionDetailDTO | null;
   onClose: () => void;
+  onCancelTutoria: (sessionId: string) => void;
 }
 
 function formatDate(dateString: string): string {
@@ -20,7 +21,12 @@ function formatDate(dateString: string): string {
   }).format(date);
 }
 
-export function SessionDetailModal({ isOpen, sessionDetails, onClose }: SessionDetailModalProps) {
+export function SessionDetailModal({
+  isOpen,
+  sessionDetails,
+  onClose,
+  onCancelTutoria,
+}: SessionDetailModalProps) {
   if (!isOpen || !sessionDetails) {
     return null;
   }
@@ -109,6 +115,7 @@ export function SessionDetailModal({ isOpen, sessionDetails, onClose }: SessionD
           ) : (
             <button
               type="button"
+              onClick={() => onCancelTutoria(sessionDetails.id)}
               className="inline-flex items-center gap-2 rounded-xl border border-[#ef8a8a] px-4 py-2 text-[18px] font-semibold text-[#f05959]"
             >
               <FiTrash2 size={16} /> Cancelar Tutoria
