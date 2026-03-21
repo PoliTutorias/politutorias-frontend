@@ -122,6 +122,12 @@ export async function fetchDaySessions(dateString: string): Promise<AgendaAction
 }
 
 export async function fetchSessionDetails(sessionId: string): Promise<AgendaActionResult<SessionDetailDTO>> {
+  const tutorId = await getTutorIdFromSession();
+
+  if (!tutorId) {
+    return { success: false, error: 'No se pudo identificar al tutor autenticado.' };
+  }
+
   const match = sessionDetailDTOSeeds.find((session) => session.id === sessionId);
 
   if (!match) {
@@ -129,4 +135,34 @@ export async function fetchSessionDetails(sessionId: string): Promise<AgendaActi
   }
 
   return { success: true, data: match };
+
+  // Integration phase: real backend fetch.
+  // try {
+  //   const token = await getServerToken();
+  //   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
+  //
+  //   if (!backendUrl) {
+  //     return { success: false, error: 'NEXT_PUBLIC_BACKEND_API_URL no esta configurada.' };
+  //   }
+  //
+  //   const normalizedBase = backendUrl.replace(/\/+$/, '');
+  //   const queryParams = new URLSearchParams({ tutorId });
+  //   const response = await fetch(`${normalizedBase}/tutor/sessions/${sessionId}?${queryParams}`, {
+  //     method: 'GET',
+  //     headers: {
+  //       Accept: 'application/json',
+  //       ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  //     },
+  //     cache: 'no-store',
+  //   });
+  //
+  //   if (!response.ok) {
+  //     return { success: false, error: 'No fue posible cargar el detalle de la sesion.' };
+  //   }
+  //
+  //   const data = (await response.json()) as SessionDetailDTO;
+  //   return { success: true, data };
+  // } catch {
+  //   return { success: false, error: 'Fallo inesperado cargando detalle de la sesion.' };
+  // }
 }
