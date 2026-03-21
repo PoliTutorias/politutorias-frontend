@@ -23,6 +23,10 @@ function formatMonthLabel(date: Date): string {
   return new Intl.DateTimeFormat('es-CO', { month: 'long' }).format(date);
 }
 
+function toIsoDateString(date: Date): string {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
+
 export function CalendarComponent({
   currentMonthName,
   currentYear,
@@ -53,6 +57,7 @@ export function CalendarComponent({
   const daysInMonth = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 0).getDate();
   const totalGridCells = 42;
   const today = new Date();
+  const todayDateString = toIsoDateString(today);
 
   const canGoNext =
     viewDate.getFullYear() < maxNextMonth.getFullYear() ||
@@ -88,7 +93,7 @@ export function CalendarComponent({
       sessionCount: dayData?.sessionCount ?? 0,
       sessionLabels: dayData?.sessionLabels ?? [],
       isPastDay,
-      isToday: dateString === '2026-03-20',
+      isToday: dateString === todayDateString,
       isSelected: selectedDate === dateString,
     };
   });

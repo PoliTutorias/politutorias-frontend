@@ -49,18 +49,18 @@ export function ThisMonthSummary({ totalConfirmed, sessions, onSessionClick }: T
         className="mt-4 flex w-full items-center justify-between text-left"
       >
         <div className="flex items-center gap-3">
-          <p className="text-[34px] font-medium text-[#223251]">Sesiones confirmadas</p>
-          <span className="inline-flex h-9 min-w-9 items-center justify-center rounded-full bg-[#11264a] px-3 text-[21px] font-bold text-white">
+          <p className="text-[16px] font-medium text-[#223251]">Sesiones confirmadas</p>
+          <span className="inline-flex h-8 min-w-8 items-center justify-center rounded-full bg-[#11264a] px-3 text-[13px] font-bold text-white">
             {totalConfirmed}
           </span>
         </div>
         {isExpanded ? <FiChevronUp size={24} className="text-[#71839f]" /> : <FiChevronDown size={24} className="text-[#71839f]" />}
       </button>
 
-      {!isExpanded && <p className="mt-3 text-[24px] text-[#9cabbf]">Toca para ver todas -&gt;</p>}
+      {!isExpanded && <p className="mt-3 text-[14px] text-[#9cabbf]">Toca para ver todas -&gt;</p>}
 
       {isExpanded && (
-        <div className="mt-5 max-h-[360px] space-y-4 overflow-y-auto pr-2">
+        <div className="mt-5 max-h-90 space-y-4 overflow-y-auto pr-2">
           {Array.from(sessionsByDay.entries()).map(([date, daySessions]) => (
             <div key={date}>
               <div className="mb-2 flex items-center gap-3">

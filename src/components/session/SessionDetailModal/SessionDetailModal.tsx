@@ -106,7 +106,9 @@ export function SessionDetailModal({
 
         <div className="mt-4 rounded-xl border border-[#dbe3ef] border-l-3 border-l-[#f4ad2f] bg-white px-4 py-4">
           <p className="text-[15px] font-extrabold text-[#2d3d58]">MENSAJE DEL ESTUDIANTE</p>
-          <p className="mt-2 text-[18px] italic text-[#465979]">"{sessionDetails.studentMessage}"</p>
+          <p className="mt-2 text-[18px] italic text-[#465979]">
+            &quot;{sessionDetails.studentMessage}&quot;
+          </p>
         </div>
 
         <div className="mt-6 flex items-center justify-between">

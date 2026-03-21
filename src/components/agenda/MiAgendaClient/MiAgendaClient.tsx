@@ -13,9 +13,19 @@ interface MiAgendaClientProps {
   initialData: InitialAgendaData;
 }
 
+function toIsoDateString(date: Date): string {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
+
 export function MiAgendaClient({ initialData }: MiAgendaClientProps) {
   const router = useRouter();
-  const [selectedDate, setSelectedDate] = useState('2026-03-20');
+  const todayIso = toIsoDateString(new Date());
+  const fallbackDate = initialData.calendarDays[0]?.date ?? todayIso;
+  const defaultSelectedDate = initialData.calendarDays.some((day) => day.date === todayIso)
+    ? todayIso
+    : fallbackDate;
+
+  const [selectedDate, setSelectedDate] = useState(defaultSelectedDate);
   const [selectedDayInfo, setSelectedDayInfo] = useState<SelectedDayInfo | null>(null);
   const [sessionDetail, setSessionDetail] = useState<SessionDetailDTO | null>(null);
   const [showModal, setShowModal] = useState(false);

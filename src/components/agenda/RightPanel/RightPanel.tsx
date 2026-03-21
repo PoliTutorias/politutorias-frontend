@@ -14,7 +14,9 @@ interface RightPanelProps {
 }
 
 function isPastDate(dateString: string): boolean {
-  return new Date(`${dateString}T00:00:00`) < new Date('2026-03-20T00:00:00');
+  const today = new Date();
+  const normalizedToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  return new Date(`${dateString}T00:00:00`) < normalizedToday;
 }
 
 export function RightPanel({
