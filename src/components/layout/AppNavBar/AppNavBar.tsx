@@ -29,6 +29,7 @@ interface AppNavBarProps {
 const TUTOR_NAV_ITEMS: NavItem[] = [
   { key: 'panel', label: 'Panel', href: '/dashboard/tutor' },
   { key: 'bandeja', label: 'Bandeja', href: '/bandeja' },
+  { key: 'mi-agenda', label: 'Mi Agenda', href: '/tutor/agenda' },
 ];
 
 const STUDENT_NAV_ITEMS: NavItem[] = [
