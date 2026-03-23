@@ -17,46 +17,31 @@ interface OfferInfoSectionProps {
 }
 
 /**
- * Obtiene el mapa de fechas dinámicas para la semana actual
- * Comienza desde el lunes de la semana actual
+ * Calcula la semana activa según el concepto de ventana activa (CAL-02/03, SOL-01):
+ *   - Lun 00:00 → Dom 19:59 → semana actual
+ *   - Dom 20:00 → Dom 23:59 → semana SIGUIENTE
  */
-function getDynamicWeekDates() {
-  const today = new Date();
-  const dayOfWeek = today.getDay(); // 0 = domingo, 1 = lunes, etc.
+function getActiveWeekDates() {
+  const now = new Date();
+  const dayOfWeek = now.getDay(); // 0=Dom
+  const hours = now.getHours();
 
-  // Calcular el lunes de esta semana
-  const mondayDate = new Date(today);
-  const daysToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // domingo = -6, lunes = 0, etc.
-  mondayDate.setDate(today.getDate() + daysToMonday);
+  // Dom 20:00+ → apuntar al lunes de la semana siguiente
+  const isDomPost20 = dayOfWeek === 0 && hours >= 20;
 
-  // Traducción de días
-  const daysOfWeek = [
-    'Lunes',
-    'Martes',
-    'Miércoles',
-    'Jueves',
-    'Viernes',
-    'Sábado',
-    'Domingo',
-  ];
+  const mondayDate = new Date(now);
+  if (isDomPost20) {
+    // Avanzar 1 día (lunes siguiente)
+    mondayDate.setDate(now.getDate() + 1);
+  } else {
+    const daysToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    mondayDate.setDate(now.getDate() + daysToMonday);
+  }
+  mondayDate.setHours(0, 0, 0, 0);
 
-  // Traducción de meses abreviados
-  const monthsAbbr = [
-    'ene',
-    'feb',
-    'mar',
-    'abr',
-    'may',
-    'jun',
-    'jul',
-    'ago',
-    'sep',
-    'oct',
-    'nov',
-    'dic',
-  ];
+  const daysOfWeek = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+  const monthsAbbr = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
 
-  // Crear mapa de día → fecha formateada (ej: "8 mar")
   const datesMap: Record<string, string> = {};
   const dateObjectsMap: Record<string, Date> = {};
   daysOfWeek.forEach((day, index) => {
@@ -68,11 +53,11 @@ function getDynamicWeekDates() {
     dateObjectsMap[day] = date;
   });
 
-  return { datesMap, dateObjectsMap };
+  return { datesMap, dateObjectsMap, isDomPost20 };
 }
 
 /**
- * Verifica si un día ya pasó
+ * CAL-01 revisada: Un día está completamente pasado si su fecha (a medianoche) es anterior a hoy.
  */
 function isDayPassed(date: Date): boolean {
   const today = new Date();
@@ -80,6 +65,19 @@ function isDayPassed(date: Date): boolean {
   const checkDate = new Date(date);
   checkDate.setHours(0, 0, 0, 0);
   return checkDate < today;
+}
+
+/**
+ * SOL-02: Un slot concreto es inválido si faltan menos de 12 horas para su inicio.
+ * También cubre el cierre de Dom 20:00 (CAL-02): en esa franja el día ya está en
+ * la semana siguiente, por lo que los slots del domingo actual nunca aparecerán.
+ */
+function isTimeSlotUnavailable(date: Date, time: string): boolean {
+  const [h, m] = time.split(':').map(Number);
+  const slotDateTime = new Date(date);
+  slotDateTime.setHours(h, m, 0, 0);
+  const diffMs = slotDateTime.getTime() - Date.now();
+  return diffMs < 4 * 60 * 60 * 1000; // SOL-02: menos de 4 horas → bloqueado
 }
 
 export default function OfferInfoSection({
@@ -101,8 +99,8 @@ export default function OfferInfoSection({
     availabilityByDay[slot.day].push(slot.time);
   });
 
-  // Obtener fechas dinámicas para esta semana
-  const { datesMap, dateObjectsMap } = getDynamicWeekDates();
+  // Obtener fechas dinámicas para la ventana activa
+  const { datesMap, dateObjectsMap } = getActiveWeekDates();
 
   // Orden de días de la semana
   const daysOrder = [
@@ -195,31 +193,32 @@ export default function OfferInfoSection({
             const dayDate = dateObjectsMap[day];
             const isPassed = isDayPassed(dayDate);
             const dateStr = datesMap[day];
+            // ¿Todos los slots están vencidos?
+            const allUnavailable = times.every(
+              (time) => isPassed || isTimeSlotUnavailable(dayDate, time)
+            );
 
             return (
               <div key={day} className="grid grid-cols-4 gap-0 border-b border-border last:border-b-0">
                 {/* Columna 1: Día y fecha */}
                 <div className={clsx(
                   'col-span-1 px-3 py-3 border-r border-border flex flex-col justify-center',
-                  isPassed ? 'bg-gray-100' : 'bg-white'
+                  allUnavailable ? 'bg-gray-100' : 'bg-white'
                 )}>
-                  <p className="font-semibold text-xs text-gray-400">
-                    {day}
-                  </p>
-                  <p className="text-xs text-gray-400">
-                    {dateStr}
-                  </p>
+                  <p className="font-semibold text-xs text-gray-400">{day}</p>
+                  <p className="text-xs text-gray-400">{dateStr}</p>
                 </div>
 
                 {/* Columna 2: Horarios */}
                 <div className={clsx(
                   'col-span-3 px-3 py-3 flex flex-wrap items-center gap-2',
-                  isPassed ? 'bg-gray-100' : 'bg-white'
+                  allUnavailable ? 'bg-gray-100' : 'bg-white'
                 )}>
                   <div className="flex flex-wrap items-center gap-2">
                     {times.map((time) => {
                       const horario: HorarioDisponibleDto = { day, time };
-                      const isSelected = selectedHorarios.some(
+                      const slotUnavailable = isPassed || isTimeSlotUnavailable(dayDate, time);
+                      const isSelected = !slotUnavailable && selectedHorarios.some(
                         (h) => h.day === day && h.time === time
                       );
 
@@ -228,15 +227,12 @@ export default function OfferInfoSection({
                           key={`${day}-${time}`}
                           horario={horario}
                           isSelected={isSelected}
-                          isDayPassed={isPassed}
+                          isDayPassed={slotUnavailable}
                           onSelect={() => handleHorarioClick(day, time)}
                         />
                       );
                     })}
                   </div>
-                  {isPassed && (
-                    <p className="text-xs text-gray-500 ml-auto">Día pasado</p>
-                  )}
                 </div>
               </div>
             );

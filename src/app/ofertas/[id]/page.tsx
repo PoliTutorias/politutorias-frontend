@@ -39,32 +39,33 @@ export default function DetallesOfertaPage({
   const [notificacionMessage, setNotificacionMessage] = useState('');
   const [isLoadingSubmit, setIsLoadingSubmit] = useState(false);
 
+  /**
+   * Convierte un nombre de día (e.g. "Lunes") a la fecha YYYY-MM-DD
+   * correspondiente dentro de la ventana activa.
+   * CAL-02/03: si es Dom ≥ 20:00, la referencia es la semana siguiente.
+   */
   const getDateForDay = (day: string): string => {
-    const daysOfWeek = [
-      'Domingo',
-      'Lunes',
-      'Martes',
-      'Miércoles',
-      'Jueves',
-      'Viernes',
-      'Sábado',
-    ];
+    const daysOfWeek = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+    const dayIndex = daysOfWeek.indexOf(day); // 0=Lun, 6=Dom
 
-    const dayIndex = daysOfWeek.indexOf(day);
-    const today = new Date();
-    const currentDayIndex = today.getDay();
+    const now = new Date();
+    const currentDayJs = now.getDay(); // 0=Dom, 1=Lun...
+    const isDomPost20 = currentDayJs === 0 && now.getHours() >= 20;
 
-    if (dayIndex < 0) {
-      return today.toISOString().slice(0, 10);
+    // Lunes de la ventana activa
+    const mondayRef = new Date(now);
+    if (isDomPost20) {
+      mondayRef.setDate(now.getDate() + 1); // lunes siguiente
+    } else {
+      const toMonday = currentDayJs === 0 ? -6 : 1 - currentDayJs;
+      mondayRef.setDate(now.getDate() + toMonday);
     }
+    mondayRef.setHours(0, 0, 0, 0);
 
-    let daysToAdd = dayIndex - currentDayIndex;
-    if (daysToAdd < 0) {
-      daysToAdd += 7;
-    }
+    if (dayIndex < 0) return now.toISOString().slice(0, 10);
 
-    const targetDate = new Date(today);
-    targetDate.setDate(today.getDate() + daysToAdd);
+    const targetDate = new Date(mondayRef);
+    targetDate.setDate(mondayRef.getDate() + dayIndex);
     return targetDate.toISOString().slice(0, 10);
   };
 
