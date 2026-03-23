@@ -1,9 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { toast } from 'sonner';
-import HeaderComponent from '@/components/shared/Header/Header';
+import { ArrowLeft } from 'lucide-react';
+import { AppNavBar } from '@/components/layout/AppNavBar/AppNavBar';
 import OfferInfoSection from '@/components/offers/OfferInfoSection/OfferInfoSection';
 import PricingContactSection from '@/components/offers/PricingContactSection/PricingContactSection';
 import TutorSection from '@/components/tutor/TutorSection/TutorSection';
@@ -87,10 +89,21 @@ export default function DetallesOfertaPage({
   if (loading) {
     return (
       <div className="min-h-screen bg-white">
-        <HeaderComponent />
-        <div className="flex items-center justify-center h-96">
-          <p className="text-gray-600">Cargando oferta...</p>
-        </div>
+        <AppNavBar role="student" activeItem="explorar" />
+        <main className="container mx-auto px-12 lg:px-32 py-8">
+          <div className="lg:max-w-4xl lg:mx-auto mb-4">
+            <Link
+              href="/encuentra-tutoria"
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 transition-colors hover:text-primary"
+            >
+              <ArrowLeft size={16} />
+              <span>Volver a Explorar</span>
+            </Link>
+          </div>
+          <div className="flex items-center justify-center h-80">
+            <p className="text-gray-600">Cargando oferta...</p>
+          </div>
+        </main>
       </div>
     );
   }
@@ -202,8 +215,17 @@ export default function DetallesOfertaPage({
 
   return (
     <div className="min-h-screen bg-white">
-      <HeaderComponent />
+      <AppNavBar role="student" activeItem="explorar" />
       <main className="container mx-auto px-12 lg:px-32 py-8">
+        <div className="lg:max-w-4xl lg:mx-auto mb-4">
+          <Link
+            href="/encuentra-tutoria"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 transition-colors hover:text-primary"
+          >
+            <ArrowLeft size={16} />
+            <span>Volver a Explorar</span>
+          </Link>
+        </div>
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3 lg:max-w-4xl lg:mx-auto">
           {/* Sección principal de información de la oferta */}
           <div className="lg:col-span-2">
