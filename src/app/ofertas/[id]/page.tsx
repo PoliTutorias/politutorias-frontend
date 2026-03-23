@@ -1,9 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { toast } from 'sonner';
-import HeaderComponent from '@/components/shared/Header/Header';
+import { ArrowLeft } from 'lucide-react';
+import { AppNavBar } from '@/components/layout/AppNavBar/AppNavBar';
 import OfferInfoSection from '@/components/offers/OfferInfoSection/OfferInfoSection';
 import PricingContactSection from '@/components/offers/PricingContactSection/PricingContactSection';
 import TutorSection from '@/components/tutor/TutorSection/TutorSection';
@@ -37,32 +39,33 @@ export default function DetallesOfertaPage({
   const [notificacionMessage, setNotificacionMessage] = useState('');
   const [isLoadingSubmit, setIsLoadingSubmit] = useState(false);
 
+  /**
+   * Convierte un nombre de día (e.g. "Lunes") a la fecha YYYY-MM-DD
+   * correspondiente dentro de la ventana activa.
+   * CAL-02/03: si es Dom ≥ 20:00, la referencia es la semana siguiente.
+   */
   const getDateForDay = (day: string): string => {
-    const daysOfWeek = [
-      'Domingo',
-      'Lunes',
-      'Martes',
-      'Miércoles',
-      'Jueves',
-      'Viernes',
-      'Sábado',
-    ];
+    const daysOfWeek = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+    const dayIndex = daysOfWeek.indexOf(day); // 0=Lun, 6=Dom
 
-    const dayIndex = daysOfWeek.indexOf(day);
-    const today = new Date();
-    const currentDayIndex = today.getDay();
+    const now = new Date();
+    const currentDayJs = now.getDay(); // 0=Dom, 1=Lun...
+    const isDomPost20 = currentDayJs === 0 && now.getHours() >= 20;
 
-    if (dayIndex < 0) {
-      return today.toISOString().slice(0, 10);
+    // Lunes de la ventana activa
+    const mondayRef = new Date(now);
+    if (isDomPost20) {
+      mondayRef.setDate(now.getDate() + 1); // lunes siguiente
+    } else {
+      const toMonday = currentDayJs === 0 ? -6 : 1 - currentDayJs;
+      mondayRef.setDate(now.getDate() + toMonday);
     }
+    mondayRef.setHours(0, 0, 0, 0);
 
-    let daysToAdd = dayIndex - currentDayIndex;
-    if (daysToAdd < 0) {
-      daysToAdd += 7;
-    }
+    if (dayIndex < 0) return now.toISOString().slice(0, 10);
 
-    const targetDate = new Date(today);
-    targetDate.setDate(today.getDate() + daysToAdd);
+    const targetDate = new Date(mondayRef);
+    targetDate.setDate(mondayRef.getDate() + dayIndex);
     return targetDate.toISOString().slice(0, 10);
   };
 
@@ -87,10 +90,21 @@ export default function DetallesOfertaPage({
   if (loading) {
     return (
       <div className="min-h-screen bg-white">
-        <HeaderComponent />
-        <div className="flex items-center justify-center h-96">
-          <p className="text-gray-600">Cargando oferta...</p>
-        </div>
+        <AppNavBar role="student" activeItem="explorar" />
+        <main className="container mx-auto px-12 lg:px-32 py-8">
+          <div className="lg:max-w-4xl lg:mx-auto mb-4">
+            <Link
+              href="/encuentra-tutoria"
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 transition-colors hover:text-primary"
+            >
+              <ArrowLeft size={16} />
+              <span>Volver a Explorar</span>
+            </Link>
+          </div>
+          <div className="flex items-center justify-center h-80">
+            <p className="text-gray-600">Cargando oferta...</p>
+          </div>
+        </main>
       </div>
     );
   }
@@ -202,8 +216,17 @@ export default function DetallesOfertaPage({
 
   return (
     <div className="min-h-screen bg-white">
-      <HeaderComponent />
+      <AppNavBar role="student" activeItem="explorar" />
       <main className="container mx-auto px-12 lg:px-32 py-8">
+        <div className="lg:max-w-4xl lg:mx-auto mb-4">
+          <Link
+            href="/encuentra-tutoria"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 transition-colors hover:text-primary"
+          >
+            <ArrowLeft size={16} />
+            <span>Volver a Explorar</span>
+          </Link>
+        </div>
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3 lg:max-w-4xl lg:mx-auto">
           {/* Sección principal de información de la oferta */}
           <div className="lg:col-span-2">
