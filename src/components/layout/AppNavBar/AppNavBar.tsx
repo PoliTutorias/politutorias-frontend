@@ -35,6 +35,7 @@ const TUTOR_NAV_ITEMS: NavItem[] = [
 const STUDENT_NAV_ITEMS: NavItem[] = [
   { key: 'explorar', label: 'Explorar', href: '/encuentra-tutoria' },
   { key: 'solicitudes', label: 'Mis Solicitudes', href: '/dashboard/solicitudes' },
+  { key: 'agenda', label: 'Agenda', href: '/agenda' },
 ];
 
 // ─── Componente ─────────────────────────────────────────────────────────
