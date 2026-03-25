@@ -18,6 +18,7 @@ function toDateTime(tutoria: TutoriasAgendadasDTO): Date {
 }
 
 export function TutoriasList({ tutorias }: TutoriasListProps) {
+  const [referenceNow] = useState(() => Date.now());
   const [currentPage, setCurrentPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTutoria, setSelectedTutoria] = useState<TutoriasAgendadasDTO | null>(null);
@@ -33,12 +34,10 @@ export function TutoriasList({ tutorias }: TutoriasListProps) {
   };
 
   const upcomingTutorias = useMemo(() => {
-    const now = Date.now();
-
     return tutorias
-      .filter((tutoria) => tutoria.estado === 'AGENDADA' && toDateTime(tutoria).getTime() > now)
+      .filter((tutoria) => tutoria.estado === 'AGENDADA' && toDateTime(tutoria).getTime() > referenceNow)
       .sort((a, b) => toDateTime(a).getTime() - toDateTime(b).getTime());
-  }, [tutorias]);
+  }, [referenceNow, tutorias]);
 
   const totalPages = Math.max(1, Math.ceil(upcomingTutorias.length / ITEMS_PER_PAGE));
   const safeCurrentPage = Math.min(currentPage, totalPages);

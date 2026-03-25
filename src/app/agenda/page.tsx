@@ -12,8 +12,8 @@ export default async function AgendaPage() {
       <AppNavBar role="student" activeItem="agenda" />
 
       <main className="mx-auto w-full max-w-5xl px-6 py-10">
-        <h1 className="text-4xl font-extrabold leading-tight text-primary">Tutorias Agendadas</h1>
-        <p className="mt-2 text-base text-[#64748b]">Lista cronologica de tus sesiones confirmadas</p>
+        <h1 className="text-2xl font-bold leading-tight text-primary">Tutorias Agendadas</h1>
+        <p className="mt-2 text-sm text-[#64748b]">Lista cronologica de tus sesiones confirmadas</p>
 
         <section className="mt-8">
           {error && (
