@@ -5,10 +5,10 @@ import clsx from 'clsx';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { TutoriasAgendadasDTO } from '@/interfaces/tutorias-agendadas/TutoriasAgendadasDTO';
 import { TutoriasCard } from '@/components/tutorias-agendadas/tutorias-card/TutoriasCard';
+import { DetallesSesionModal } from '@/components/modals/detalles-sesion-modal/DetallesSesionModal';
 
 interface TutoriasListProps {
   readonly tutorias: TutoriasAgendadasDTO[];
-  readonly onCardClick?: (tutoria: TutoriasAgendadasDTO) => void;
 }
 
 const ITEMS_PER_PAGE = 5;
@@ -17,8 +17,20 @@ function toDateTime(tutoria: TutoriasAgendadasDTO): Date {
   return new Date(`${tutoria.fecha}T${tutoria.hora}:00`);
 }
 
-export function TutoriasList({ tutorias, onCardClick = () => {} }: TutoriasListProps) {
+export function TutoriasList({ tutorias }: TutoriasListProps) {
   const [currentPage, setCurrentPage] = useState(1);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedTutoria, setSelectedTutoria] = useState<TutoriasAgendadasDTO | null>(null);
+
+  const handleCardClick = (tutoria: TutoriasAgendadasDTO) => {
+    setSelectedTutoria(tutoria);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedTutoria(null);
+  };
 
   const upcomingTutorias = useMemo(() => {
     const now = Date.now();
@@ -57,7 +69,7 @@ export function TutoriasList({ tutorias, onCardClick = () => {} }: TutoriasListP
             <TutoriasCard
               key={tutoria.id}
               tutoria={tutoria}
-              onCardClick={onCardClick}
+              onCardClick={handleCardClick}
             />
           ))}
         </div>
@@ -108,6 +120,12 @@ export function TutoriasList({ tutorias, onCardClick = () => {} }: TutoriasListP
           </button>
         </div>
       )}
+
+      <DetallesSesionModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        tutoria={selectedTutoria}
+      />
     </section>
   );
 }
