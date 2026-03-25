@@ -70,6 +70,16 @@ function toFechaHora(item: BackendAgendaItem): { fecha: string; hora: string } {
   };
 }
 
+function toModalidad(modality?: string): 'Virtual' | 'Presencial' {
+  const normalized = (modality ?? '')
+    .trim()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toUpperCase();
+
+  return normalized === 'PRESENCIAL' ? 'Presencial' : 'Virtual';
+}
+
 function mapAgendaItem(item: BackendAgendaItem, estado: 'AGENDADA' | 'COMPLETADA'): TutoriasAgendadasDTO {
   const { nombre, apellido } = splitTutorName(item.tutorName);
   const { fecha, hora } = toFechaHora(item);
@@ -79,7 +89,7 @@ function mapAgendaItem(item: BackendAgendaItem, estado: 'AGENDADA' | 'COMPLETADA
     materia: item.subjectName ?? 'Materia no especificada',
     fecha,
     hora,
-    modalidad: item.modality === 'Presencial' ? 'Presencial' : 'Virtual',
+    modalidad: toModalidad(item.modality),
     tarifa: 0,
     tutor: {
       id: 'unknown-tutor',
