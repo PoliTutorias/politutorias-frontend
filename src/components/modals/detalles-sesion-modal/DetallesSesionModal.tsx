@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { FiBookOpen, FiCalendar, FiClock, FiMessageSquare, FiX } from 'react-icons/fi';
+import { FiBookOpen, FiCalendar, FiClock, FiLink2, FiMapPin, FiMessageSquare, FiX } from 'react-icons/fi';
 import { TutoriasAgendadasDTO } from '@/interfaces/tutorias-agendadas/TutoriasAgendadasDTO';
 
 interface DetallesSesionModalProps {
@@ -59,6 +59,37 @@ export function DetallesSesionModal({ isOpen, onClose, tutoria }: DetallesSesion
               </div>
             </div>
           </section>
+
+          {tutoria.modalidad === 'Virtual' ? (
+            <section className="rounded-xl border border-[#e6ecf3] bg-white p-4">
+              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-primary">
+                <FiLink2 size={13} />
+                <span>ENLACE</span>
+              </div>
+              {tutoria.enlaceReunion ? (
+                <a
+                  href={tutoria.enlaceReunion}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-2 inline-block break-all text-sm text-[#2f6cc9] underline decoration-transparent transition-colors hover:decoration-[#2f6cc9]"
+                >
+                  {tutoria.enlaceReunion}
+                </a>
+              ) : (
+                <p className="mt-2 text-sm text-[#6f8199]">No hay enlace disponible para esta sesion.</p>
+              )}
+            </section>
+          ) : (
+            <section className="rounded-xl border border-[#e6ecf3] bg-white p-4">
+              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-primary">
+                <FiMapPin size={13} />
+                <span>LUGAR</span>
+              </div>
+              <p className="mt-2 text-sm text-[#314a67]">
+                {tutoria.direccion ?? 'Direccion no disponible para esta sesion.'}
+              </p>
+            </section>
+          )}
 
           <section className="rounded-xl border border-[#e6ecf3] bg-white p-4">
             <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-primary">
