@@ -57,6 +57,16 @@ function toEstado(status?: string): 'AGENDADA' | 'COMPLETADA' | 'CANCELADA' {
   return 'AGENDADA';
 }
 
+function toModalidad(modality?: string): 'Virtual' | 'Presencial' {
+  const normalized = (modality ?? '')
+    .trim()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toUpperCase();
+
+  return normalized === 'PRESENCIAL' ? 'Presencial' : 'Virtual';
+}
+
 export async function getScheduledTutoriaDetailAction(tutoriaId: string): Promise<GetScheduledTutoriaDetailResult> {
   const authToken = await getServerToken();
 
@@ -107,7 +117,7 @@ export async function getScheduledTutoriaDetailAction(tutoriaId: string): Promis
         materia: payload.subjectName ?? 'Materia no especificada',
         fecha,
         hora: payload.time ?? (dateObject ? dateObject.toISOString().slice(11, 16) : '00:00'),
-        modalidad: payload.modality === 'Presencial' ? 'Presencial' : 'Virtual',
+        modalidad: toModalidad(payload.modality),
         tarifa: payload.price ?? 0,
         tutor: {
           id: 'unknown-tutor',
