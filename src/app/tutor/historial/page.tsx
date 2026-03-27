@@ -13,7 +13,7 @@ export default async function HistorialTutoriasPage() {
 
       <main className="mx-auto w-full max-w-[1080px] px-4 py-7 md:px-6 md:py-8">
         <header className="mb-6">
-          <h1 className="text-[42px] font-bold leading-tight text-[#1f2b3d]">Historial de Tutorias Impartidas</h1>
+          <h1 className="text-[24px] font-bold leading-tight text-[#1f2b3d]">Historial de Tutorias Impartidas</h1>
           <p className="mt-1 text-[14px] text-[#77889f]">Registro de todas tus sesiones pasadas</p>
         </header>
 

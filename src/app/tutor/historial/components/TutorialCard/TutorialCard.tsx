@@ -13,11 +13,11 @@ export function TutorialCard({ tutorial, onClick }: TutorialCardProps) {
     <button
       type="button"
       onClick={() => onClick(tutorial.id)}
-      className="group w-full rounded-xl border border-[#e4e9f0] bg-white px-4 py-3 text-left transition-shadow hover:shadow-[0_8px_18px_rgba(31,43,61,0.08)]"
+      className="group w-full rounded-xl border border-[#e4e9f0] bg-white px-4 py-3.5 text-left transition-shadow hover:shadow-[0_8px_18px_rgba(31,43,61,0.08)]"
       aria-label={`Ver detalle de la tutoria ${tutorial.offerTitle}`}
     >
       <div className="flex items-center gap-3">
-        <div className="h-12 w-1 rounded-full bg-[#efb047]" />
+        <div className="w-0.5 self-stretch rounded-full bg-[#efb047]" />
 
         <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#152c53] text-[18px] font-semibold leading-none text-white">
           {tutorial.studentInitials}

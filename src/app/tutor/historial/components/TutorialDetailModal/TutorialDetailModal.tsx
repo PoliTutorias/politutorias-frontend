@@ -79,7 +79,7 @@ export function TutorialDetailModal({ tutorialId, isOpen, onClose }: TutorialDet
       }}
       className="fixed inset-0 z-50 m-0 flex h-screen w-screen items-center justify-center bg-[rgba(15,23,42,0.36)] px-4"
     >
-      <div className="w-full max-w-[380px] rounded-2xl bg-white shadow-[0_18px_60px_rgba(15,23,42,0.24)] md:max-w-[760px]">
+      <div className="w-full max-w-84 rounded-2xl bg-white shadow-[0_18px_60px_rgba(15,23,42,0.24)] md:max-w-140">
         <header className="flex items-center justify-between border-b border-[#e8edf4] px-5 py-4">
           <h2 className="text-[18px] font-bold text-[#1f2b3d]">Detalle de la Tutoria</h2>
           <button

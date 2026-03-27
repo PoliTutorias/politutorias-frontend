@@ -37,7 +37,7 @@ export function PaginationControls({
   };
 
   return (
-    <div className="mt-4 flex items-center justify-center gap-2" aria-label="Controles de paginacion">
+    <div className="mt-auto flex items-center justify-center gap-2 pt-3" aria-label="Controles de paginacion">
       <button
         type="button"
         aria-label="Pagina anterior"

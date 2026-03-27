@@ -60,7 +60,7 @@ export function HistorialTutoriasClient({ initialHistory }: HistorialTutoriasCli
   }
 
   return (
-    <section className="space-y-4">
+    <section className="flex min-h-[calc(100vh-250px)] flex-col gap-4">
       <MetricCardsDisplay summary={historyData.summary} />
 
       <TutorialHistoryList items={historyData.paginatedData.items} onCardClick={handleCardClick} />
