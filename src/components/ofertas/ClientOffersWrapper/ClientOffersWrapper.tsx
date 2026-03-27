@@ -293,7 +293,7 @@ export function ClientOffersWrapper({ initialOffers, header, children, initialSe
   }, [initialOffers]);
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-8">
+    <div className="mx-auto max-w-7xl px-10 py-8 lg:px-14">
       <div className="flex gap-8">
         {/* Sidebar de Filtros - Columna izquierda */}
         <aside className="w-[280px] shrink-0">

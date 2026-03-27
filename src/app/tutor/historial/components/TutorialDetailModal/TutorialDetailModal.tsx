@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { BookOpen, Clock3, MapPin, MessageSquare, Monitor, UserRound, X } from 'lucide-react';
+import { BookOpen, Clock3, Link2, MapPin, MessageSquare, Monitor, UserRound, X } from 'lucide-react';
 import { getTutorialDetailAction } from '@/actions/tutorials/getTutorialDetailAction';
 import { TutorialDetailDto } from '@/interfaces/tutorial/tutorial';
 
@@ -140,8 +140,8 @@ export function TutorialDetailModal({ tutorialId, isOpen, onClose }: TutorialDet
 
               <section className="rounded-lg border border-[#e4e9f0] px-3 py-3">
                 <p className="inline-flex items-center gap-1.5 text-[12px] font-bold text-[#1f2b3d]">
-                  <MapPin size={12} />
-                  LUGAR
+                  {detail.modality === 'Virtual' ? <Link2 size={12} /> : <MapPin size={12} />}
+                  {detail.modality === 'Virtual' ? 'ENLACE' : 'LUGAR'}
                 </p>
                 <p className="mt-1 text-[13px] text-[#4f637f]">{detail.locationOrLink}</p>
               </section>

@@ -37,11 +37,10 @@ export function OfferCard({ offer }: OfferCardProps) {
   };
 
   return (
-    <Link href={`/ofertas/${offer.id}`}>
-      <div
-        data-testid="offer-card"
-        className="flex rounded-xl bg-white shadow-sm hover:shadow-md transition-all cursor-pointer border border-gray-100 overflow-hidden"
-      >
+    <div
+      data-testid="offer-card"
+      className="flex rounded-xl border border-gray-100 bg-white shadow-sm transition-all hover:shadow-md overflow-hidden"
+    >
         {/* Left accent bar */}
         <div className="w-1 shrink-0 bg-[var(--yellow)]" />
 
@@ -83,8 +82,13 @@ export function OfferCard({ offer }: OfferCardProps) {
         {/* Center content */}
         <div className="flex-1 py-5 pr-4 min-w-0">
           {/* Title */}
-          <h3 className="text-lg font-bold text-gray-900 leading-tight mb-1 font-inter">
-            {offer.titulo}
+          <h3 className="mb-1 text-lg leading-tight font-inter">
+            <Link
+              href={`/ofertas/${offer.id}`}
+              className="font-bold text-gray-900 transition-colors hover:text-[var(--yellow)] hover:underline cursor-pointer"
+            >
+              {offer.titulo}
+            </Link>
           </h3>
 
           {/* Modality */}
@@ -144,7 +148,6 @@ export function OfferCard({ offer }: OfferCardProps) {
             <span className="text-sm font-normal text-gray-500">/h</span>
           </p>
         </div>
-      </div>
-    </Link>
+    </div>
   );
 }
