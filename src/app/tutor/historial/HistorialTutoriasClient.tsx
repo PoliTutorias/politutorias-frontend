@@ -8,6 +8,8 @@ import { TutorialHistoryList } from '@/app/tutor/historial/components/TutorialHi
 import { PaginationControls } from '@/components/common/PaginationControls/PaginationControls';
 import { TutorialDetailModal } from '@/app/tutor/historial/components/TutorialDetailModal/TutorialDetailModal';
 
+const ITEMS_PER_PAGE = 5;
+
 interface HistorialTutoriasClientProps {
   readonly initialHistory: HistoryResponse;
 }
@@ -39,7 +41,7 @@ export function HistorialTutoriasClient({ initialHistory }: HistorialTutoriasCli
     setError(null);
 
     try {
-      const nextHistory = await getTutorialHistoryAction(page, historyData.paginatedData.limit);
+      const nextHistory = await getTutorialHistoryAction(page, ITEMS_PER_PAGE);
       setHistoryData(nextHistory);
       setCurrentPage(nextHistory.paginatedData.page);
     } catch {
@@ -65,7 +67,7 @@ export function HistorialTutoriasClient({ initialHistory }: HistorialTutoriasCli
 
       <PaginationControls
         totalItems={historyData.paginatedData.total}
-        itemsPerPage={historyData.paginatedData.limit}
+        itemsPerPage={ITEMS_PER_PAGE}
         currentPage={currentPage}
         onPageChange={handlePageChange}
         isLoading={isLoading}
