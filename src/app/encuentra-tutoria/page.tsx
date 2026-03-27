@@ -42,7 +42,7 @@ async function OffersContent() {
 
 function ErrorContent() {
   return (
-    <div className="max-w-7xl mx-auto px-6 py-8">
+    <div className="mx-auto max-w-7xl px-10 py-8 lg:px-14">
       <div className="rounded-lg bg-white p-8 text-center shadow-sm">
         <h2 className="mb-2 text-lg font-semibold text-gray-800">
           Error al cargar las ofertas
@@ -88,7 +88,7 @@ export default async function PoliTutoriasPage({ searchParams }: PageProps) {
   return (
     <PageLayout>
       <Suspense fallback={
-        <div className="max-w-7xl mx-auto px-6 py-8">
+        <div className="mx-auto max-w-7xl px-10 py-8 lg:px-14">
           <div className="animate-pulse space-y-4">
             <div className="h-12 bg-gray-200 rounded-lg w-1/2" />
             <div className="grid grid-cols-2 gap-6">
