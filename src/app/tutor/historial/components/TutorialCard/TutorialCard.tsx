@@ -1,0 +1,39 @@
+'use client';
+
+import { Clock3 } from 'lucide-react';
+import { TutorialHistoryItemDto } from '@/interfaces/tutorial/tutorial';
+
+interface TutorialCardProps {
+  readonly tutorial: TutorialHistoryItemDto;
+  readonly onClick: (id: string) => void;
+}
+
+export function TutorialCard({ tutorial, onClick }: TutorialCardProps) {
+  return (
+    <button
+      type="button"
+      onClick={() => onClick(tutorial.id)}
+      className="group w-full rounded-xl border border-[#e4e9f0] bg-white px-4 py-3 text-left transition-shadow hover:shadow-[0_8px_18px_rgba(31,43,61,0.08)]"
+      aria-label={`Ver detalle de la tutoria ${tutorial.offerTitle}`}
+    >
+      <div className="flex items-center gap-3">
+        <div className="h-12 w-1 rounded-full bg-[#efb047]" />
+
+        <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#152c53] text-[18px] font-semibold leading-none text-white">
+          {tutorial.studentInitials}
+        </span>
+
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-[15px] font-bold leading-tight text-[#1f2b3d]">{tutorial.offerTitle}</p>
+          <p className="text-[13px] text-[#6f8199]">{tutorial.studentName}</p>
+          <div className="mt-2 rounded-md bg-[#f1f5f9] px-3 py-1.5 text-[12px] text-[#62758f]">
+            <span className="inline-flex items-center gap-1">
+              <Clock3 size={12} />
+              {tutorial.date} a las {tutorial.time}
+            </span>
+          </div>
+        </div>
+      </div>
+    </button>
+  );
+}

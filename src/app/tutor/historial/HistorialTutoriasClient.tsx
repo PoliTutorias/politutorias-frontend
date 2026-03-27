@@ -2,29 +2,56 @@
 
 import { useState } from 'react';
 import { getTutorialHistoryAction } from '@/actions/tutorials/getTutorialHistoryAction';
-import { getTutorialDetailAction } from '@/actions/tutorials/getTutorialDetailAction';
 import { HistoryResponse } from '@/interfaces/tutorial/tutorial';
+import { MetricCardsDisplay } from '@/app/tutor/historial/components/MetricCardsDisplay/MetricCardsDisplay';
+import { TutorialHistoryList } from '@/app/tutor/historial/components/TutorialHistoryList/TutorialHistoryList';
+import { PaginationControls } from '@/components/common/PaginationControls/PaginationControls';
+import { TutorialDetailModal } from '@/app/tutor/historial/components/TutorialDetailModal/TutorialDetailModal';
 
 interface HistorialTutoriasClientProps {
   readonly initialHistory: HistoryResponse;
 }
 
 export function HistorialTutoriasClient({ initialHistory }: HistorialTutoriasClientProps) {
-  const [currentPage] = useState<number>(1);
-  const [isModalOpen] = useState<boolean>(false);
-  const [selectedTutorialId] = useState<string | null>(null);
-  const [isLoading] = useState<boolean>(false);
-  const [error] = useState<string | null>(null);
+  const [historyData, setHistoryData] = useState<HistoryResponse>(initialHistory);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [selectedTutorialId, setSelectedTutorialId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
-  void getTutorialHistoryAction;
-  void getTutorialDetailAction;
-  void currentPage;
-  void isModalOpen;
-  void selectedTutorialId;
+  const handleCardClick = (id: string): void => {
+    setSelectedTutorialId(id);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = (): void => {
+    setIsModalOpen(false);
+    setSelectedTutorialId(null);
+  };
+
+  const handlePageChange = async (page: number): Promise<void> => {
+    if (isLoading || page === currentPage) {
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const nextHistory = await getTutorialHistoryAction(page, historyData.paginatedData.limit);
+      setHistoryData(nextHistory);
+      setCurrentPage(nextHistory.paginatedData.page);
+    } catch {
+      setError('No se pudo actualizar el historial. Intenta nuevamente.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   if (error) {
     return (
-      <section className="rounded-2xl border border-[#f3c8c8] bg-[#fff1f1] px-4 py-3 text-[13px] text-[#a13f3f]">
+      <section className="rounded-xl border border-[#f3c8c8] bg-[#fff1f1] px-4 py-3 text-[13px] text-[#a13f3f]">
         {error}
       </section>
     );
@@ -32,21 +59,21 @@ export function HistorialTutoriasClient({ initialHistory }: HistorialTutoriasCli
 
   return (
     <section className="space-y-4">
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-        <div className="h-20 rounded-xl border border-[#e3e8ef] bg-white" />
-        <div className="h-20 rounded-xl border border-[#e3e8ef] bg-white" />
-        <div className="h-20 rounded-xl border border-[#e3e8ef] bg-white" />
-      </div>
+      <MetricCardsDisplay summary={historyData.summary} />
 
-      <div className="space-y-3">
-        {initialHistory.paginatedData.items.map((item) => (
-          <div key={item.id} className="h-20 rounded-xl border border-[#e3e8ef] bg-white" />
-        ))}
-      </div>
+      <TutorialHistoryList items={historyData.paginatedData.items} onCardClick={handleCardClick} />
 
-      <div className="h-10" />
+      <PaginationControls
+        totalItems={historyData.paginatedData.total}
+        itemsPerPage={historyData.paginatedData.limit}
+        currentPage={currentPage}
+        onPageChange={handlePageChange}
+        isLoading={isLoading}
+      />
 
       {isLoading && <p className="text-[12px] text-[#6d7f95]">Cargando...</p>}
+
+      <TutorialDetailModal tutorialId={selectedTutorialId} isOpen={isModalOpen} onClose={handleCloseModal} />
     </section>
   );
 }

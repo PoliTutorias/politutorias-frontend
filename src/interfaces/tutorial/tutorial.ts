@@ -1,5 +1,3 @@
-export type TutorialHistoryStatus = 'Completada' | 'Inasistencia';
-
 export interface TutorialSummaryDto {
   completedTutorials: number;
   subjectsTaught: number;
@@ -13,7 +11,6 @@ export interface TutorialHistoryItemDto {
   offerTitle: string;
   date: string;
   time: string;
-  status: TutorialHistoryStatus;
 }
 
 export interface PaginatedTutorialHistoryDto {
@@ -41,5 +38,4 @@ export interface TutorialDetailDto {
   currency: string;
   locationOrLink: string;
   message: string;
-  status: TutorialHistoryStatus;
 }
