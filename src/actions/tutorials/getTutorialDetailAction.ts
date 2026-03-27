@@ -1,45 +1,96 @@
 'use server';
 
 import { TutorialDetailDto } from '@/interfaces/tutorial/tutorial';
-import { tutorialDetailSeedData } from '@/seed/tutorialsSeedData';
 import { getServerToken } from '@/lib/server-auth';
+
+type BackendTutorialDetailResponse = {
+  id: string;
+  student: {
+    name: string;
+    avatar: string;
+  };
+  subject: string;
+  date: string;
+  time: string;
+  modality: 'Presencial' | 'Virtual' | string;
+  meetingLink: string | null;
+  location: string | null;
+  pricePerHour: string;
+  studentMessage: string;
+};
+
+function toInitials(name: string): string {
+  const cleaned = (name || '').trim();
+
+  if (!cleaned) {
+    return 'NA';
+  }
+
+  const parts = cleaned.split(/\s+/).filter(Boolean);
+  const first = parts[0]?.[0] ?? '';
+  const second = parts[1]?.[0] ?? '';
+
+  return `${first}${second}`.toUpperCase();
+}
+
+function parsePricePerHour(pricePerHour: string): number {
+  const match = (pricePerHour || '').match(/[\d]+(?:\.\d+)?/);
+
+  if (!match) {
+    return 0;
+  }
+
+  return Number.parseFloat(match[0]);
+}
 
 export async function getTutorialDetailAction(id: string): Promise<TutorialDetailDto | null> {
   if (!id.trim()) {
     return null;
   }
 
-  const seedResult = id === tutorialDetailSeedData.id
-    ? tutorialDetailSeedData
-    : { ...tutorialDetailSeedData, id };
+  const backendBaseUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
+  const token = await getServerToken();
 
-  // const token = await getServerToken();
-  // const backendBaseUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
-  //
-  // if (!backendBaseUrl || !token) {
-  //   return seedResult;
-  // }
-  //
-  // try {
-  //   const endpoint = `${backendBaseUrl.replace(/\/+$/, '')}/tutorias/${id}`;
-  //   const response = await fetch(endpoint, {
-  //     method: 'GET',
-  //     headers: {
-  //       Accept: 'application/json',
-  //       Authorization: `Bearer ${token}`,
-  //     },
-  //     cache: 'no-store',
-  //   });
-  //
-  //   if (!response.ok) {
-  //     throw new Error('No se pudo obtener el detalle de la tutoria.');
-  //   }
-  //
-  //   return (await response.json()) as TutorialDetailDto;
-  // } catch {
-  //   return seedResult;
-  // }
+  if (!backendBaseUrl || !token) {
+    return null;
+  }
 
-  await getServerToken();
-  return seedResult;
+  try {
+    const normalizedBase = backendBaseUrl.replace(/\/+$/, '');
+    const endpoint = `${normalizedBase}/tutorias/${id}`;
+
+    const response = await fetch(endpoint, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      cache: 'no-store',
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error HTTP ${response.status}`);
+    }
+
+    const payload = (await response.json()) as BackendTutorialDetailResponse;
+    const studentName = payload.student?.name ?? 'Estudiante';
+    const normalizedModality = payload.modality?.toLowerCase();
+
+    return {
+      id: payload.id,
+      studentName,
+      studentInitials: toInitials(studentName),
+      offerTitle: payload.subject,
+      subject: payload.subject,
+      date: payload.date,
+      time: payload.time,
+      modality: normalizedModality === 'virtual' ? 'Virtual' : 'Presencial',
+      price: parsePricePerHour(payload.pricePerHour),
+      currency: 'USD',
+      locationOrLink: payload.meetingLink || payload.location || 'No especificado',
+      message: payload.studentMessage || 'Sin mensaje',
+    };
+  } catch {
+    return null;
+  }
 }
