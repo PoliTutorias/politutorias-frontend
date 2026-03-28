@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { BookOpen, Clock3, Link2, MapPin, MessageSquare, Monitor, UserRound, X } from 'lucide-react';
+import { BookOpen, CheckCircle2, Clock3, Link2, MapPin, MessageSquare, Monitor, Star, UserRound, X } from 'lucide-react';
 import { getDetalleTutoriaAction } from '@/actions/tutorials/getDetalleTutoriaAction';
 import { TutorialDetailDto } from '@/interfaces/tutorial/tutorial';
 
@@ -66,6 +66,11 @@ export function TutorialDetailModal({ tutorialId, isOpen, onClose, onComplete }:
   if (!isOpen) {
     return null;
   }
+
+  const isCompleted = detail?.status === 'COMPLETADA';
+
+  const ratingValue = detail?.studentRating ?? 0;
+  const fullStars = Math.round(ratingValue);
 
   return (
     <dialog
@@ -155,11 +160,34 @@ export function TutorialDetailModal({ tutorialId, isOpen, onClose, onComplete }:
                 </p>
                 <p className="mt-1 text-[13px] text-[#4f637f]">{detail.message}</p>
               </section>
+
+              {isCompleted && detail.studentRating !== null && detail.studentComment !== null && (
+                <section className="rounded-lg border border-[#e4e9f0] bg-[#f9fbff] px-3 py-3">
+                  <p className="text-[12px] font-bold text-[#1f2b3d]">CALIFICACION DEL ESTUDIANTE</p>
+                  <div className="mt-1 flex items-center gap-1 text-[#ce9a2f]">
+                    {Array.from({ length: 5 }).map((_, index) => (
+                      <Star key={`star-${index + 1}`} size={16} fill={index < fullStars ? 'currentColor' : 'none'} />
+                    ))}
+                    <span className="ml-1 text-[12px] font-semibold text-[#4f637f]">{detail.studentRating.toFixed(1)}/5</span>
+                  </div>
+                  <p className="mt-2 text-[13px] text-[#4f637f]">{detail.studentComment}</p>
+                </section>
+              )}
             </>
           )}
         </div>
 
-        <footer className="flex items-center justify-end border-t border-[#e8edf4] px-5 py-3">
+        <footer className={`flex items-center border-t border-[#e8edf4] px-5 py-3 ${isCompleted ? 'justify-between' : 'justify-end'}`}>
+          {isCompleted && (
+            <p className="inline-flex items-center gap-2 text-[15px] font-semibold text-[#667c98]">
+              <span>Estado:</span>
+              <span className="inline-flex items-center gap-1 rounded-full border border-[#86d9a4] bg-[#e8f8ee] px-3 py-1 text-[15px] font-semibold text-[#2f8f56]">
+                <CheckCircle2 size={14} />
+                Completada
+              </span>
+            </p>
+          )}
+
           {detail?.status === 'SIN_CONFIRMAR' && (
             <button
               type="button"
