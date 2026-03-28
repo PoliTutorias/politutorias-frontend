@@ -13,6 +13,16 @@ type BackendHistoryItem = {
   time?: string;
 };
 
+function normalizeStatus(status: string): 'SIN_CONFIRMAR' | 'COMPLETADA' | 'CANCELADA' | 'INASISTENCIA' {
+  const normalized = (status || '').toUpperCase();
+
+  if (normalized === 'SIN_CONFIRMAR' || normalized === 'COMPLETADA' || normalized === 'CANCELADA' || normalized === 'INASISTENCIA') {
+    return normalized;
+  }
+
+  return 'COMPLETADA';
+}
+
 type BackendHistoryResponse = {
   summary: {
     totalCompleted: number;
@@ -110,6 +120,7 @@ export async function getTutorialHistoryAction(page: number = 1, limit: number =
           offerTitle: item.subjectName,
           date: formatDate(item.date),
           time: item.time ?? '--:--',
+          status: normalizeStatus(item.status),
         })),
         total: payload.paginatedData.total,
         page: payload.paginatedData.page,

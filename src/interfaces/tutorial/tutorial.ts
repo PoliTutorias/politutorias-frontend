@@ -11,6 +11,7 @@ export interface TutorialHistoryItemDto {
   offerTitle: string;
   date: string;
   time: string;
+  status: 'SIN_CONFIRMAR' | 'COMPLETADA' | 'CANCELADA' | 'INASISTENCIA';
 }
 
 export interface PaginatedTutorialHistoryDto {
@@ -38,4 +39,7 @@ export interface TutorialDetailDto {
   currency: string;
   locationOrLink: string;
   message: string;
+  status: 'SIN_CONFIRMAR' | 'COMPLETADA' | 'CANCELADA' | 'INASISTENCIA';
+  studentRating: number | null;
+  studentComment: string | null;
 }

@@ -17,7 +17,20 @@ type BackendTutorialDetailResponse = {
   location: string | null;
   pricePerHour: string;
   studentMessage: string;
+  status?: string;
+  calificacionEstudiante?: number | null;
+  comentarioEstudiante?: string | null;
 };
+
+function normalizeStatus(status: string | undefined): 'SIN_CONFIRMAR' | 'COMPLETADA' | 'CANCELADA' | 'INASISTENCIA' {
+  const normalized = (status || '').toUpperCase();
+
+  if (normalized === 'SIN_CONFIRMAR' || normalized === 'COMPLETADA' || normalized === 'CANCELADA' || normalized === 'INASISTENCIA') {
+    return normalized;
+  }
+
+  return 'COMPLETADA';
+}
 
 function toInitials(name: string): string {
   const cleaned = (name || '').trim();
@@ -89,6 +102,9 @@ export async function getTutorialDetailAction(id: string): Promise<TutorialDetai
       currency: 'USD',
       locationOrLink: payload.meetingLink || payload.location || 'No especificado',
       message: payload.studentMessage || 'Sin mensaje',
+      status: normalizeStatus(payload.status),
+      studentRating: payload.calificacionEstudiante ?? null,
+      studentComment: payload.comentarioEstudiante ?? null,
     };
   } catch {
     return null;

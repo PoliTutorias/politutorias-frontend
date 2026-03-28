@@ -9,11 +9,13 @@ interface TutorialDetailModalProps {
   readonly tutorialId: string | null;
   readonly isOpen: boolean;
   readonly onClose: () => void;
+  readonly onComplete: (id: string) => Promise<void>;
 }
 
-export function TutorialDetailModal({ tutorialId, isOpen, onClose }: TutorialDetailModalProps) {
+export function TutorialDetailModal({ tutorialId, isOpen, onClose, onComplete }: TutorialDetailModalProps) {
   const [detail, setDetail] = useState<TutorialDetailDto | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isCompleting, setIsCompleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -158,6 +160,29 @@ export function TutorialDetailModal({ tutorialId, isOpen, onClose }: TutorialDet
         </div>
 
         <footer className="flex items-center justify-end border-t border-[#e8edf4] px-5 py-3">
+          {detail?.status === 'SIN_CONFIRMAR' && (
+            <button
+              type="button"
+              disabled={isCompleting}
+              onClick={async () => {
+                if (!detail) {
+                  return;
+                }
+
+                setIsCompleting(true);
+                try {
+                  await onComplete(detail.id);
+                  onClose();
+                } finally {
+                  setIsCompleting(false);
+                }
+              }}
+              className="mr-4 inline-flex items-center rounded-xl border border-[#4cbf78] px-4 py-1.5 text-[15px] font-semibold text-[#1d9954] transition-colors hover:bg-[#2fa964] hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              Completada
+            </button>
+          )}
+
           <button
             type="button"
             onClick={onClose}

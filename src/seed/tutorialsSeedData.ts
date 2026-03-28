@@ -8,6 +8,7 @@ const historyItemsSeed: TutorialHistoryItemDto[] = [
     offerTitle: 'Calculo Vectorial',
     date: '22 de marzo de 2026',
     time: '09:00',
+    status: 'COMPLETADA',
   },
   {
     id: 'tutoria-002-def',
@@ -16,6 +17,7 @@ const historyItemsSeed: TutorialHistoryItemDto[] = [
     offerTitle: 'Calculo Vectorial',
     date: '21 de marzo de 2026',
     time: '10:00',
+    status: 'COMPLETADA',
   },
   {
     id: 'tutoria-003-ghi',
@@ -24,6 +26,7 @@ const historyItemsSeed: TutorialHistoryItemDto[] = [
     offerTitle: 'Algebra Lineal',
     date: '20 de marzo de 2026',
     time: '11:00',
+    status: 'SIN_CONFIRMAR',
   },
   {
     id: 'tutoria-004-jkl',
@@ -32,6 +35,7 @@ const historyItemsSeed: TutorialHistoryItemDto[] = [
     offerTitle: 'Calculo Vectorial',
     date: '15 de marzo de 2026',
     time: '10:00',
+    status: 'COMPLETADA',
   },
   {
     id: 'tutoria-005-mno',
@@ -40,6 +44,7 @@ const historyItemsSeed: TutorialHistoryItemDto[] = [
     offerTitle: 'Calculo Vectorial',
     date: '08 de marzo de 2026',
     time: '09:00',
+    status: 'COMPLETADA',
   },
   {
     id: 'tutoria-006-pqr',
@@ -48,6 +53,7 @@ const historyItemsSeed: TutorialHistoryItemDto[] = [
     offerTitle: 'Programacion Orientada a Objetos',
     date: '02 de marzo de 2026',
     time: '14:30',
+    status: 'COMPLETADA',
   },
   {
     id: 'tutoria-007-stu',
@@ -56,6 +62,7 @@ const historyItemsSeed: TutorialHistoryItemDto[] = [
     offerTitle: 'Fisica I',
     date: '25 de febrero de 2026',
     time: '16:00',
+    status: 'COMPLETADA',
   },
   {
     id: 'tutoria-008-vwx',
@@ -64,6 +71,7 @@ const historyItemsSeed: TutorialHistoryItemDto[] = [
     offerTitle: 'Algebra Lineal',
     date: '18 de febrero de 2026',
     time: '08:30',
+    status: 'COMPLETADA',
   },
   {
     id: 'tutoria-009-yza',
@@ -72,6 +80,7 @@ const historyItemsSeed: TutorialHistoryItemDto[] = [
     offerTitle: 'Calculo Diferencial',
     date: '09 de febrero de 2026',
     time: '12:00',
+    status: 'COMPLETADA',
   },
   {
     id: 'tutoria-010-bcd',
@@ -80,6 +89,7 @@ const historyItemsSeed: TutorialHistoryItemDto[] = [
     offerTitle: 'Bases de Datos',
     date: '03 de febrero de 2026',
     time: '18:00',
+    status: 'COMPLETADA',
   },
   {
     id: 'tutoria-011-efg',
@@ -88,6 +98,7 @@ const historyItemsSeed: TutorialHistoryItemDto[] = [
     offerTitle: 'Matematica Discreta',
     date: '27 de enero de 2026',
     time: '09:30',
+    status: 'COMPLETADA',
   },
   {
     id: 'tutoria-012-hij',
@@ -96,6 +107,7 @@ const historyItemsSeed: TutorialHistoryItemDto[] = [
     offerTitle: 'Programacion I',
     date: '15 de enero de 2026',
     time: '11:15',
+    status: 'COMPLETADA',
   },
 ];
 
@@ -126,4 +138,7 @@ export const tutorialDetailSeedData: TutorialDetailDto = {
   currency: 'USD',
   locationOrLink: 'Biblioteca EPN, Sala 3',
   message: 'Repaso general para el examen final.',
+  status: 'COMPLETADA',
+  studentRating: null,
+  studentComment: null,
 };
