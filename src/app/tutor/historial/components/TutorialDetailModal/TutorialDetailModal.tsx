@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { BookOpen, Clock3, Link2, MapPin, MessageSquare, Monitor, UserRound, X } from 'lucide-react';
-import { getTutorialDetailAction } from '@/actions/tutorials/getTutorialDetailAction';
+import { getDetalleTutoriaAction } from '@/actions/tutorials/getDetalleTutoriaAction';
 import { TutorialDetailDto } from '@/interfaces/tutorial/tutorial';
 
 interface TutorialDetailModalProps {
@@ -33,7 +33,7 @@ export function TutorialDetailModal({ tutorialId, isOpen, onClose, onComplete }:
       setError(null);
 
       try {
-        const result = await getTutorialDetailAction(tutorialId);
+        const result = await getDetalleTutoriaAction(tutorialId);
 
         if (!mounted) {
           return;
