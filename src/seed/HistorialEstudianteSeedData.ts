@@ -1,0 +1,55 @@
+// Seed para simular la respuesta del backend para el historial de un estudiante (HU-40)
+export const HistorialEstudianteSeedData = {
+  paginatedData: {
+    items: [
+      {
+        id: '1',
+        tutorName: 'Andres Mendoza',
+        subjectName: 'Cálculo Vectorial',
+        date: '2024-05-20',
+        time: '14:00',
+        status: 'Completada',
+        pricePerHour: '$15/h',
+      },
+      {
+        id: '2',
+        tutorName: 'Javier Benitez',
+        subjectName: 'Física I',
+        date: '2024-05-21',
+        time: '10:00',
+        status: 'Completada',
+        pricePerHour: '$12/h',
+      },
+      {
+        id: '3',
+        tutorName: 'Lucía Fernández',
+        subjectName: 'Álgebra Lineal',
+        date: '2024-05-22',
+        time: '16:00',
+        status: 'INASISTENCIA',
+        pricePerHour: '$18/h',
+      },
+      {
+        id: '4',
+        tutorName: 'Carlos Suárez',
+        subjectName: 'Química Orgánica',
+        date: '2024-05-24',
+        time: '11:00',
+        status: 'Completada',
+        pricePerHour: '$14/h',
+      },
+      {
+        id: '5',
+        tutorName: 'Mariana Rojas',
+        subjectName: 'Programación Orientada a Objetos',
+        date: '2024-05-25',
+        time: '09:00',
+        status: 'INASISTENCIA',
+        pricePerHour: '$20/h',
+      },
+    ],
+    total: 12,
+    page: 1,
+    lastPage: 3,
+  },
+};
