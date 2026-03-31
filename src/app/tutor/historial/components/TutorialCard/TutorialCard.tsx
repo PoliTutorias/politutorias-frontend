@@ -15,11 +15,9 @@ export function TutorialCard({ tutorial, onClick, onReportInasistencia }: Tutori
   const showActionButtons = tutorial.estado === 'sin confirmar';
 
   return (
-    <div
-      role="button"
-      tabIndex={0}
+    <button
+      type="button"
       onClick={() => onClick(tutorial.id)}
-      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onClick(tutorial.id); }}
       className="group w-full cursor-pointer rounded-xl border border-[#e4e9f0] bg-white px-4 py-3.5 text-left transition-shadow hover:shadow-[0_8px_18px_rgba(31,43,61,0.08)]"
       aria-label={`Ver detalle de la tutoria ${tutorial.offerTitle}`}
     >
@@ -75,6 +73,6 @@ export function TutorialCard({ tutorial, onClick, onReportInasistencia }: Tutori
           )}
         </div>
       </div>
-    </div>
+    </button>
   );
 }

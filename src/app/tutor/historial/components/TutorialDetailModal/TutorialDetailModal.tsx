@@ -62,10 +62,6 @@ export function TutorialDetailModal({ tutorialId, isOpen, onClose, onReportInasi
     };
   }, [isOpen, tutorialId]);
 
-  const updateEstadoLocal = (nuevoEstado: TutorialDetailDto['estado']) => {
-    setDetail((prev) => (prev ? { ...prev, estado: nuevoEstado } : prev));
-  };
-
   if (!isOpen) {
     return null;
   }

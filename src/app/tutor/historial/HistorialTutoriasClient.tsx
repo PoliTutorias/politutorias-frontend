@@ -1,7 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { getTutorialHistoryAction } from '@/actions/tutorials/getTutorialHistoryAction';
+import { reportarInasistenciaAction } from '@/actions/tutoria/reportarInasistenciaAction';
 import { HistoryResponse } from '@/interfaces/tutorial/tutorial';
 import { MetricCardsDisplay } from '@/app/tutor/historial/components/MetricCardsDisplay/MetricCardsDisplay';
 import { TutorialHistoryList } from '@/app/tutor/historial/components/TutorialHistoryList/TutorialHistoryList';
@@ -25,6 +27,7 @@ export function HistorialTutoriasClient({ initialHistory }: HistorialTutoriasCli
 
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState<boolean>(false);
   const [tutoriaIdToReport, setTutoriaIdToReport] = useState<string | null>(null);
+  const [isReporting, setIsReporting] = useState<boolean>(false);
 
   const handleCardClick = (id: string): void => {
     setSelectedTutorialId(id);
@@ -46,10 +49,59 @@ export function HistorialTutoriasClient({ initialHistory }: HistorialTutoriasCli
     setTutoriaIdToReport(null);
   };
 
-  const handleConfirmInasistencia = (): void => {
-    // Será implementado en la Tarea 6
-    setIsConfirmModalOpen(false);
-    setTutoriaIdToReport(null);
+  const handleConfirmInasistencia = async (): Promise<void> => {
+    if (!tutoriaIdToReport || isReporting) return;
+
+    setIsReporting(true);
+
+    try {
+      const result = await reportarInasistenciaAction(tutoriaIdToReport);
+
+      if (result.success) {
+        setHistoryData((prev) => ({
+          ...prev,
+          paginatedData: {
+            ...prev.paginatedData,
+            items: prev.paginatedData.items.map((item) =>
+              item.id === tutoriaIdToReport
+                ? { ...item, estado: 'inasistencia' as const }
+                : item
+            ),
+          },
+        }));
+
+        setIsConfirmModalOpen(false);
+        setIsModalOpen(false);
+        setSelectedTutorialId(null);
+        setTutoriaIdToReport(null);
+
+        toast.success('Inasistencia reportada con éxito.', {
+          style: {
+            background: '#2f855a',
+            color: '#ffffff',
+            border: '1px solid #2f855a',
+          },
+        });
+      } else {
+        toast.error(result.message || 'No se pudo reportar la inasistencia.', {
+          style: {
+            background: '#c53030',
+            color: '#ffffff',
+            border: '1px solid #c53030',
+          },
+        });
+      }
+    } catch {
+      toast.error('Error inesperado. Intenta nuevamente.', {
+        style: {
+          background: '#c53030',
+          color: '#ffffff',
+          border: '1px solid #c53030',
+        },
+      });
+    } finally {
+      setIsReporting(false);
+    }
   };
 
   const handlePageChange = async (page: number): Promise<void> => {
@@ -114,6 +166,7 @@ export function HistorialTutoriasClient({ initialHistory }: HistorialTutoriasCli
         cancelLabel="Cancelar"
         onConfirm={handleConfirmInasistencia}
         onCancel={handleCancelConfirm}
+        isLoading={isReporting}
       />
     </section>
   );
