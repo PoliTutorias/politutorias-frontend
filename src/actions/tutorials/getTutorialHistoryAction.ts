@@ -1,6 +1,6 @@
 'use server';
 
-import { HistoryResponse } from '@/interfaces/tutorial/tutorial';
+import { HistoryResponse, TutorialEstado } from '@/interfaces/tutorial/tutorial';
 import { getServerToken } from '@/lib/server-auth';
 
 type BackendHistoryItem = {
@@ -26,6 +26,16 @@ type BackendHistoryResponse = {
     lastPage: number;
   };
 };
+
+function mapEstado(status: string): TutorialEstado {
+  const normalized = status.toLowerCase().trim();
+  if (normalized === 'sin confirmar' || normalized === 'sin_confirmar') return 'sin confirmar';
+  if (normalized === 'pendiente') return 'pendiente';
+  if (normalized === 'inasistencia') return 'inasistencia';
+  if (normalized === 'completada') return 'completada';
+  if (normalized === 'cancelada') return 'cancelada';
+  return 'sin confirmar';
+}
 
 function toInitials(name: string): string {
   const cleaned = (name || '').trim();
@@ -110,6 +120,7 @@ export async function getTutorialHistoryAction(page: number = 1, limit: number =
           offerTitle: item.subjectName,
           date: formatDate(item.date),
           time: item.time ?? '--:--',
+          estado: mapEstado(item.status),
         })),
         total: payload.paginatedData.total,
         page: payload.paginatedData.page,

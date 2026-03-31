@@ -1,12 +1,15 @@
 'use client';
 
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { getTutorialHistoryAction } from '@/actions/tutorials/getTutorialHistoryAction';
+import { reportarInasistenciaAction } from '@/actions/tutoria/reportarInasistenciaAction';
 import { HistoryResponse } from '@/interfaces/tutorial/tutorial';
 import { MetricCardsDisplay } from '@/app/tutor/historial/components/MetricCardsDisplay/MetricCardsDisplay';
 import { TutorialHistoryList } from '@/app/tutor/historial/components/TutorialHistoryList/TutorialHistoryList';
 import { PaginationControls } from '@/components/common/PaginationControls/PaginationControls';
 import { TutorialDetailModal } from '@/app/tutor/historial/components/TutorialDetailModal/TutorialDetailModal';
+import { ConfirmModal } from '@/components/ui/confirm-modal/ConfirmModal';
 
 const ITEMS_PER_PAGE = 5;
 
@@ -22,6 +25,10 @@ export function HistorialTutoriasClient({ initialHistory }: HistorialTutoriasCli
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState<boolean>(false);
+  const [tutoriaIdToReport, setTutoriaIdToReport] = useState<string | null>(null);
+  const [isReporting, setIsReporting] = useState<boolean>(false);
+
   const handleCardClick = (id: string): void => {
     setSelectedTutorialId(id);
     setIsModalOpen(true);
@@ -30,6 +37,71 @@ export function HistorialTutoriasClient({ initialHistory }: HistorialTutoriasCli
   const handleCloseModal = (): void => {
     setIsModalOpen(false);
     setSelectedTutorialId(null);
+  };
+
+  const handleRequestInasistencia = (id: string): void => {
+    setTutoriaIdToReport(id);
+    setIsConfirmModalOpen(true);
+  };
+
+  const handleCancelConfirm = (): void => {
+    setIsConfirmModalOpen(false);
+    setTutoriaIdToReport(null);
+  };
+
+  const handleConfirmInasistencia = async (): Promise<void> => {
+    if (!tutoriaIdToReport || isReporting) return;
+
+    setIsReporting(true);
+
+    try {
+      const result = await reportarInasistenciaAction(tutoriaIdToReport);
+
+      if (result.success) {
+        setHistoryData((prev) => ({
+          ...prev,
+          paginatedData: {
+            ...prev.paginatedData,
+            items: prev.paginatedData.items.map((item) =>
+              item.id === tutoriaIdToReport
+                ? { ...item, estado: 'inasistencia' as const }
+                : item
+            ),
+          },
+        }));
+
+        setIsConfirmModalOpen(false);
+        setIsModalOpen(false);
+        setSelectedTutorialId(null);
+        setTutoriaIdToReport(null);
+
+        toast.success('Inasistencia reportada con éxito.', {
+          style: {
+            background: '#2f855a',
+            color: '#ffffff',
+            border: '1px solid #2f855a',
+          },
+        });
+      } else {
+        toast.error(result.message || 'No se pudo reportar la inasistencia.', {
+          style: {
+            background: '#c53030',
+            color: '#ffffff',
+            border: '1px solid #c53030',
+          },
+        });
+      }
+    } catch {
+      toast.error('Error inesperado. Intenta nuevamente.', {
+        style: {
+          background: '#c53030',
+          color: '#ffffff',
+          border: '1px solid #c53030',
+        },
+      });
+    } finally {
+      setIsReporting(false);
+    }
   };
 
   const handlePageChange = async (page: number): Promise<void> => {
@@ -63,7 +135,11 @@ export function HistorialTutoriasClient({ initialHistory }: HistorialTutoriasCli
     <section className="flex min-h-[calc(100vh-250px)] flex-col gap-4">
       <MetricCardsDisplay summary={historyData.summary} />
 
-      <TutorialHistoryList items={historyData.paginatedData.items} onCardClick={handleCardClick} />
+      <TutorialHistoryList
+        items={historyData.paginatedData.items}
+        onCardClick={handleCardClick}
+        onReportInasistencia={handleRequestInasistencia}
+      />
 
       <PaginationControls
         totalItems={historyData.paginatedData.total}
@@ -75,7 +151,24 @@ export function HistorialTutoriasClient({ initialHistory }: HistorialTutoriasCli
 
       {isLoading && <p className="text-[12px] text-[#6d7f95]">Cargando...</p>}
 
-      <TutorialDetailModal tutorialId={selectedTutorialId} isOpen={isModalOpen} onClose={handleCloseModal} />
+      <TutorialDetailModal
+        tutorialId={selectedTutorialId}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onReportInasistencia={handleRequestInasistencia}
+        overrideEstado={historyData.paginatedData.items.find((item) => item.id === selectedTutorialId)?.estado}
+      />
+
+      <ConfirmModal
+        isOpen={isConfirmModalOpen}
+        title="Confirmar Inasistencia"
+        message="Esta acción marcará la tutoría como inasistencia del estudiante. Esta acción no se puede deshacer."
+        confirmLabel="Sí, reportar inasistencia"
+        cancelLabel="Cancelar"
+        onConfirm={handleConfirmInasistencia}
+        onCancel={handleCancelConfirm}
+        isLoading={isReporting}
+      />
     </section>
   );
 }

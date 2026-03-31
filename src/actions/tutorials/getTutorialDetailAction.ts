@@ -1,6 +1,6 @@
 'use server';
 
-import { TutorialDetailDto } from '@/interfaces/tutorial/tutorial';
+import { TutorialDetailDto, TutorialEstado } from '@/interfaces/tutorial/tutorial';
 import { getServerToken } from '@/lib/server-auth';
 
 type BackendTutorialDetailResponse = {
@@ -17,7 +17,19 @@ type BackendTutorialDetailResponse = {
   location: string | null;
   pricePerHour: string;
   studentMessage: string;
+  status?: string;
 };
+
+function mapEstado(status?: string): TutorialEstado {
+  if (!status) return 'sin confirmar';
+  const normalized = status.toLowerCase().trim();
+  if (normalized === 'sin confirmar' || normalized === 'sin_confirmar') return 'sin confirmar';
+  if (normalized === 'pendiente') return 'pendiente';
+  if (normalized === 'inasistencia') return 'inasistencia';
+  if (normalized === 'completada') return 'completada';
+  if (normalized === 'cancelada') return 'cancelada';
+  return 'sin confirmar';
+}
 
 function toInitials(name: string): string {
   const cleaned = (name || '').trim();
@@ -89,6 +101,7 @@ export async function getTutorialDetailAction(id: string): Promise<TutorialDetai
       currency: 'USD',
       locationOrLink: payload.meetingLink || payload.location || 'No especificado',
       message: payload.studentMessage || 'Sin mensaje',
+      estado: mapEstado(payload.status),
     };
   } catch {
     return null;
