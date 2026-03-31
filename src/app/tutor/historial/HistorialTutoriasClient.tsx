@@ -156,6 +156,7 @@ export function HistorialTutoriasClient({ initialHistory }: HistorialTutoriasCli
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         onReportInasistencia={handleRequestInasistencia}
+        overrideEstado={historyData.paginatedData.items.find((item) => item.id === selectedTutorialId)?.estado}
       />
 
       <ConfirmModal

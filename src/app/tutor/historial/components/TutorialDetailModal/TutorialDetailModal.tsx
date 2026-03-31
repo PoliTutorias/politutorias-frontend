@@ -3,16 +3,17 @@
 import { useEffect, useState } from 'react';
 import { BookOpen, CheckCircle2, Clock3, Link2, MapPin, MessageSquare, Monitor, UserRound, X, XCircle } from 'lucide-react';
 import { getTutorialDetailAction } from '@/actions/tutorials/getTutorialDetailAction';
-import { TutorialDetailDto } from '@/interfaces/tutorial/tutorial';
+import { TutorialDetailDto, TutorialEstado } from '@/interfaces/tutorial/tutorial';
 
 interface TutorialDetailModalProps {
   readonly tutorialId: string | null;
   readonly isOpen: boolean;
   readonly onClose: () => void;
   readonly onReportInasistencia?: (id: string) => void;
+  readonly overrideEstado?: TutorialEstado;
 }
 
-export function TutorialDetailModal({ tutorialId, isOpen, onClose, onReportInasistencia }: TutorialDetailModalProps) {
+export function TutorialDetailModal({ tutorialId, isOpen, onClose, onReportInasistencia, overrideEstado }: TutorialDetailModalProps) {
   const [detail, setDetail] = useState<TutorialDetailDto | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -66,8 +67,9 @@ export function TutorialDetailModal({ tutorialId, isOpen, onClose, onReportInasi
     return null;
   }
 
-  const isInasistencia = detail?.estado === 'inasistencia';
-  const showActionButtons = detail?.estado === 'sin confirmar' || detail?.estado === 'pendiente';
+  const currentEstado = overrideEstado ?? detail?.estado;
+  const isInasistencia = currentEstado === 'inasistencia';
+  const showActionButtons = currentEstado === 'sin confirmar' || currentEstado === 'pendiente';
 
   return (
     <dialog
@@ -161,7 +163,7 @@ export function TutorialDetailModal({ tutorialId, isOpen, onClose, onReportInasi
               {isInasistencia && (
                 <div className="flex items-center gap-2 pt-1">
                   <span className="text-[14px] font-medium text-[#5f738f]">Estado:</span>
-                  <span className="inline-flex items-center gap-1 rounded-full border border-[#e53935] px-3 py-1 text-[13px] font-medium text-[#e53935]">
+                  <span className="inline-flex items-center gap-1 rounded-full border border-[#e53935] bg-[#fef2f2] px-3 py-1 text-[13px] font-medium text-[#e53935]">
                     <XCircle size={14} />
                     Inasistencia
                   </span>
@@ -171,25 +173,23 @@ export function TutorialDetailModal({ tutorialId, isOpen, onClose, onReportInasi
           )}
         </div>
 
-        <footer className="flex items-center justify-between border-t border-[#e8edf4] px-5 py-3">
-          <div className="flex items-center gap-2">
-            {detail && showActionButtons && (
-              <>
-                <span className="inline-flex items-center gap-1 rounded-full border border-[#43a047] px-3 py-1.5 text-[13px] font-medium text-[#43a047]">
-                  <CheckCircle2 size={14} />
-                  Completada
-                </span>
-                <button
-                  type="button"
-                  onClick={() => onReportInasistencia?.(detail.id)}
-                  className="inline-flex cursor-pointer items-center gap-1 rounded-full border border-[#e53935] px-3 py-1.5 text-[13px] font-medium text-[#e53935] transition-colors hover:bg-[#fef2f2]"
-                >
-                  <XCircle size={14} />
-                  Inasistencia
-                </button>
-              </>
-            )}
-          </div>
+        <footer className="flex items-center justify-end gap-3 border-t border-[#e8edf4] px-5 py-3">
+          {detail && showActionButtons && (
+            <>
+              <span className="inline-flex items-center gap-1 rounded-lg border border-[#43a047] px-3 py-1.5 text-[13px] font-medium text-[#43a047]">
+                <CheckCircle2 size={14} />
+                Completada
+              </span>
+              <button
+                type="button"
+                onClick={() => onReportInasistencia?.(detail.id)}
+                className="inline-flex cursor-pointer items-center gap-1 rounded-lg border border-[#e53935] px-3 py-1.5 text-[13px] font-medium text-[#e53935] transition-colors hover:bg-[#fef2f2]"
+              >
+                <XCircle size={14} />
+                Inasistencia
+              </button>
+            </>
+          )}
 
           <button
             type="button"

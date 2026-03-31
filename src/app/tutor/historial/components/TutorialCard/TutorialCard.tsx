@@ -15,13 +15,15 @@ export function TutorialCard({ tutorial, onClick, onReportInasistencia }: Tutori
   const showActionButtons = tutorial.estado === 'sin confirmar';
 
   return (
-    <button
-      type="button"
+    <div
+      role="button"
+      tabIndex={0}
       onClick={() => onClick(tutorial.id)}
-      className="group w-full cursor-pointer rounded-xl border border-[#e4e9f0] bg-white px-4 py-3.5 text-left transition-shadow hover:shadow-[0_8px_18px_rgba(31,43,61,0.08)]"
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onClick(tutorial.id); }}
+      className="group w-full cursor-pointer rounded-xl border border-[#e4e9f0] bg-white px-5 py-4 text-left transition-shadow hover:shadow-[0_8px_18px_rgba(31,43,61,0.08)]"
       aria-label={`Ver detalle de la tutoria ${tutorial.offerTitle}`}
     >
-      <div className="flex items-center gap-3">
+      <div className="flex items-start gap-3">
         <div
           className={clsx(
             'w-0.5 self-stretch rounded-full',
@@ -29,13 +31,47 @@ export function TutorialCard({ tutorial, onClick, onReportInasistencia }: Tutori
           )}
         />
 
-        <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#152c53] text-[18px] font-semibold leading-none text-white">
+        <span className="mt-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#152c53] text-[16px] font-semibold leading-none text-white">
           {tutorial.studentInitials}
         </span>
 
         <div className="min-w-0 flex-1">
-          <p className="truncate text-[15px] font-bold leading-tight text-[#1f2b3d]">{tutorial.offerTitle}</p>
-          <p className="text-[13px] text-[#6f8199]">{tutorial.studentName}</p>
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-[15px] font-bold leading-tight text-[#1f2b3d]">{tutorial.offerTitle}</p>
+              <p className="mt-0.5 text-[13px] text-[#6f8199]">{tutorial.studentName}</p>
+            </div>
+
+            <div className="flex shrink-0 items-center gap-2">
+              {showActionButtons && (
+                <>
+                  <span className="inline-flex items-center gap-1 rounded-lg border border-[#43a047] px-3 py-1.5 text-[13px] font-medium text-[#43a047]">
+                    <CheckCircle2 size={14} />
+                    Completada
+                  </span>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onReportInasistencia?.(tutorial.id);
+                    }}
+                    className="inline-flex cursor-pointer items-center gap-1 rounded-lg border border-[#e53935] px-3 py-1.5 text-[13px] font-medium text-[#e53935] transition-colors hover:bg-[#fef2f2]"
+                  >
+                    <XCircle size={14} />
+                    Inasistencia
+                  </button>
+                </>
+              )}
+
+              {isInasistencia && (
+                <span className="inline-flex items-center gap-1 rounded-full border border-[#e53935] bg-[#fef2f2] px-3 py-1.5 text-[13px] font-medium text-[#e53935]">
+                  <XCircle size={14} />
+                  Inasistencia
+                </span>
+              )}
+            </div>
+          </div>
+
           <div className="mt-2 rounded-md bg-[#f1f5f9] px-3 py-1.5 text-[12px] text-[#62758f]">
             <span className="inline-flex items-center gap-1">
               <Clock3 size={12} />
@@ -43,36 +79,7 @@ export function TutorialCard({ tutorial, onClick, onReportInasistencia }: Tutori
             </span>
           </div>
         </div>
-
-        <div className="flex shrink-0 items-center gap-2">
-          {showActionButtons && (
-            <>
-              <span className="inline-flex items-center gap-1 rounded-full border border-[#43a047] px-3 py-1.5 text-[13px] font-medium text-[#43a047]">
-                <CheckCircle2 size={14} />
-                Completada
-              </span>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onReportInasistencia?.(tutorial.id);
-                }}
-                className="inline-flex cursor-pointer items-center gap-1 rounded-full border border-[#e53935] px-3 py-1.5 text-[13px] font-medium text-[#e53935] transition-colors hover:bg-[#fef2f2]"
-              >
-                <XCircle size={14} />
-                Inasistencia
-              </button>
-            </>
-          )}
-
-          {isInasistencia && (
-            <span className="inline-flex items-center gap-1 rounded-full border border-[#e53935] px-3 py-1.5 text-[13px] font-medium text-[#e53935]">
-              <XCircle size={14} />
-              Inasistencia
-            </span>
-          )}
-        </div>
       </div>
-    </button>
+    </div>
   );
 }

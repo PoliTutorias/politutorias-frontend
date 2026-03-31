@@ -78,7 +78,7 @@ export function ConfirmModal({
             type="button"
             onClick={onConfirm}
             disabled={isLoading}
-            className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-[#e53935] px-4 py-2 text-[14px] font-medium text-[#e53935] transition-colors hover:bg-[#fef2f2] disabled:opacity-50"
+            className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-[#e53935] px-4 py-2 text-[14px] font-medium text-[#e53935] transition-colors hover:bg-[#fef2f2] disabled:opacity-50"
           >
             <XCircle size={15} />
             {isLoading ? 'Reportando...' : confirmLabel}
