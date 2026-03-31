@@ -1,3 +1,5 @@
+export type TutorialEstado = 'sin confirmar' | 'pendiente' | 'inasistencia' | 'completada' | 'cancelada';
+
 export interface TutorialSummaryDto {
   completedTutorials: number;
   subjectsTaught: number;
@@ -11,6 +13,7 @@ export interface TutorialHistoryItemDto {
   offerTitle: string;
   date: string;
   time: string;
+  estado: TutorialEstado;
 }
 
 export interface PaginatedTutorialHistoryDto {
@@ -38,4 +41,5 @@ export interface TutorialDetailDto {
   currency: string;
   locationOrLink: string;
   message: string;
+  estado: TutorialEstado;
 }
