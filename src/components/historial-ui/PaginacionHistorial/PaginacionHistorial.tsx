@@ -28,12 +28,20 @@ export function PaginacionHistorial({
 
   const pageNumbers = getPageNumbers(currentPage, totalPages);
 
+  const handlePrev = () => {
+    if (currentPage > 1) onPageChange(currentPage - 1);
+  };
+
+  const handleNext = () => {
+    if (currentPage < totalPages) onPageChange(currentPage + 1);
+  };
+
   return (
     <nav className="mt-8 flex items-center justify-center gap-2" aria-label="Paginación">
       {/* Botón anterior */}
       <button
         type="button"
-        onClick={() => onPageChange(currentPage - 1)}
+        onClick={handlePrev}
         disabled={currentPage === 1}
         className="flex h-9 w-9 items-center justify-center rounded-lg text-[#64748b] transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
         aria-label="Página anterior"
@@ -63,7 +71,7 @@ export function PaginacionHistorial({
       {/* Botón siguiente */}
       <button
         type="button"
-        onClick={() => onPageChange(currentPage + 1)}
+        onClick={handleNext}
         disabled={currentPage === totalPages}
         className="flex h-9 w-9 items-center justify-center rounded-lg text-[#64748b] transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
         aria-label="Página siguiente"
