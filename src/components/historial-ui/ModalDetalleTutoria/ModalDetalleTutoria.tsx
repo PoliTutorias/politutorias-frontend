@@ -13,7 +13,13 @@ interface ModalDetalleTutoriaProps {
 }
 
 function formatDate(fecha: string): string {
+  // Si el backend ya envía la fecha formateada (ej. "15 de abril, 2026"), usarla directamente
+  if (/^\d{1,2}\s+de\s+/i.test(fecha)) {
+    return fecha;
+  }
+  // Fallback para fechas ISO (ej. "2026-04-15")
   const date = new Date(fecha);
+  if (Number.isNaN(date.getTime())) return fecha;
   const day = date.getUTCDate();
   const month = date.toLocaleDateString('es-EC', { month: 'long', timeZone: 'UTC' });
   const year = date.getUTCFullYear();
