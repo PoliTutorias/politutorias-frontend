@@ -1,7 +1,7 @@
 import { AppNavBar } from '@/components/layout/AppNavBar/AppNavBar';
 import { fetchHistorialAction } from '@/actions/historial/tutoriaActions';
 import type { HistorialQueryParams } from '@/interfaces/historial/HistorialTypes';
-import { TarjetaTutoria } from '@/components/historial-ui/TarjetaTutoria/TarjetaTutoria';
+import { HistorialClientWrapper } from '@/components/historial-ui/HistorialClientWrapper/HistorialClientWrapper';
 
 export const dynamic = 'force-dynamic';
 
@@ -54,9 +54,11 @@ export default async function HistorialTutoriasPage({ searchParams }: HistorialP
             </div>
           )}
 
-          {tutorias.map((tutoria) => (
-            <TarjetaTutoria key={tutoria.id} tutoria={tutoria} />
-          ))}
+          <HistorialClientWrapper
+            tutorias={tutorias}
+            currentPage={safePage}
+            totalPages={totalPages}
+          />
         </section>
       </main>
     </div>
