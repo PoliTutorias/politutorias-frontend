@@ -21,7 +21,12 @@ export function TutorialHistoryList({ items, onCardClick, onComplete }: Tutorial
   return (
     <section className="space-y-3" aria-label="Listado de tutorias impartidas">
       {items.map((tutorial) => (
-        <TutorialCard key={tutorial.id} tutorial={tutorial} onClick={onCardClick} onComplete={onComplete} />
+        <TutorialCard
+          key={tutorial.id}
+          tutorial={tutorial}
+          onClick={onCardClick}
+          onComplete={onComplete}
+        />
       ))}
     </section>
   );

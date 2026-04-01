@@ -1,75 +1,78 @@
-import { TutoriaEntity } from '@/interfaces/tutoria-tipo/TutoriaEntity';
-import { TutoriaDetalleDto } from '@/interfaces/tutoria-tipo/TutoriaDetalleDto';
+import { TutoriaResponseDto } from '@/interfaces/tutoria/TutoriaResponseDto';
 
-export const TUTORIAS_SEED_DATA: TutoriaDetalleDto[] = [
+const tutoriasSeedData: TutoriaResponseDto[] = [
   {
-    id: 'tutoria-003-ghi',
-    estudiante: {
-      id: 'student-003',
-      nombre: 'Andres Morales',
-    },
-    materia: 'Algebra Lineal',
-    fecha: '2026-03-20',
-    hora: '11:00',
-    tipo: 'Virtual',
-    precioPorHora: 10,
-    lugar: 'https://zoom.us/j/444555666',
-    mensajeEstudiante: 'Repaso de valores y vectores propios.',
-    estado: 'SIN_CONFIRMAR',
-    calificacionEstudiante: null,
-    comentarioEstudiante: null,
-  },
-  {
-    id: 'tutoria-001-abc',
-    estudiante: {
-      id: 'student-001',
-      nombre: 'Mateo Vargas',
-    },
-    materia: 'Calculo Vectorial',
-    fecha: '2026-03-22',
-    hora: '09:00',
-    tipo: 'Presencial',
-    precioPorHora: 10,
+    id: 'seed-tutoria-001',
+    fecha: '2026-03-22T09:00:00.000Z',
+    horaInicio: '09:00',
+    horaFin: '10:00',
+    estado: 'sin confirmar',
+    tutorId: 'tutor-uuid-001',
+    estudianteId: 'estudiante-uuid-001',
+    materia: 'Cálculo Vectorial',
+    modalidad: 'Presencial',
     lugar: 'Biblioteca EPN, Sala 3',
-    mensajeEstudiante: 'Repaso general para el examen final.',
-    estado: 'COMPLETADA',
-    calificacionEstudiante: null,
-    comentarioEstudiante: null,
+    createdAt: '2026-03-20T08:00:00.000Z',
+    updatedAt: '2026-03-22T09:00:00.000Z',
   },
   {
-    id: 'tutoria-002-def',
-    estudiante: {
-      id: 'student-002',
-      nombre: 'Camila Rodriguez',
-    },
-    materia: 'Calculo Vectorial',
-    fecha: '2026-03-21',
-    hora: '10:00',
-    tipo: 'Presencial',
-    precioPorHora: 10,
-    lugar: 'Laboratorio FIEE, Cubiculo 5',
-    mensajeEstudiante: 'Refuerzo para tema de gradiente.',
-    estado: 'COMPLETADA',
-    calificacionEstudiante: 5,
-    comentarioEstudiante: 'Excelente tutoria, muy clara y practica.',
+    id: 'seed-tutoria-002',
+    fecha: '2026-03-21T10:00:00.000Z',
+    horaInicio: '10:00',
+    horaFin: '11:00',
+    estado: 'sin confirmar',
+    tutorId: 'tutor-uuid-001',
+    estudianteId: 'estudiante-uuid-002',
+    materia: 'Cálculo Vectorial',
+    modalidad: 'Virtual',
+    lugar: 'https://meet.google.com/abc-defg-hij',
+    createdAt: '2026-03-19T08:00:00.000Z',
+    updatedAt: '2026-03-21T10:00:00.000Z',
+  },
+  {
+    id: 'seed-tutoria-003',
+    fecha: '2026-03-20T11:00:00.000Z',
+    horaInicio: '11:00',
+    horaFin: '12:00',
+    estado: 'sin confirmar',
+    tutorId: 'tutor-uuid-001',
+    estudianteId: 'estudiante-uuid-003',
+    materia: 'Álgebra Lineal',
+    modalidad: 'Presencial',
+    lugar: 'Aula B-204, Facultad de Ingeniería',
+    createdAt: '2026-03-18T08:00:00.000Z',
+    updatedAt: '2026-03-20T11:00:00.000Z',
+  },
+  {
+    id: 'seed-tutoria-004',
+    fecha: '2026-03-18T14:00:00.000Z',
+    horaInicio: '14:00',
+    horaFin: '15:00',
+    estado: 'pendiente',
+    tutorId: 'tutor-uuid-001',
+    estudianteId: 'estudiante-uuid-004',
+    materia: 'Física I',
+    modalidad: 'Virtual',
+    lugar: 'https://zoom.us/j/123456789',
+    createdAt: '2026-03-16T08:00:00.000Z',
+    updatedAt: '2026-03-18T14:00:00.000Z',
+  },
+  {
+    id: 'seed-tutoria-005',
+    fecha: '2026-03-15T16:00:00.000Z',
+    horaInicio: '16:00',
+    horaFin: '17:00',
+    estado: 'inasistencia',
+    tutorId: 'tutor-uuid-001',
+    estudianteId: 'estudiante-uuid-005',
+    materia: 'Programación II',
+    modalidad: 'Presencial',
+    lugar: 'Laboratorio de Computación, Bloque A',
+    createdAt: '2026-03-13T08:00:00.000Z',
+    updatedAt: '2026-03-15T16:30:00.000Z',
   },
 ];
 
-export function getTutoriaSeed(id: string): TutoriaDetalleDto | undefined {
-  return TUTORIAS_SEED_DATA.find((item) => item.id === id);
-}
-
-export function getUpdatedTutoriaSeed(id: string): TutoriaEntity | undefined {
-  const tutoria = getTutoriaSeed(id);
-
-  if (!tutoria) {
-    return undefined;
-  }
-
-  tutoria.estado = 'COMPLETADA';
-
-  return {
-    id: tutoria.id,
-    estado: tutoria.estado,
-  };
+export function getTutoriasSeed(): TutoriaResponseDto[] {
+  return tutoriasSeedData;
 }

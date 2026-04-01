@@ -1,6 +1,6 @@
 'use server';
 
-import { TutorialDetailDto } from '@/interfaces/tutorial/tutorial';
+import { TutorialDetailDto, TutorialEstado } from '@/interfaces/tutorial/tutorial';
 import { getServerToken } from '@/lib/server-auth';
 
 type BackendTutorialDetailResponse = {
@@ -18,18 +18,17 @@ type BackendTutorialDetailResponse = {
   pricePerHour: string;
   studentMessage: string;
   status?: string;
-  calificacionEstudiante?: number | null;
-  comentarioEstudiante?: string | null;
 };
 
-function normalizeStatus(status: string | undefined): 'SIN_CONFIRMAR' | 'COMPLETADA' | 'CANCELADA' | 'INASISTENCIA' {
-  const normalized = (status || '').toUpperCase();
-
-  if (normalized === 'SIN_CONFIRMAR' || normalized === 'COMPLETADA' || normalized === 'CANCELADA' || normalized === 'INASISTENCIA') {
-    return normalized;
-  }
-
-  return 'COMPLETADA';
+function mapEstado(status?: string): TutorialEstado {
+  if (!status) return 'SIN_CONFIRMAR';
+  const normalized = status.toLowerCase().trim();
+  if (normalized === 'sin confirmar' || normalized === 'sin_confirmar') return 'SIN_CONFIRMAR';
+  if (normalized === 'pendiente') return 'Pendiente';
+  if (normalized === 'inasistencia') return 'Inasistencia';
+  if (normalized === 'completada' || normalized === 'completed') return 'Completada';
+  if (normalized === 'cancelada') return 'Cancelada';
+  return 'SIN_CONFIRMAR';
 }
 
 function toInitials(name: string): string {
@@ -102,9 +101,7 @@ export async function getTutorialDetailAction(id: string): Promise<TutorialDetai
       currency: 'USD',
       locationOrLink: payload.meetingLink || payload.location || 'No especificado',
       message: payload.studentMessage || 'Sin mensaje',
-      status: normalizeStatus(payload.status),
-      studentRating: payload.calificacionEstudiante ?? null,
-      studentComment: payload.comentarioEstudiante ?? null,
+      estado: mapEstado(payload.status),
     };
   } catch {
     return null;

@@ -71,13 +71,13 @@ export function HistorialTutoriasClient({ initialHistory }: HistorialTutoriasCli
       }
 
       setHistoryData((previous) => {
-        const alreadyCompleted = previous.paginatedData.items.some((item) => item.id === id && item.status === 'COMPLETADA');
+        const alreadyCompleted = previous.paginatedData.items.some((item) => item.id === id && item.estado === 'Completada');
 
         const updatedItems = previous.paginatedData.items.map((item) =>
           item.id === id
             ? {
                 ...item,
-                status: 'COMPLETADA' as const,
+                estado: 'Completada' as const,
               }
             : item,
         );
@@ -115,7 +115,11 @@ export function HistorialTutoriasClient({ initialHistory }: HistorialTutoriasCli
     <section className="flex min-h-[calc(100vh-250px)] flex-col gap-4">
       <MetricCardsDisplay summary={historyData.summary} />
 
-      <TutorialHistoryList items={historyData.paginatedData.items} onCardClick={handleCardClick} onComplete={handleCompletarTutoria} />
+      <TutorialHistoryList
+        items={historyData.paginatedData.items}
+        onCardClick={handleCardClick}
+        onComplete={handleCompletarTutoria}
+      />
 
       <PaginationControls
         totalItems={historyData.paginatedData.total}
@@ -132,6 +136,7 @@ export function HistorialTutoriasClient({ initialHistory }: HistorialTutoriasCli
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         onComplete={handleCompletarTutoria}
+        overrideEstado={historyData.paginatedData.items.find((item) => item.id === selectedTutorialId)?.estado}
       />
     </section>
   );

@@ -1,7 +1,25 @@
 'use server';
 
-import { getTutoriaSeed } from '@/seed/TutoriasSeedData';
 import { TutorialDetailDto } from '@/interfaces/tutorial/tutorial';
+import { getServerToken } from '@/lib/server-auth';
+
+type BackendDetalleTutoriaResponse = {
+  id: string;
+  estudiante: {
+    id: string;
+    nombre: string;
+  };
+  materia: string;
+  fecha: string;
+  hora: string;
+  tipo: 'Presencial' | 'Virtual' | string;
+  precioPorHora: number;
+  lugar: string | null;
+  mensajeEstudiante: string | null;
+  estado?: string;
+  calificacionEstudiante?: number | null;
+  comentarioEstudiante?: string | null;
+};
 
 function toInitials(name: string): string {
   const cleaned = (name || '').trim();
@@ -32,63 +50,60 @@ function formatDate(dateValue: string): string {
 }
 
 export async function getDetalleTutoriaAction(tutoriaId: string): Promise<TutorialDetailDto | null> {
-  await new Promise((resolve) => setTimeout(resolve, 300));
-
-  const tutoria = getTutoriaSeed(tutoriaId);
-
-  if (!tutoria) {
+  if (!tutoriaId.trim()) {
     return null;
   }
 
-  return {
-    id: tutoria.id,
-    studentName: tutoria.estudiante.nombre,
-    studentInitials: toInitials(tutoria.estudiante.nombre),
-    offerTitle: tutoria.materia,
-    subject: tutoria.materia,
-    date: formatDate(tutoria.fecha),
-    time: tutoria.hora,
-    modality: tutoria.tipo,
-    price: tutoria.precioPorHora,
-    currency: 'USD',
-    locationOrLink: tutoria.lugar || 'No especificado',
-    message: tutoria.mensajeEstudiante || 'Sin mensaje',
-    status: tutoria.estado,
-    studentRating: tutoria.calificacionEstudiante,
-    studentComment: tutoria.comentarioEstudiante,
-  };
+  const backendBaseUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
+  const token = await getServerToken();
 
-  // const backendBaseUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
-  // const token = await getServerToken();
-  //
-  // if (!backendBaseUrl || !token) {
-  //   return null;
-  // }
-  //
-  // try {
-  //   const normalizedBase = backendBaseUrl.replace(/\/+$/, '');
-  //   const endpoint = `${normalizedBase}/tutorias/${tutoriaId}`;
-  //
-  //   const response = await fetch(endpoint, {
-  //     method: 'GET',
-  //     headers: {
-  //       'Content-Type': 'application/json',
-  //       Accept: 'application/json',
-  //       Authorization: `Bearer ${token}`,
-  //     },
-  //     cache: 'no-store',
-  //   });
-  //
-  //   if (response.status === 404) {
-  //     return null;
-  //   }
-  //
-  //   if (!response.ok) {
-  //     throw new Error(`Error HTTP ${response.status}`);
-  //   }
-  //
-  //   return (await response.json()) as TutorialDetailDto;
-  // } catch {
-  //   return null;
-  // }
+  if (!backendBaseUrl || !token) {
+    return null;
+  }
+
+  try {
+    const normalizedBase = backendBaseUrl.replace(/\/+$/, '');
+    const endpoint = `${normalizedBase}/tutorias/${tutoriaId}`;
+
+    const response = await fetch(endpoint, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      cache: 'no-store',
+    });
+
+    if (response.status === 404) {
+      return null;
+    }
+
+    if (!response.ok) {
+      throw new Error(`Error HTTP ${response.status}`);
+    }
+
+    const payload = (await response.json()) as BackendDetalleTutoriaResponse;
+    const normalizedStatus = (payload.estado || '').toLowerCase();
+    const estado = normalizedStatus === 'completada' || normalizedStatus === 'completed' ? 'Completada' : 'SIN_CONFIRMAR';
+
+    return {
+      id: payload.id,
+      studentName: payload.estudiante?.nombre || 'Estudiante',
+      studentInitials: toInitials(payload.estudiante?.nombre || 'Estudiante'),
+      offerTitle: payload.materia,
+      subject: payload.materia,
+      date: formatDate(payload.fecha),
+      time: payload.hora,
+      modality: (payload.tipo || '').toLowerCase() === 'virtual' ? 'Virtual' : 'Presencial',
+      price: payload.precioPorHora,
+      currency: 'USD',
+      locationOrLink: payload.lugar || 'No especificado',
+      message: payload.mensajeEstudiante || 'Sin mensaje',
+      estado,
+      studentRating: payload.calificacionEstudiante ?? null,
+      studentComment: payload.comentarioEstudiante ?? null,
+    };
+  } catch {
+    return null;
+  }
 }

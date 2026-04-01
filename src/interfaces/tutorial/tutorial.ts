@@ -1,3 +1,5 @@
+export type TutorialEstado = 'SIN_CONFIRMAR' | 'Completada' | 'Inasistencia' | 'Pendiente' | 'Cancelada';
+
 export interface TutorialSummaryDto {
   completedTutorials: number;
   subjectsTaught: number;
@@ -11,7 +13,7 @@ export interface TutorialHistoryItemDto {
   offerTitle: string;
   date: string;
   time: string;
-  status: 'SIN_CONFIRMAR' | 'COMPLETADA' | 'CANCELADA' | 'INASISTENCIA';
+  estado: TutorialEstado;
 }
 
 export interface PaginatedTutorialHistoryDto {
@@ -39,7 +41,7 @@ export interface TutorialDetailDto {
   currency: string;
   locationOrLink: string;
   message: string;
-  status: 'SIN_CONFIRMAR' | 'COMPLETADA' | 'CANCELADA' | 'INASISTENCIA';
-  studentRating: number | null;
-  studentComment: string | null;
+  estado: TutorialEstado;
+  studentRating?: number | null;
+  studentComment?: string | null;
 }
