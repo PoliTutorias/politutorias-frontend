@@ -41,6 +41,8 @@ export default async function HistorialTutoriasPage({ searchParams }: HistorialP
           Tutorías que has recibido y calificado
         </p>
 
+        {/* HU40: No se renderizan FiltrosHistorial (Ordenar/Estado) ni BotonCalificar según las observaciones de la HU */}
+
         <section className="mt-8 flex flex-col gap-5">
           {!response.success && (
             <div className="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-700">
