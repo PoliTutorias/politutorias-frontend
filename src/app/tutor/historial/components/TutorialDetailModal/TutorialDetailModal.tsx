@@ -191,9 +191,9 @@ export function TutorialDetailModal({ tutorialId, isOpen, onClose, onComplete, o
               {isInasistencia && (
                 <div className="flex items-center gap-2 pt-1">
                   <span className="text-[14px] font-medium text-[#5f738f]">Estado:</span>
-                  <span className="inline-flex items-center gap-1 rounded-full border border-[#e53935] bg-[#fef2f2] px-3 py-1 text-[13px] font-medium text-[#e53935]">
-                    <XCircle size={14} />
-                    Inasistencia
+                  <span className="inline-flex items-center gap-1 rounded-full border border-[#86d9a4] bg-[#e8f8ee] px-3 py-1 text-[13px] font-medium text-[#2f8f56]">
+                    <CheckCircle2 size={14} />
+                    Completada
                   </span>
                 </div>
               )}
