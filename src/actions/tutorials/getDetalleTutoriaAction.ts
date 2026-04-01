@@ -5,21 +5,32 @@ import { getServerToken } from '@/lib/server-auth';
 
 type BackendDetalleTutoriaResponse = {
   id: string;
-  estudiante: {
-    id: string;
-    nombre: string;
+  student: {
+    name: string;
+    avatar: string;
   };
-  materia: string;
-  fecha: string;
-  hora: string;
-  tipo: 'Presencial' | 'Virtual' | string;
-  precioPorHora: number;
-  lugar: string | null;
-  mensajeEstudiante: string | null;
-  estado?: string;
+  subject: string;
+  date: string;
+  time: string;
+  modality: 'Presencial' | 'Virtual' | string;
+  meetingLink: string | null;
+  location: string | null;
+  pricePerHour: string;
+  studentMessage: string | null;
+  status?: string;
   calificacionEstudiante?: number | null;
   comentarioEstudiante?: string | null;
 };
+
+function parsePricePerHour(pricePerHour: string): number {
+  const match = (pricePerHour || '').match(/[\d]+(?:\.\d+)?/);
+
+  if (!match) {
+    return 0;
+  }
+
+  return Number.parseFloat(match[0]);
+}
 
 function toInitials(name: string): string {
   const cleaned = (name || '').trim();
@@ -83,22 +94,27 @@ export async function getDetalleTutoriaAction(tutoriaId: string): Promise<Tutori
     }
 
     const payload = (await response.json()) as BackendDetalleTutoriaResponse;
-    const normalizedStatus = (payload.estado || '').toLowerCase();
+    const normalizedStatus = (payload.status || '').toLowerCase();
     const estado = normalizedStatus === 'completada' || normalizedStatus === 'completed' ? 'Completada' : 'SIN_CONFIRMAR';
+    const studentName = payload.student?.name || 'Estudiante';
+    const modality = (payload.modality || '').toLowerCase() === 'virtual' ? 'Virtual' : 'Presencial';
+    const locationOrLink = modality === 'Virtual'
+      ? (payload.meetingLink || 'No especificado')
+      : (payload.location || 'No especificado');
 
     return {
       id: payload.id,
-      studentName: payload.estudiante?.nombre || 'Estudiante',
-      studentInitials: toInitials(payload.estudiante?.nombre || 'Estudiante'),
-      offerTitle: payload.materia,
-      subject: payload.materia,
-      date: formatDate(payload.fecha),
-      time: payload.hora,
-      modality: (payload.tipo || '').toLowerCase() === 'virtual' ? 'Virtual' : 'Presencial',
-      price: payload.precioPorHora,
+      studentName,
+      studentInitials: toInitials(studentName),
+      offerTitle: payload.subject,
+      subject: payload.subject,
+      date: formatDate(payload.date),
+      time: payload.time,
+      modality,
+      price: parsePricePerHour(payload.pricePerHour),
       currency: 'USD',
-      locationOrLink: payload.lugar || 'No especificado',
-      message: payload.mensajeEstudiante || 'Sin mensaje',
+      locationOrLink,
+      message: payload.studentMessage || 'Sin mensaje',
       estado,
       studentRating: payload.calificacionEstudiante ?? null,
       studentComment: payload.comentarioEstudiante ?? null,

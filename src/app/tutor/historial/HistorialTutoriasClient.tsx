@@ -2,8 +2,10 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 import { getTutorialHistoryAction } from '@/actions/tutorials/getTutorialHistoryAction';
 import { marcarTutoriaCompletadaAction } from '@/actions/tutorials/marcarTutoriaCompletadaAction';
+import { reportarInasistenciaAction } from '@/actions/tutoria/reportarInasistenciaAction';
 import { HistoryResponse } from '@/interfaces/tutorial/tutorial';
 import { MetricCardsDisplay } from '@/app/tutor/historial/components/MetricCardsDisplay/MetricCardsDisplay';
 import { TutorialHistoryList } from '@/app/tutor/historial/components/TutorialHistoryList/TutorialHistoryList';
@@ -24,6 +26,9 @@ export function HistorialTutoriasClient({ initialHistory }: HistorialTutoriasCli
   const [selectedTutorialId, setSelectedTutorialId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState<boolean>(false);
+  const [tutoriaIdToReport, setTutoriaIdToReport] = useState<string | null>(null);
+  const [isReporting, setIsReporting] = useState<boolean>(false);
 
   const handleCardClick = (id: string): void => {
     setSelectedTutorialId(id);
@@ -33,6 +38,54 @@ export function HistorialTutoriasClient({ initialHistory }: HistorialTutoriasCli
   const handleCloseModal = (): void => {
     setIsModalOpen(false);
     setSelectedTutorialId(null);
+  };
+
+  const handleRequestInasistencia = (id: string): void => {
+    setTutoriaIdToReport(id);
+    setIsConfirmModalOpen(true);
+  };
+
+  const handleCancelConfirm = (): void => {
+    setIsConfirmModalOpen(false);
+    setTutoriaIdToReport(null);
+  };
+
+  const handleConfirmInasistencia = async (): Promise<void> => {
+    if (!tutoriaIdToReport || isReporting) {
+      return;
+    }
+
+    setIsReporting(true);
+
+    try {
+      const result = await reportarInasistenciaAction(tutoriaIdToReport);
+
+      if (!result.success) {
+        toast.error(result.message || 'No se pudo reportar la inasistencia.');
+        return;
+      }
+
+      setHistoryData((prev) => ({
+        ...prev,
+        paginatedData: {
+          ...prev.paginatedData,
+          items: prev.paginatedData.items.map((item) =>
+            item.id === tutoriaIdToReport ? { ...item, estado: 'Inasistencia' as const } : item,
+          ),
+        },
+      }));
+
+      setIsConfirmModalOpen(false);
+      setIsModalOpen(false);
+      setSelectedTutorialId(null);
+      setTutoriaIdToReport(null);
+      toast.success('Inasistencia reportada con éxito.');
+      router.refresh();
+    } catch {
+      toast.error('Error inesperado. Intenta nuevamente.');
+    } finally {
+      setIsReporting(false);
+    }
   };
 
   const handlePageChange = async (page: number): Promise<void> => {
@@ -119,6 +172,7 @@ export function HistorialTutoriasClient({ initialHistory }: HistorialTutoriasCli
         items={historyData.paginatedData.items}
         onCardClick={handleCardClick}
         onComplete={handleCompletarTutoria}
+        onReportInasistencia={handleRequestInasistencia}
       />
 
       <PaginationControls
@@ -136,6 +190,7 @@ export function HistorialTutoriasClient({ initialHistory }: HistorialTutoriasCli
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         onComplete={handleCompletarTutoria}
+        onReportInasistencia={handleRequestInasistencia}
         overrideEstado={historyData.paginatedData.items.find((item) => item.id === selectedTutorialId)?.estado}
       />
     </section>
