@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { BookOpen, CheckCircle2, Clock3, Link2, MapPin, MessageSquare, Monitor, Star, UserRound, X } from 'lucide-react';
+import { BookOpen, CheckCircle2, Clock3, Link2, MapPin, MessageSquare, Monitor, Star, UserRound, X, XCircle } from 'lucide-react';
 import { getDetalleTutoriaAction } from '@/actions/tutorials/getDetalleTutoriaAction';
 import { TutorialDetailDto, TutorialEstado } from '@/interfaces/tutorial/tutorial';
 
@@ -10,10 +10,11 @@ interface TutorialDetailModalProps {
   readonly isOpen: boolean;
   readonly onClose: () => void;
   readonly onComplete: (id: string) => Promise<void>;
+  readonly onReportInasistencia?: (id: string) => void;
   readonly overrideEstado?: TutorialEstado;
 }
 
-export function TutorialDetailModal({ tutorialId, isOpen, onClose, onComplete, overrideEstado }: TutorialDetailModalProps) {
+export function TutorialDetailModal({ tutorialId, isOpen, onClose, onComplete, onReportInasistencia, overrideEstado }: TutorialDetailModalProps) {
   const [detail, setDetail] = useState<TutorialDetailDto | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
@@ -70,6 +71,7 @@ export function TutorialDetailModal({ tutorialId, isOpen, onClose, onComplete, o
 
   const currentEstado = overrideEstado ?? detail?.estado;
   const isCompletada = currentEstado === 'Completada';
+  const isInasistencia = currentEstado === 'Inasistencia';
   const showActionButtons = currentEstado === 'SIN_CONFIRMAR';
   const ratingValue = detail?.studentRating ?? 0;
   const fullStars = Math.round(ratingValue);
@@ -185,31 +187,53 @@ export function TutorialDetailModal({ tutorialId, isOpen, onClose, onComplete, o
                   </span>
                 </div>
               )}
+
+              {isInasistencia && (
+                <div className="flex items-center gap-2 pt-1">
+                  <span className="text-[14px] font-medium text-[#5f738f]">Estado:</span>
+                  <span className="inline-flex items-center gap-1 rounded-full border border-[#e53935] bg-[#fef2f2] px-3 py-1 text-[13px] font-medium text-[#e53935]">
+                    <XCircle size={14} />
+                    Inasistencia
+                  </span>
+                </div>
+              )}
             </>
           )}
         </div>
 
         <footer className="flex items-center justify-end gap-3 border-t border-[#e8edf4] px-5 py-3">
           {detail && showActionButtons && (
-            <button
-              type="button"
-              disabled={isCompleting}
-              onClick={async () => {
-                setIsCompleting(true);
-                try {
-                  await onComplete(detail.id);
-                  onClose();
-                } finally {
-                  setIsCompleting(false);
-                }
-              }}
-              className="inline-flex items-center rounded-[7px] border border-[#4cbf78] px-3 py-1 text-[13px] font-semibold text-[#1d9954] transition-colors hover:bg-[#2fa964] hover:text-white"
+            <>
+              <button
+                type="button"
+                disabled={isCompleting}
+                onClick={async () => {
+                  setIsCompleting(true);
+                  try {
+                    await onComplete(detail.id);
+                    onClose();
+                  } finally {
+                    setIsCompleting(false);
+                  }
+                }}
+                className="inline-flex items-center rounded-[7px] border border-[#4cbf78] px-3 py-1 text-[13px] font-semibold text-[#1d9954] transition-colors hover:bg-[#2fa964] hover:text-white"
                 >
-                  <span className='flex gap-1 items-center justify-center'>
+                  <span className="flex items-center justify-center gap-1">
                   <CheckCircle2 size={14} />
                   Completada
                   </span>
-                </button>
+              </button>
+              <button
+                type="button"
+                onClick={() => onReportInasistencia?.(detail.id)}
+                className="inline-flex items-center rounded-[7px] border border-[#e53935] px-3 py-1 text-[13px] font-semibold text-[#e53935] transition-colors hover:bg-[#fef2f2]"
+              >
+                <span className="flex items-center justify-center gap-1">
+                  <XCircle size={14} />
+                  Inasistencia
+                </span>
+              </button>
+            </>
           )}
 
           <button

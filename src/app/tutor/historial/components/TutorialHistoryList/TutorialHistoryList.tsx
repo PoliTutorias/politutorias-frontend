@@ -7,9 +7,10 @@ interface TutorialHistoryListProps {
   readonly items: TutorialHistoryItemDto[];
   readonly onCardClick: (id: string) => void;
   readonly onComplete: (id: string) => Promise<void>;
+  readonly onReportInasistencia?: (id: string) => void;
 }
 
-export function TutorialHistoryList({ items, onCardClick, onComplete }: TutorialHistoryListProps) {
+export function TutorialHistoryList({ items, onCardClick, onComplete, onReportInasistencia }: TutorialHistoryListProps) {
   if (items.length === 0) {
     return (
       <div className="rounded-xl border border-[#e4e9f0] bg-white px-4 py-4 text-[13px] text-[#6f8199]">
@@ -26,6 +27,7 @@ export function TutorialHistoryList({ items, onCardClick, onComplete }: Tutorial
           tutorial={tutorial}
           onClick={onCardClick}
           onComplete={onComplete}
+          onReportInasistencia={onReportInasistencia}
         />
       ))}
     </section>
