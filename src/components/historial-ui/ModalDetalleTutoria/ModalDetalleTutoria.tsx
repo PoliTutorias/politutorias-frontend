@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Image from 'next/image';
-import { FiX, FiBookOpen, FiCalendar, FiClock, FiMonitor, FiMessageSquare, FiCheckCircle, FiAlertCircle } from 'react-icons/fi';
+import { FiX, FiBookOpen, FiCalendar, FiClock, FiMonitor, FiMessageSquare } from 'react-icons/fi';
+import { CheckCircle2, XCircle } from 'lucide-react';
 import { fetchDetalleAction } from '@/actions/historial/tutoriaActions';
 import type { TutoriaDetalleDTO } from '@/interfaces/historial/HistorialTypes';
 
@@ -112,13 +112,9 @@ export function ModalDetalleTutoria({ tutoriaId, isOpen, onClose }: ModalDetalle
               {/* Tutor info */}
               <section className="rounded-xl bg-[#edf2f7] px-4 py-3">
                 <div className="flex items-center gap-3">
-                  <Image
-                    src={tutoriaDetalle.tutor.fotoUrl}
-                    alt={`Foto de ${tutoriaDetalle.tutor.nombre} ${tutoriaDetalle.tutor.apellido}`}
-                    width={48}
-                    height={48}
-                    className="h-12 w-12 rounded-full object-cover"
-                  />
+                  <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#152c53] text-base font-semibold text-white">
+                    {(tutoriaDetalle.tutor.nombre[0] ?? '').toUpperCase()}{(tutoriaDetalle.tutor.apellido[0] ?? '').toUpperCase()}
+                  </span>
                   <div>
                     <p className="text-xl font-bold text-primary">
                       {tutoriaDetalle.tutor.nombre} {tutoriaDetalle.tutor.apellido}
@@ -195,13 +191,13 @@ export function ModalDetalleTutoria({ tutoriaId, isOpen, onClose }: ModalDetalle
               <div className="flex items-center gap-2 pt-1">
                 <span className="text-sm font-semibold text-primary">Estado:</span>
                 {tutoriaDetalle.estado === 'COMPLETADA' ? (
-                  <span className="inline-flex items-center gap-1 rounded-full border border-[#43a047] px-3 py-1 text-xs font-semibold text-[#43a047]">
-                    <FiCheckCircle size={14} />
+                  <span className="inline-flex items-center gap-1 rounded-full border border-[#43a047] bg-[#f0fdf4] px-3 py-1 text-xs font-semibold text-[#43a047]">
+                    <CheckCircle2 size={14} />
                     Completada
                   </span>
                 ) : (
-                  <span className="inline-flex items-center gap-1 rounded-full border border-[#e53935] px-3 py-1 text-xs font-semibold text-[#e53935]">
-                    <FiAlertCircle size={14} />
+                  <span className="inline-flex items-center gap-1 rounded-full border border-[#e53935] bg-[#fef2f2] px-3 py-1 text-xs font-semibold text-[#e53935] transition-colors hover:bg-[#fee2e2]">
+                    <XCircle size={14} />
                     Inasistencia
                   </span>
                 )}
@@ -212,7 +208,7 @@ export function ModalDetalleTutoria({ tutoriaId, isOpen, onClose }: ModalDetalle
 
         {/* Footer con botón Cerrar */}
         {!isLoading && tutoriaDetalle && (
-          <footer className="flex justify-center border-t border-[#eef2f7] px-6 py-4">
+          <footer className="flex justify-end border-t border-[#eef2f7] px-6 py-4">
             <button
               type="button"
               onClick={onClose}

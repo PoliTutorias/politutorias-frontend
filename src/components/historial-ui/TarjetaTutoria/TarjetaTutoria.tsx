@@ -1,13 +1,17 @@
 'use client';
 
-import Image from 'next/image';
-import { FiClock, FiCheckCircle, FiAlertCircle } from 'react-icons/fi';
+import { FiClock } from 'react-icons/fi';
+import { CheckCircle2, XCircle } from 'lucide-react';
 import clsx from 'clsx';
 import type { TutoriaHistorialListDTO } from '@/interfaces/historial/HistorialTypes';
 
 interface TarjetaTutoriaProps {
   readonly tutoria: TutoriaHistorialListDTO;
   readonly onSelectTutoria: (tutoriaId: string) => void;
+}
+
+function getInitials(nombre: string, apellido: string): string {
+  return `${(nombre[0] ?? '').toUpperCase()}${(apellido[0] ?? '').toUpperCase()}`;
 }
 
 function formatFechaHora(fecha: string, hora: string): string {
@@ -31,18 +35,14 @@ export function TarjetaTutoria({ tutoria, onSelectTutoria }: TarjetaTutoriaProps
         {/* Barra lateral de color */}
         <div
           className={clsx(
-            'mt-1 w-1 self-stretch rounded-full',
+            'mt-1 w-[3px] self-stretch rounded-full',
             isCompletada ? 'bg-[#43a047]' : 'bg-[#e53935]',
           )}
         />
 
-        <Image
-          src={tutoria.tutor.fotoUrl}
-          alt={`Foto de ${tutoria.tutor.nombre} ${tutoria.tutor.apellido}`}
-          width={48}
-          height={48}
-          className="h-12 w-12 rounded-full object-cover"
-        />
+        <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#152c53] text-base font-semibold text-white">
+          {getInitials(tutoria.tutor.nombre, tutoria.tutor.apellido)}
+        </span>
 
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-3">
@@ -55,13 +55,13 @@ export function TarjetaTutoria({ tutoria, onSelectTutoria }: TarjetaTutoriaProps
 
             {/* Etiqueta de estado */}
             {isCompletada ? (
-              <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-[#43a047] px-3 py-1 text-xs font-semibold text-[#43a047]">
-                <FiCheckCircle size={14} />
+              <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-[#43a047] bg-[#f0fdf4] px-3 py-1 text-xs font-semibold text-[#43a047]">
+                <CheckCircle2 size={14} />
                 Completada
               </span>
             ) : (
-              <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-[#e53935] px-3 py-1 text-xs font-semibold text-[#e53935]">
-                <FiAlertCircle size={14} />
+              <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-[#e53935] bg-[#fef2f2] px-3 py-1 text-xs font-semibold text-[#e53935] transition-colors hover:bg-[#fee2e2]">
+                <XCircle size={14} />
                 Inasistencia
               </span>
             )}
