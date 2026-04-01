@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { FiClock, FiCheckCircle } from 'react-icons/fi';
+import { FiClock, FiCheckCircle, FiAlertCircle } from 'react-icons/fi';
 import clsx from 'clsx';
 import type { TutoriaHistorialListDTO } from '@/interfaces/historial/HistorialTypes';
 
@@ -49,10 +49,15 @@ export function TarjetaTutoria({ tutoria }: TarjetaTutoriaProps) {
             </div>
 
             {/* Etiqueta de estado */}
-            {isCompletada && (
+            {isCompletada ? (
               <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-[#43a047] px-3 py-1 text-xs font-semibold text-[#43a047]">
                 <FiCheckCircle size={14} />
                 Completada
+              </span>
+            ) : (
+              <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-[#e53935] px-3 py-1 text-xs font-semibold text-[#e53935]">
+                <FiAlertCircle size={14} />
+                Inasistencia
               </span>
             )}
           </div>
@@ -63,6 +68,12 @@ export function TarjetaTutoria({ tutoria }: TarjetaTutoriaProps) {
               {formatFechaHora(tutoria.fecha, tutoria.hora)}
             </span>
           </div>
+
+          {!isCompletada && (
+            <div className="mt-3 rounded-lg border border-[#e53935] bg-[#fef2f2] px-4 py-3 text-sm text-[#e53935]">
+              El tutor reportó inasistencia para esta sesión.
+            </div>
+          )}
         </div>
       </div>
     </div>
