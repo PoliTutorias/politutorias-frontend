@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
-import { FiX, FiBookOpen, FiCalendar, FiClock, FiMonitor, FiMessageSquare } from 'react-icons/fi';
+import { FiX, FiBookOpen, FiCalendar, FiClock, FiMonitor, FiMessageSquare, FiCheckCircle, FiAlertCircle } from 'react-icons/fi';
 import { fetchDetalleAction } from '@/actions/historial/tutoriaActions';
 import type { TutoriaDetalleDTO } from '@/interfaces/historial/HistorialTypes';
 
@@ -184,6 +184,22 @@ export function ModalDetalleTutoria({ tutoriaId, isOpen, onClose }: ModalDetalle
                   </p>
                 </section>
               )}
+
+              {/* Etiqueta de estado */}
+              <div className="flex items-center gap-2 pt-1">
+                <span className="text-sm font-semibold text-primary">Estado:</span>
+                {tutoriaDetalle.estado === 'COMPLETADA' ? (
+                  <span className="inline-flex items-center gap-1 rounded-full border border-[#43a047] px-3 py-1 text-xs font-semibold text-[#43a047]">
+                    <FiCheckCircle size={14} />
+                    Completada
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 rounded-full border border-[#e53935] px-3 py-1 text-xs font-semibold text-[#e53935]">
+                    <FiAlertCircle size={14} />
+                    Inasistencia
+                  </span>
+                )}
+              </div>
             </>
           )}
         </div>
