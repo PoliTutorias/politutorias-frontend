@@ -7,6 +7,7 @@ import type { TutoriaHistorialListDTO } from '@/interfaces/historial/HistorialTy
 
 interface TarjetaTutoriaProps {
   readonly tutoria: TutoriaHistorialListDTO;
+  readonly onSelectTutoria: (tutoriaId: string) => void;
 }
 
 function formatFechaHora(fecha: string, hora: string): string {
@@ -17,11 +18,15 @@ function formatFechaHora(fecha: string, hora: string): string {
   return `${day} de ${month} de ${year} a las ${hora}`;
 }
 
-export function TarjetaTutoria({ tutoria }: TarjetaTutoriaProps) {
+export function TarjetaTutoria({ tutoria, onSelectTutoria }: TarjetaTutoriaProps) {
   const isCompletada = tutoria.estado === 'COMPLETADA';
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <button
+      type="button"
+      onClick={() => onSelectTutoria(tutoria.id)}
+      className="w-full cursor-pointer rounded-2xl border border-slate-200 bg-white p-5 text-left shadow-sm transition-shadow hover:shadow-md"
+    >
       <div className="flex items-start gap-3">
         {/* Barra lateral de color */}
         <div
@@ -76,6 +81,6 @@ export function TarjetaTutoria({ tutoria }: TarjetaTutoriaProps) {
           )}
         </div>
       </div>
-    </div>
+    </button>
   );
 }
