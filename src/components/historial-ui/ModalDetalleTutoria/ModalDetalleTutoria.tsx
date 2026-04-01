@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { FiX } from 'react-icons/fi';
+import Image from 'next/image';
+import { FiX, FiBookOpen, FiCalendar, FiClock, FiMonitor, FiMessageSquare } from 'react-icons/fi';
 import { fetchDetalleAction } from '@/actions/historial/tutoriaActions';
 import type { TutoriaDetalleDTO } from '@/interfaces/historial/HistorialTypes';
 
@@ -9,6 +10,14 @@ interface ModalDetalleTutoriaProps {
   readonly tutoriaId: string | null;
   readonly isOpen: boolean;
   readonly onClose: () => void;
+}
+
+function formatDate(fecha: string): string {
+  const date = new Date(fecha);
+  const day = date.getUTCDate();
+  const month = date.toLocaleDateString('es-EC', { month: 'long', timeZone: 'UTC' });
+  const year = date.getUTCFullYear();
+  return `${day} de ${month} de ${year}`;
 }
 
 export function ModalDetalleTutoria({ tutoriaId, isOpen, onClose }: ModalDetalleTutoriaProps) {
@@ -79,7 +88,7 @@ export function ModalDetalleTutoria({ tutoriaId, isOpen, onClose }: ModalDetalle
         </header>
 
         {/* Content */}
-        <div className="px-6 py-5">
+        <div className="space-y-3 px-6 py-5">
           {isLoading && (
             <div className="rounded-xl border border-[#e6ecf3] bg-[#f8fbff] px-4 py-3 text-sm text-[#5f6f83]">
               Cargando detalles de la tutoría...
@@ -90,6 +99,92 @@ export function ModalDetalleTutoria({ tutoriaId, isOpen, onClose }: ModalDetalle
             <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
               No se encontraron detalles para esta tutoría.
             </div>
+          )}
+
+          {!isLoading && tutoriaDetalle && (
+            <>
+              {/* Tutor info */}
+              <section className="rounded-xl bg-[#edf2f7] px-4 py-3">
+                <div className="flex items-center gap-3">
+                  <Image
+                    src={tutoriaDetalle.tutor.fotoUrl}
+                    alt={`Foto de ${tutoriaDetalle.tutor.nombre} ${tutoriaDetalle.tutor.apellido}`}
+                    width={48}
+                    height={48}
+                    className="h-12 w-12 rounded-full object-cover"
+                  />
+                  <div>
+                    <p className="text-xl font-bold text-primary">
+                      {tutoriaDetalle.tutor.nombre} {tutoriaDetalle.tutor.apellido}
+                    </p>
+                    <p className="text-sm text-[#7890a8]">Tutor</p>
+                  </div>
+                </div>
+              </section>
+
+              {/* Materia, fecha, hora, modalidad, precio */}
+              <section className="rounded-xl border border-[#e6ecf3] bg-white p-4">
+                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-primary">
+                  <FiBookOpen size={14} className="text-[#f0aa31]" />
+                  <span>{tutoriaDetalle.materia}</span>
+                </div>
+
+                <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-[#536b86]">
+                  <span className="inline-flex items-center gap-1.5">
+                    <FiCalendar size={14} className="text-[#7c8ea5]" />
+                    {formatDate(tutoriaDetalle.fecha)}
+                  </span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <FiClock size={14} className="text-[#7c8ea5]" />
+                    {tutoriaDetalle.hora}
+                  </span>
+                </div>
+
+                <div className="mt-3 flex items-center justify-between text-sm">
+                  <span className="inline-flex items-center gap-1.5 text-[#536b86]">
+                    <FiMonitor size={14} className="text-[#7c8ea5]" />
+                    {tutoriaDetalle.modalidad}
+                  </span>
+                  <span className="font-bold text-primary">${tutoriaDetalle.precioPorHora}/h</span>
+                </div>
+              </section>
+
+              {/* Información de reunión */}
+              <section className="rounded-xl border border-[#e6ecf3] border-l-2 border-l-[#f0aa31] bg-[#f9fbff] p-4">
+                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-primary">
+                  <span>INFORMACIÓN DE REUNIÓN</span>
+                </div>
+                {tutoriaDetalle.modalidad === 'Virtual' && tutoriaDetalle.enlaceReunion ? (
+                  <a
+                    href={tutoriaDetalle.enlaceReunion}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-2 inline-block break-all text-sm text-[#2f6cc9] underline decoration-transparent transition-colors hover:decoration-[#2f6cc9]"
+                  >
+                    {tutoriaDetalle.enlaceReunion}
+                  </a>
+                ) : tutoriaDetalle.modalidad === 'Presencial' && tutoriaDetalle.ubicacion ? (
+                  <p className="mt-2 text-sm text-[#4f5f73]">{tutoriaDetalle.ubicacion}</p>
+                ) : (
+                  <p className="mt-2 text-sm italic text-[#9fadbf]">
+                    No se registró enlace ni lugar para esta sesión.
+                  </p>
+                )}
+              </section>
+
+              {/* Mensaje del estudiante */}
+              {tutoriaDetalle.mensajeEstudiante && (
+                <section className="rounded-xl border border-[#e6ecf3] border-l-2 border-l-[#f0aa31] bg-[#f9fbff] p-4">
+                  <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-primary">
+                    <FiMessageSquare size={13} />
+                    <span>TU MENSAJE</span>
+                  </div>
+                  <p className="mt-2 text-sm italic text-[#4f5f73]">
+                    &ldquo;{tutoriaDetalle.mensajeEstudiante}&rdquo;
+                  </p>
+                </section>
+              )}
+            </>
           )}
         </div>
       </div>
