@@ -1,21 +1,22 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { BookOpen, CheckCircle2, Clock3, Link2, MapPin, MessageSquare, Monitor, UserRound, X, XCircle } from 'lucide-react';
-import { getTutorialDetailAction } from '@/actions/tutorials/getTutorialDetailAction';
+import { BookOpen, CheckCircle2, Clock3, Link2, MapPin, MessageSquare, Monitor, Star, UserRound, X } from 'lucide-react';
+import { getDetalleTutoriaAction } from '@/actions/tutorials/getDetalleTutoriaAction';
 import { TutorialDetailDto, TutorialEstado } from '@/interfaces/tutorial/tutorial';
 
 interface TutorialDetailModalProps {
   readonly tutorialId: string | null;
   readonly isOpen: boolean;
   readonly onClose: () => void;
-  readonly onReportInasistencia?: (id: string) => void;
+  readonly onComplete: (id: string) => Promise<void>;
   readonly overrideEstado?: TutorialEstado;
 }
 
-export function TutorialDetailModal({ tutorialId, isOpen, onClose, onReportInasistencia, overrideEstado }: TutorialDetailModalProps) {
+export function TutorialDetailModal({ tutorialId, isOpen, onClose, onComplete, overrideEstado }: TutorialDetailModalProps) {
   const [detail, setDetail] = useState<TutorialDetailDto | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isCompleting, setIsCompleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -33,7 +34,7 @@ export function TutorialDetailModal({ tutorialId, isOpen, onClose, onReportInasi
       setError(null);
 
       try {
-        const result = await getTutorialDetailAction(tutorialId);
+        const result = await getDetalleTutoriaAction(tutorialId);
 
         if (!mounted) {
           return;
@@ -68,8 +69,10 @@ export function TutorialDetailModal({ tutorialId, isOpen, onClose, onReportInasi
   }
 
   const currentEstado = overrideEstado ?? detail?.estado;
-  const isInasistencia = currentEstado === 'inasistencia';
-  const showActionButtons = currentEstado === 'sin confirmar' || currentEstado === 'pendiente';
+  const isCompletada = currentEstado === 'Completada';
+  const showActionButtons = currentEstado === 'SIN_CONFIRMAR';
+  const ratingValue = detail?.studentRating ?? 0;
+  const fullStars = Math.round(ratingValue);
 
   return (
     <dialog
@@ -160,12 +163,25 @@ export function TutorialDetailModal({ tutorialId, isOpen, onClose, onReportInasi
                 <p className="mt-1 text-[13px] text-[#4f637f]">{detail.message}</p>
               </section>
 
-              {isInasistencia && (
+              {isCompletada && detail.studentRating != null && detail.studentComment != null && (
+                <section className="rounded-lg border border-[#e4e9f0] bg-[#f9fbff] px-3 py-3">
+                  <p className="text-[12px] font-bold text-[#1f2b3d]">CALIFICACION DEL ESTUDIANTE</p>
+                  <div className="mt-1 flex items-center gap-1 text-[#ce9a2f]">
+                    {Array.from({ length: 5 }).map((_, index) => (
+                      <Star key={`star-${index + 1}`} size={16} fill={index < fullStars ? 'currentColor' : 'none'} />
+                    ))}
+                    <span className="ml-1 text-[12px] font-semibold text-[#4f637f]">{detail.studentRating.toFixed(1)}/5</span>
+                  </div>
+                  <p className="mt-2 text-[13px] text-[#4f637f]">{detail.studentComment}</p>
+                </section>
+              )}
+
+              {isCompletada && (
                 <div className="flex items-center gap-2 pt-1">
                   <span className="text-[14px] font-medium text-[#5f738f]">Estado:</span>
-                  <span className="inline-flex items-center gap-1 rounded-full border border-[#e53935] bg-[#fef2f2] px-3 py-1 text-[13px] font-medium text-[#e53935]">
-                    <XCircle size={14} />
-                    Inasistencia
+                  <span className="inline-flex items-center gap-1 rounded-full border border-[#86d9a4] bg-[#e8f8ee] px-3 py-1 text-[13px] font-medium text-[#2f8f56]">
+                    <CheckCircle2 size={14} />
+                    Completada
                   </span>
                 </div>
               )}
@@ -175,20 +191,25 @@ export function TutorialDetailModal({ tutorialId, isOpen, onClose, onReportInasi
 
         <footer className="flex items-center justify-end gap-3 border-t border-[#e8edf4] px-5 py-3">
           {detail && showActionButtons && (
-            <>
-              <span className="inline-flex items-center gap-1 rounded-lg border border-[#43a047] px-3 py-1.5 text-[13px] font-medium text-[#43a047]">
-                <CheckCircle2 size={14} />
-                Completada
-              </span>
-              <button
-                type="button"
-                onClick={() => onReportInasistencia?.(detail.id)}
-                className="inline-flex cursor-pointer items-center gap-1 rounded-lg border border-[#e53935] px-3 py-1.5 text-[13px] font-medium text-[#e53935] transition-colors hover:bg-[#fef2f2]"
-              >
-                <XCircle size={14} />
-                Inasistencia
-              </button>
-            </>
+            <button
+              type="button"
+              disabled={isCompleting}
+              onClick={async () => {
+                setIsCompleting(true);
+                try {
+                  await onComplete(detail.id);
+                  onClose();
+                } finally {
+                  setIsCompleting(false);
+                }
+              }}
+              className="inline-flex items-center rounded-[7px] border border-[#4cbf78] px-3 py-1 text-[13px] font-semibold text-[#1d9954] transition-colors hover:bg-[#2fa964] hover:text-white"
+                >
+                  <span className='flex gap-1 items-center justify-center'>
+                  <CheckCircle2 size={14} />
+                  Completada
+                  </span>
+                </button>
           )}
 
           <button

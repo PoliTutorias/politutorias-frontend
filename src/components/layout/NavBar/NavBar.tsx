@@ -8,7 +8,7 @@ import { useAuthStore } from '@/lib/stores/authStore';
 import { logoutAction } from '@/actions/auth/authActions';
 
 type TutorNavItem = {
-  key: 'panel' | 'bandeja' | 'agenda';
+  key: 'panel' | 'bandeja' | 'agenda' | 'historial';
   label: string;
   href?: string;
 };
@@ -21,6 +21,8 @@ interface TutorNavBarProps {
 const NAV_ITEMS: TutorNavItem[] = [
   { key: 'panel', label: 'Panel', href: '/dashboard/tutor' },
   { key: 'bandeja', label: 'Bandeja', href: '/bandeja' },
+  { key: 'agenda', label: 'Mi Agenda', href: '/tutor/agenda' },
+  { key: 'historial', label: 'Historial', href: '/tutor/historial' },
 ];
 
 export function NavBar({ activeItem, userName }: TutorNavBarProps) {

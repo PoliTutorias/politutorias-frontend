@@ -13,6 +13,18 @@ type BackendHistoryItem = {
   time?: string;
 };
 
+function mapEstado(status: string): TutorialEstado {
+  const normalized = (status || '').toLowerCase().trim();
+
+  if (normalized === 'sin confirmar' || normalized === 'sin_confirmar') return 'SIN_CONFIRMAR';
+  if (normalized === 'completada' || normalized === 'completed') return 'Completada';
+  if (normalized === 'inasistencia') return 'Inasistencia';
+  if (normalized === 'pendiente') return 'Pendiente';
+  if (normalized === 'cancelada') return 'Cancelada';
+
+  return 'SIN_CONFIRMAR';
+}
+
 type BackendHistoryResponse = {
   summary: {
     totalCompleted: number;
@@ -26,16 +38,6 @@ type BackendHistoryResponse = {
     lastPage: number;
   };
 };
-
-function mapEstado(status: string): TutorialEstado {
-  const normalized = status.toLowerCase().trim();
-  if (normalized === 'sin confirmar' || normalized === 'sin_confirmar') return 'sin confirmar';
-  if (normalized === 'pendiente') return 'pendiente';
-  if (normalized === 'inasistencia') return 'inasistencia';
-  if (normalized === 'completada') return 'completada';
-  if (normalized === 'cancelada') return 'cancelada';
-  return 'sin confirmar';
-}
 
 function toInitials(name: string): string {
   const cleaned = (name || '').trim();

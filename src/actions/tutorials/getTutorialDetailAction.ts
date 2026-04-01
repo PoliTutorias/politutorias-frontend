@@ -21,14 +21,14 @@ type BackendTutorialDetailResponse = {
 };
 
 function mapEstado(status?: string): TutorialEstado {
-  if (!status) return 'sin confirmar';
+  if (!status) return 'SIN_CONFIRMAR';
   const normalized = status.toLowerCase().trim();
-  if (normalized === 'sin confirmar' || normalized === 'sin_confirmar') return 'sin confirmar';
-  if (normalized === 'pendiente') return 'pendiente';
-  if (normalized === 'inasistencia') return 'inasistencia';
-  if (normalized === 'completada') return 'completada';
-  if (normalized === 'cancelada') return 'cancelada';
-  return 'sin confirmar';
+  if (normalized === 'sin confirmar' || normalized === 'sin_confirmar') return 'SIN_CONFIRMAR';
+  if (normalized === 'pendiente') return 'Pendiente';
+  if (normalized === 'inasistencia') return 'Inasistencia';
+  if (normalized === 'completada' || normalized === 'completed') return 'Completada';
+  if (normalized === 'cancelada') return 'Cancelada';
+  return 'SIN_CONFIRMAR';
 }
 
 function toInitials(name: string): string {

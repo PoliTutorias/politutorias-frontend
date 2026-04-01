@@ -1,18 +1,17 @@
 'use client';
 
-import { CheckCircle2, Clock3, XCircle } from 'lucide-react';
-import clsx from 'clsx';
+import { CheckCircle2, Clock3 } from 'lucide-react';
 import { TutorialHistoryItemDto } from '@/interfaces/tutorial/tutorial';
 
 interface TutorialCardProps {
   readonly tutorial: TutorialHistoryItemDto;
   readonly onClick: (id: string) => void;
-  readonly onReportInasistencia?: (id: string) => void;
+  readonly onComplete: (id: string) => Promise<void>;
 }
 
-export function TutorialCard({ tutorial, onClick, onReportInasistencia }: TutorialCardProps) {
-  const isInasistencia = tutorial.estado === 'inasistencia';
-  const showActionButtons = tutorial.estado === 'sin confirmar';
+export function TutorialCard({ tutorial, onClick, onComplete }: TutorialCardProps) {
+  const isSinConfirmar = tutorial.estado === 'SIN_CONFIRMAR';
+  const isCompletada = tutorial.estado === 'Completada';
 
   return (
     <div
@@ -20,16 +19,11 @@ export function TutorialCard({ tutorial, onClick, onReportInasistencia }: Tutori
       tabIndex={0}
       onClick={() => onClick(tutorial.id)}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onClick(tutorial.id); }}
-      className="group w-full cursor-pointer rounded-xl border border-[#e4e9f0] bg-white px-5 py-4 text-left transition-shadow hover:shadow-[0_8px_18px_rgba(31,43,61,0.08)]"
+      className="w-full cursor-pointer rounded-xl border border-[#e4e9f0] bg-white px-5 py-4 text-left transition-shadow hover:shadow-[0_8px_18px_rgba(31,43,61,0.08)]"
       aria-label={`Ver detalle de la tutoria ${tutorial.offerTitle}`}
     >
       <div className="flex items-start gap-3">
-        <div
-          className={clsx(
-            'w-0.5 self-stretch rounded-full',
-            isInasistencia ? 'bg-[#e53935]' : 'bg-[#efb047]'
-          )}
-        />
+        <div className={`w-0.5 self-stretch rounded-full ${isCompletada ? 'bg-[#33a05f]' : 'bg-[#efb047]'}`} />
 
         <span className="mt-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#152c53] text-[16px] font-semibold leading-none text-white">
           {tutorial.studentInitials}
@@ -43,30 +37,26 @@ export function TutorialCard({ tutorial, onClick, onReportInasistencia }: Tutori
             </div>
 
             <div className="flex shrink-0 items-center gap-2">
-              {showActionButtons && (
-                <>
-                  <span className="inline-flex items-center gap-1 rounded-lg border border-[#43a047] px-3 py-1.5 text-[13px] font-medium text-[#43a047]">
-                    <CheckCircle2 size={14} />
-                    Completada
+              {isSinConfirmar && (
+                <button
+                  type="button"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    void onComplete(tutorial.id);
+                  }}
+                  className="inline-flex items-center rounded-[7px] border border-[#4cbf78] px-3 py-1 text-[13px] font-semibold text-[#1d9954] transition-colors hover:bg-[#2fa964] hover:text-white"
+                >
+                  <span className='flex gap-1 items-center justify-center'>
+                  <CheckCircle2 size={14} />
+                  Completada
                   </span>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onReportInasistencia?.(tutorial.id);
-                    }}
-                    className="inline-flex cursor-pointer items-center gap-1 rounded-lg border border-[#e53935] px-3 py-1.5 text-[13px] font-medium text-[#e53935] transition-colors hover:bg-[#fef2f2]"
-                  >
-                    <XCircle size={14} />
-                    Inasistencia
-                  </button>
-                </>
+                </button>
               )}
 
-              {isInasistencia && (
-                <span className="inline-flex items-center gap-1 rounded-full border border-[#e53935] bg-[#fef2f2] px-3 py-1.5 text-[13px] font-medium text-[#e53935]">
-                  <XCircle size={14} />
-                  Inasistencia
+              {isCompletada && (
+                <span className="pointer-events-none inline-flex select-none items-center gap-1 rounded-full border border-[#86d9a4] bg-[#e8f8ee] px-2 py-1 text-[13px] font-semibold text-[#2f8f56]">
+                  <CheckCircle2 size={14} />
+                  Completada
                 </span>
               )}
             </div>

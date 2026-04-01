@@ -1,4 +1,4 @@
-export type TutorialEstado = 'sin confirmar' | 'pendiente' | 'inasistencia' | 'completada' | 'cancelada';
+export type TutorialEstado = 'SIN_CONFIRMAR' | 'Completada' | 'Inasistencia' | 'Pendiente' | 'Cancelada';
 
 export interface TutorialSummaryDto {
   completedTutorials: number;
@@ -42,4 +42,6 @@ export interface TutorialDetailDto {
   locationOrLink: string;
   message: string;
   estado: TutorialEstado;
+  studentRating?: number | null;
+  studentComment?: string | null;
 }
