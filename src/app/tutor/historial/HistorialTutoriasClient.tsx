@@ -11,6 +11,7 @@ import { MetricCardsDisplay } from '@/app/tutor/historial/components/MetricCards
 import { TutorialHistoryList } from '@/app/tutor/historial/components/TutorialHistoryList/TutorialHistoryList';
 import { PaginationControls } from '@/components/common/PaginationControls/PaginationControls';
 import { TutorialDetailModal } from '@/app/tutor/historial/components/TutorialDetailModal/TutorialDetailModal';
+import { ConfirmModal } from '@/components/ui/confirm-modal/ConfirmModal';
 
 const ITEMS_PER_PAGE = 5;
 
@@ -192,6 +193,17 @@ export function HistorialTutoriasClient({ initialHistory }: HistorialTutoriasCli
         onComplete={handleCompletarTutoria}
         onReportInasistencia={handleRequestInasistencia}
         overrideEstado={historyData.paginatedData.items.find((item) => item.id === selectedTutorialId)?.estado}
+      />
+
+      <ConfirmModal
+        isOpen={isConfirmModalOpen}
+        title="Confirmar Inasistencia"
+        message="Esta acción marcará la tutoría como inasistencia del estudiante. Esta acción no se puede deshacer."
+        confirmLabel="Sí, reportar inasistencia"
+        cancelLabel="Cancelar"
+        onConfirm={handleConfirmInasistencia}
+        onCancel={handleCancelConfirm}
+        isLoading={isReporting}
       />
     </section>
   );
