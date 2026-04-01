@@ -203,6 +203,19 @@ export function ModalDetalleTutoria({ tutoriaId, isOpen, onClose }: ModalDetalle
             </>
           )}
         </div>
+
+        {/* Footer con botón Cerrar */}
+        {!isLoading && tutoriaDetalle && (
+          <footer className="flex justify-center border-t border-[#eef2f7] px-6 py-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-lg px-6 py-2 text-sm font-semibold text-[#64748b] transition-colors hover:bg-slate-100"
+            >
+              Cerrar
+            </button>
+          </footer>
+        )}
       </div>
     </dialog>
   );
