@@ -18,6 +18,7 @@ export function ModalDetalleTutoria({ tutoriaId, isOpen, onClose }: ModalDetalle
       open
       className="fixed inset-0 z-50 m-0 flex h-screen w-screen items-center justify-center bg-[rgba(15,23,42,0.34)] px-4"
       aria-label="Detalle de la Tutoría"
+      onClick={onClose}
     >
       <div
         className="w-full max-w-lg rounded-2xl bg-white shadow-[0_20px_80px_rgba(15,23,42,0.35)]"
