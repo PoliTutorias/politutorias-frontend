@@ -126,7 +126,7 @@ export function TarjetaTutoria({
               </div>
               {tutoria.resena.comentario && (
                 <p className="mt-2 text-sm text-[#64748b]">
-                  "{tutoria.resena.comentario}"
+                  &ldquo;{tutoria.resena.comentario}&rdquo;
                 </p>
               )}
             </div>

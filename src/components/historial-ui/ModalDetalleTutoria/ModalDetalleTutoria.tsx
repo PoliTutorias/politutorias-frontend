@@ -244,82 +244,8 @@ export function ModalDetalleTutoria({
               className={`rounded-lg px-6 py-2 text-sm font-semibold transition-colors ${
                 canCalificar
                   ? 'text-[#64748b] hover:bg-slate-100'
-                  : 'float-right text-[#64748b] hover:bg-slate-100'
+                  : 'text-[#64748b] hover:bg-slate-100'
               }`}
-            >
-              Cerrar
-            </button>
-          </footer>
-        )}
-      </div>
-    </dialog>
-  );
-}
-                </div>
-              </section>
-
-              {/* Información de reunión */}
-              <section className="rounded-xl border border-[#e6ecf3] border-l-2 border-l-[#f0aa31] bg-[#f9fbff] p-4">
-                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-primary">
-                  <span>INFORMACIÓN DE REUNIÓN</span>
-                </div>
-                {tutoriaDetalle.modalidad === 'Virtual' && tutoriaDetalle.enlaceReunion ? (
-                  <a
-                    href={tutoriaDetalle.enlaceReunion}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-2 inline-block break-all text-sm text-[#2f6cc9] underline decoration-transparent transition-colors hover:decoration-[#2f6cc9]"
-                  >
-                    {tutoriaDetalle.enlaceReunion}
-                  </a>
-                ) : tutoriaDetalle.modalidad === 'Presencial' && tutoriaDetalle.ubicacion ? (
-                  <p className="mt-2 text-sm text-[#4f5f73]">{tutoriaDetalle.ubicacion}</p>
-                ) : (
-                  <p className="mt-2 text-sm italic text-[#9fadbf]">
-                    No se registró enlace ni lugar para esta sesión.
-                  </p>
-                )}
-              </section>
-
-              {/* Mensaje del estudiante */}
-              {tutoriaDetalle.mensajeEstudiante && (
-                <section className="rounded-xl border border-[#e6ecf3] border-l-2 border-l-[#f0aa31] bg-[#f9fbff] p-4">
-                  <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-primary">
-                    <FiMessageSquare size={13} />
-                    <span>TU MENSAJE</span>
-                  </div>
-                  <p className="mt-2 text-sm italic text-[#4f5f73]">
-                    &ldquo;{tutoriaDetalle.mensajeEstudiante}&rdquo;
-                  </p>
-                </section>
-              )}
-
-              {/* Etiqueta de estado */}
-              <div className="flex items-center gap-2 pt-1">
-                <span className="text-sm font-semibold text-primary">Estado:</span>
-                {tutoriaDetalle.estado === 'COMPLETADA' ? (
-                  <span className="inline-flex items-center gap-1 rounded-full border border-[#43a047] bg-[#f0fdf4] px-3 py-1 text-xs font-semibold text-[#43a047]">
-                    <CheckCircle2 size={14} />
-                    Completada
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center gap-1 rounded-full border border-[#e53935] bg-[#fef2f2] px-3 py-1 text-xs font-semibold text-[#e53935] transition-colors hover:bg-[#fee2e2]">
-                    <XCircle size={14} />
-                    Inasistencia
-                  </span>
-                )}
-              </div>
-            </>
-          )}
-        </div>
-
-        {/* Footer con botón Cerrar */}
-        {!isLoading && tutoriaDetalle && (
-          <footer className="flex justify-end border-t border-[#eef2f7] px-6 py-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded-lg px-6 py-2 text-sm font-semibold text-[#64748b] transition-colors hover:bg-slate-100"
             >
               Cerrar
             </button>
