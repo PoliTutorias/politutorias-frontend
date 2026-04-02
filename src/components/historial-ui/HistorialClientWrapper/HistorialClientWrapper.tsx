@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { toast } from 'sonner';
 import { TarjetaTutoria } from '@/components/historial-ui/TarjetaTutoria/TarjetaTutoria';
 import { PaginacionHistorial } from '@/components/historial-ui/PaginacionHistorial/PaginacionHistorial';
 import { ModalDetalleTutoria } from '@/components/historial-ui/ModalDetalleTutoria/ModalDetalleTutoria';
@@ -70,8 +71,11 @@ export function HistorialClientWrapper({
       });
 
       if (response.success) {
-        // Show success toast (will be implemented with sonner)
-        console.log(response.message);
+        // Show success toast
+        toast.success(response.message, {
+          position: 'bottom-center',
+          duration: 3500,
+        });
 
         // Update local state to reflect the review
         const updatedTutorias = tutorias.map((t) =>
@@ -87,19 +91,24 @@ export function HistorialClientWrapper({
             : t,
         );
 
-        // Re-render by updating router
-        // Also close the modal
+        // Close the modal
         handleCloseCalificarModal();
 
-        // Revalidate would happen on server but we simulate it here
+        // Refresh the page
         router.refresh();
       } else {
-        console.error(response.message);
-        // Show error toast (will be implemented with sonner)
+        // Show error toast
+        toast.error(response.message, {
+          position: 'bottom-center',
+          duration: 3500,
+        });
       }
     } catch (error) {
-      console.error('Error submitting review:', error);
-      // Show error toast
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+      toast.error(`Error al enviar la reseña: ${errorMessage}`, {
+        position: 'bottom-center',
+        duration: 3500,
+      });
     }
   };
 
