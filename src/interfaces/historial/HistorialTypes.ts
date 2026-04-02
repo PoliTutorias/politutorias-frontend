@@ -12,6 +12,7 @@ export interface TutoriaHistorialListDTO {
   fecha: string;
   hora: string;
   estado: 'COMPLETADA' | 'INASISTENCIA';
+  resena?: ResenaInfo | null;
 }
 
 export interface TutorInfo {
