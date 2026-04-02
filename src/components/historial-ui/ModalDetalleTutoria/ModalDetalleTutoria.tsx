@@ -4,12 +4,14 @@ import { useEffect, useState } from 'react';
 import { FiX, FiBookOpen, FiCalendar, FiClock, FiMonitor, FiMessageSquare } from 'react-icons/fi';
 import { CheckCircle2, XCircle } from 'lucide-react';
 import { fetchDetalleAction } from '@/actions/historial/tutoriaActions';
+import { SeccionTuResena } from '@/components/tutorias/SeccionTuResena/SeccionTuResena';
 import type { TutoriaDetalleDTO } from '@/interfaces/historial/HistorialTypes';
 
 interface ModalDetalleTutoriaProps {
   readonly tutoriaId: string | null;
   readonly isOpen: boolean;
   readonly onClose: () => void;
+  readonly onCalificar?: (tutoriaId: string) => void;
 }
 
 function formatDate(fecha: string): string {
@@ -26,7 +28,12 @@ function formatDate(fecha: string): string {
   return `${day} de ${month} de ${year}`;
 }
 
-export function ModalDetalleTutoria({ tutoriaId, isOpen, onClose }: ModalDetalleTutoriaProps) {
+export function ModalDetalleTutoria({
+  tutoriaId,
+  isOpen,
+  onClose,
+  onCalificar,
+}: ModalDetalleTutoriaProps) {
   const [tutoriaDetalle, setTutoriaDetalle] = useState<TutoriaDetalleDTO | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -64,6 +71,10 @@ export function ModalDetalleTutoria({ tutoriaId, isOpen, onClose }: ModalDetalle
       isMounted = false;
     };
   }, [isOpen, tutoriaId]);
+
+  const hasReview = !!tutoriaDetalle?.resena;
+  const isCompletada = tutoriaDetalle?.estado === 'COMPLETADA';
+  const canCalificar = isCompletada && !hasReview;
 
   if (!isOpen || !tutoriaId) {
     return null;
@@ -113,7 +124,8 @@ export function ModalDetalleTutoria({ tutoriaId, isOpen, onClose }: ModalDetalle
               <section className="rounded-xl bg-[#edf2f7] px-4 py-3">
                 <div className="flex items-center gap-3">
                   <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#152c53] text-base font-semibold text-white">
-                    {(tutoriaDetalle.tutor.nombre[0] ?? '').toUpperCase()}{(tutoriaDetalle.tutor.apellido[0] ?? '').toUpperCase()}
+                    {(tutoriaDetalle.tutor.nombre[0] ?? '').toUpperCase()}
+                    {(tutoriaDetalle.tutor.apellido[0] ?? '').toUpperCase()}
                   </span>
                   <div>
                     <p className="text-xl font-bold text-primary">
@@ -148,6 +160,101 @@ export function ModalDetalleTutoria({ tutoriaId, isOpen, onClose }: ModalDetalle
                     {tutoriaDetalle.modalidad}
                   </span>
                   <span className="font-bold text-primary">${tutoriaDetalle.precioPorHora}/h</span>
+                </div>
+              </section>
+
+              {/* Información de reunión */}
+              <section className="rounded-xl border border-[#e6ecf3] border-l-2 border-l-[#f0aa31] bg-[#f9fbff] p-4">
+                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-primary">
+                  <span>INFORMACIÓN DE REUNIÓN</span>
+                </div>
+                {tutoriaDetalle.modalidad === 'Virtual' && tutoriaDetalle.enlaceReunion ? (
+                  <a
+                    href={tutoriaDetalle.enlaceReunion}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-2 inline-block break-all text-sm text-[#2f6cc9] underline decoration-transparent transition-colors hover:decoration-[#2f6cc9]"
+                  >
+                    {tutoriaDetalle.enlaceReunion}
+                  </a>
+                ) : tutoriaDetalle.modalidad === 'Presencial' && tutoriaDetalle.ubicacion ? (
+                  <p className="mt-2 text-sm text-[#4f5f73]">{tutoriaDetalle.ubicacion}</p>
+                ) : (
+                  <p className="mt-2 text-sm italic text-[#9fadbf]">
+                    No se registró enlace ni lugar para esta sesión.
+                  </p>
+                )}
+              </section>
+
+              {/* Mensaje del estudiante */}
+              {tutoriaDetalle.mensajeEstudiante && (
+                <section className="rounded-xl border border-[#e6ecf3] border-l-2 border-l-[#f0aa31] bg-[#f9fbff] p-4">
+                  <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-primary">
+                    <FiMessageSquare size={13} />
+                    <span>TU MENSAJE</span>
+                  </div>
+                  <p className="mt-2 text-sm italic text-[#4f5f73]">
+                    &ldquo;{tutoriaDetalle.mensajeEstudiante}&rdquo;
+                  </p>
+                </section>
+              )}
+
+              {/* Etiqueta de estado */}
+              <div className="flex items-center gap-2 pt-1">
+                <span className="text-sm font-semibold text-primary">Estado:</span>
+                {tutoriaDetalle.estado === 'COMPLETADA' ? (
+                  <span className="inline-flex items-center gap-1 rounded-full border border-[#43a047] bg-[#f0fdf4] px-3 py-1 text-xs font-semibold text-[#43a047]">
+                    <CheckCircle2 size={14} />
+                    Completada
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 rounded-full border border-[#e53935] bg-[#fef2f2] px-3 py-1 text-xs font-semibold text-[#e53935] transition-colors hover:bg-[#fee2e2]">
+                    <XCircle size={14} />
+                    Inasistencia
+                  </span>
+                )}
+              </div>
+
+              {/* Tu Reseña section if review exists */}
+              {hasReview && tutoriaDetalle.resena && (
+                <SeccionTuResena
+                  rating={tutoriaDetalle.resena.calificacion}
+                  comment={tutoriaDetalle.resena.comentario}
+                />
+              )}
+            </>
+          )}
+        </div>
+
+        {/* Footer con botones */}
+        {!isLoading && tutoriaDetalle && (
+          <footer className="flex justify-between gap-3 border-t border-[#eef2f7] px-6 py-4">
+            {canCalificar && onCalificar && (
+              <button
+                type="button"
+                onClick={() => onCalificar(tutoriaId)}
+                className="rounded-lg bg-[#152c53] px-6 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#0f1f36]"
+              >
+                Calificar
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={onClose}
+              className={`rounded-lg px-6 py-2 text-sm font-semibold transition-colors ${
+                canCalificar
+                  ? 'text-[#64748b] hover:bg-slate-100'
+                  : 'float-right text-[#64748b] hover:bg-slate-100'
+              }`}
+            >
+              Cerrar
+            </button>
+          </footer>
+        )}
+      </div>
+    </dialog>
+  );
+}
                 </div>
               </section>
 
