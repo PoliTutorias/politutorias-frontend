@@ -174,7 +174,7 @@ export async function getScheduledTutoriasAction(page = 1, limit = 10): Promise<
       data: [...proximas, ...anteriores],
       totalProximas,
       currentPage: payload.currentPage ?? safePage,
-      totalPages: Math.max(pagesByProximas, payload.totalPagesAnteriores ?? 1),
+      totalPages: pagesByProximas,
     };
   } catch {
     const seedData = getScheduledTutoriasSeedData().filter((item) => item.estado === 'AGENDADA');

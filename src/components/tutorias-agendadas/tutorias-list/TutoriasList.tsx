@@ -57,12 +57,6 @@ export function TutoriasList({ tutorias, totalProximas, currentPage, totalPages 
 
   return (
     <section className="flex flex-1 flex-col">
-      <div className="mb-4 flex items-center justify-between gap-2">
-        <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-[#6d7f95]">
-          PROXIMAS ({totalProximas})
-        </h2>
-      </div>
-
       {upcomingTutorias.length === 0 ? (
         <div className="rounded-2xl border border-slate-200 bg-white px-5 py-6 text-sm text-slate-600">
           No tienes tutorias proximas agendadas por ahora.
@@ -79,7 +73,8 @@ export function TutoriasList({ tutorias, totalProximas, currentPage, totalPages 
         </div>
       )}
 
-      {totalPages > 1 && (
+      {/* ── PAGINACION ────────────────────────────────────────────── */}
+      {totalProximas > 5 && (
         <div className="mt-auto pt-6 flex items-center justify-center gap-4 text-base">
           <button
             type="button"
@@ -133,3 +128,4 @@ export function TutoriasList({ tutorias, totalProximas, currentPage, totalPages 
     </section>
   );
 }
+
