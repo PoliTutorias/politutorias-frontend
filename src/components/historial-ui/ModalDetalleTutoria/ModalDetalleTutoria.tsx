@@ -217,10 +217,13 @@ export function ModalDetalleTutoria({
 
               {/* Tu Reseña section if review exists */}
               {hasReview && tutoriaDetalle.resena && (
-                <SeccionTuResena
-                  rating={tutoriaDetalle.resena.calificacion}
-                  comment={tutoriaDetalle.resena.comentario}
-                />
+                <>
+                  <hr className="my-4 border-0 border-t border-[#dbe3ec]" />
+                  <SeccionTuResena
+                    rating={tutoriaDetalle.resena.calificacion}
+                    comment={tutoriaDetalle.resena.comentario}
+                  />
+                </>
               )}
             </>
           )}
@@ -228,7 +231,11 @@ export function ModalDetalleTutoria({
 
         {/* Footer con botones */}
         {!isLoading && tutoriaDetalle && (
-          <footer className="flex justify-between gap-3 border-t border-[#eef2f7] px-6 py-4">
+          <footer
+            className={`flex gap-3 border-t border-[#eef2f7] px-6 py-4 ${
+              canCalificar ? 'justify-between' : 'justify-end'
+            }`}
+          >
             {canCalificar && onCalificar && (
               <button
                 type="button"

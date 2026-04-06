@@ -8,6 +8,7 @@ interface StarRatingInputProps {
   onRatingChange: (rating: number) => void;
   readOnly?: boolean;
   className?: string;
+  starSize?: number;
 }
 
 export function StarRatingInput({
@@ -15,6 +16,7 @@ export function StarRatingInput({
   onRatingChange,
   readOnly = false,
   className,
+  starSize = 32,
 }: StarRatingInputProps) {
   return (
     <div className={clsx('flex gap-2', className)}>
@@ -32,7 +34,7 @@ export function StarRatingInput({
           aria-label={`Calificación${star === 1 ? '' : ' ' + star}`}
         >
           <FaStar
-            size={32}
+            size={starSize}
             className={clsx(
               'transition-colors duration-200',
               star <= rating ? 'text-amber-400' : 'text-gray-300',
