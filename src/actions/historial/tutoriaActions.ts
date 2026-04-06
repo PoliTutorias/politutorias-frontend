@@ -179,7 +179,7 @@ type BackendDetalleResponse = {
   pricePerHour: string;
   studentMessage: string;
   status: string;
-  review?: BackendReview | null;
+  resena?: BackendReview | null;
 };
 
 function parsePricePerHour(priceStr: string): number {
@@ -206,12 +206,12 @@ function mapBackendDetalle(raw: BackendDetalleResponse): TutoriaDetalleDTO {
     ubicacion: raw.location ?? null,
     mensajeEstudiante: raw.studentMessage ?? '',
     estado: normalizeStatus(raw.status),
-    ...(raw.review
+    ...(raw.resena
       ? {
           resena: {
-            calificacion: raw.review.rating,
-            comentario: raw.review.comment,
-            fechaCreacion: raw.review.createdAt,
+            calificacion: raw.resena.rating,
+            comentario: raw.resena.comment,
+            fechaCreacion: raw.resena.createdAt,
           },
         }
       : {}),
