@@ -50,6 +50,9 @@ export function HistorialClientWrapper({
   const handleOpenCalificarModal = (tutoriaId: string) => {
     const tutoria = tutorias.find((t) => t.id === tutoriaId);
     if (tutoria) {
+      // Ensure detail modal closes before opening the rating modal.
+      setIsModalOpen(false);
+      setSelectedTutoriaId(null);
       setTutoriaToCalificar(tutoria);
       setIsCalificarModalOpen(true);
     }
@@ -77,24 +80,11 @@ export function HistorialClientWrapper({
           duration: 3500,
         });
 
-        // Update local state to reflect the review
-        const updatedTutorias = tutorias.map((t) =>
-          t.id === tutoriaToCalificar.id
-            ? {
-                ...t,
-                resena: {
-                  calificacion: data.rating,
-                  comentario: data.comment || '',
-                  fechaCreacion: new Date().toISOString(),
-                },
-              }
-            : t,
-        );
-
-        // Close the modal
+        // Close both modals and clear selection so stale detail does not persist underneath.
+        handleCloseModal();
         handleCloseCalificarModal();
 
-        // Refresh the page
+        // Refresh server data so card/detail states reflect the new review.
         router.refresh();
       } else {
         // Show error toast
