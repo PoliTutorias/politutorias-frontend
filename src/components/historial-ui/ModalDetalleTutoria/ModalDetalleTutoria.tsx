@@ -4,12 +4,14 @@ import { useEffect, useState } from 'react';
 import { FiX, FiBookOpen, FiCalendar, FiClock, FiMonitor, FiMessageSquare } from 'react-icons/fi';
 import { CheckCircle2, XCircle } from 'lucide-react';
 import { fetchDetalleAction } from '@/actions/historial/tutoriaActions';
+import { SeccionTuResena } from '@/components/tutorias/SeccionTuResena/SeccionTuResena';
 import type { TutoriaDetalleDTO } from '@/interfaces/historial/HistorialTypes';
 
 interface ModalDetalleTutoriaProps {
   readonly tutoriaId: string | null;
   readonly isOpen: boolean;
   readonly onClose: () => void;
+  readonly onCalificar?: (tutoriaId: string) => void;
 }
 
 function formatDate(fecha: string): string {
@@ -26,7 +28,12 @@ function formatDate(fecha: string): string {
   return `${day} de ${month} de ${year}`;
 }
 
-export function ModalDetalleTutoria({ tutoriaId, isOpen, onClose }: ModalDetalleTutoriaProps) {
+export function ModalDetalleTutoria({
+  tutoriaId,
+  isOpen,
+  onClose,
+  onCalificar,
+}: ModalDetalleTutoriaProps) {
   const [tutoriaDetalle, setTutoriaDetalle] = useState<TutoriaDetalleDTO | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -64,6 +71,10 @@ export function ModalDetalleTutoria({ tutoriaId, isOpen, onClose }: ModalDetalle
       isMounted = false;
     };
   }, [isOpen, tutoriaId]);
+
+  const hasReview = !!tutoriaDetalle?.resena;
+  const isCompletada = tutoriaDetalle?.estado === 'COMPLETADA';
+  const canCalificar = isCompletada && !hasReview;
 
   if (!isOpen || !tutoriaId) {
     return null;
@@ -113,7 +124,8 @@ export function ModalDetalleTutoria({ tutoriaId, isOpen, onClose }: ModalDetalle
               <section className="rounded-xl bg-[#edf2f7] px-4 py-3">
                 <div className="flex items-center gap-3">
                   <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#152c53] text-base font-semibold text-white">
-                    {(tutoriaDetalle.tutor.nombre[0] ?? '').toUpperCase()}{(tutoriaDetalle.tutor.apellido[0] ?? '').toUpperCase()}
+                    {(tutoriaDetalle.tutor.nombre[0] ?? '').toUpperCase()}
+                    {(tutoriaDetalle.tutor.apellido[0] ?? '').toUpperCase()}
                   </span>
                   <div>
                     <p className="text-xl font-bold text-primary">
@@ -202,17 +214,45 @@ export function ModalDetalleTutoria({ tutoriaId, isOpen, onClose }: ModalDetalle
                   </span>
                 )}
               </div>
+
+              {/* Tu Reseña section if review exists */}
+              {hasReview && tutoriaDetalle.resena && (
+                <>
+                  <hr className="my-4 border-0 border-t border-[#dbe3ec]" />
+                  <SeccionTuResena
+                    rating={tutoriaDetalle.resena.calificacion}
+                    comment={tutoriaDetalle.resena.comentario}
+                  />
+                </>
+              )}
             </>
           )}
         </div>
 
-        {/* Footer con botón Cerrar */}
+        {/* Footer con botones */}
         {!isLoading && tutoriaDetalle && (
-          <footer className="flex justify-end border-t border-[#eef2f7] px-6 py-4">
+          <footer
+            className={`flex gap-3 border-t border-[#eef2f7] px-6 py-4 ${
+              canCalificar ? 'justify-between' : 'justify-end'
+            }`}
+          >
+            {canCalificar && onCalificar && (
+              <button
+                type="button"
+                onClick={() => onCalificar(tutoriaId)}
+                className="rounded-lg bg-[#152c53] px-6 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#0f1f36]"
+              >
+                Calificar
+              </button>
+            )}
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg px-6 py-2 text-sm font-semibold text-[#64748b] transition-colors hover:bg-slate-100"
+              className={`rounded-lg px-6 py-2 text-sm font-semibold transition-colors ${
+                canCalificar
+                  ? 'text-[#64748b] hover:bg-slate-100'
+                  : 'text-[#64748b] hover:bg-slate-100'
+              }`}
             >
               Cerrar
             </button>

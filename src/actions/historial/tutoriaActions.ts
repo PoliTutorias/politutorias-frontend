@@ -17,6 +17,13 @@ type BackendHistorialItem = {
   time: string;
   status: string;
   pricePerHour: string;
+  location: string | null;
+  resena?: {
+    id: string;
+    rating: number;
+    comment: string | null;
+    createdAt: string;
+  } | null;
 };
 
 type BackendPaginatedResponse = {
@@ -60,6 +67,13 @@ function mapBackendHistorialItem(item: BackendHistorialItem): TutoriaHistorialLi
     fecha: item.date,
     hora: item.time,
     estado: normalizeStatus(item.status),
+    resena: item.resena
+      ? {
+          calificacion: item.resena.rating,
+          comentario: item.resena.comment ?? '',
+          fechaCreacion: item.resena.createdAt,
+        }
+      : null,
   };
 }
 
@@ -179,7 +193,7 @@ type BackendDetalleResponse = {
   pricePerHour: string;
   studentMessage: string;
   status: string;
-  review?: BackendReview | null;
+  resena?: BackendReview | null;
 };
 
 function parsePricePerHour(priceStr: string): number {
@@ -206,12 +220,12 @@ function mapBackendDetalle(raw: BackendDetalleResponse): TutoriaDetalleDTO {
     ubicacion: raw.location ?? null,
     mensajeEstudiante: raw.studentMessage ?? '',
     estado: normalizeStatus(raw.status),
-    ...(raw.review
+    ...(raw.resena
       ? {
           resena: {
-            calificacion: raw.review.rating,
-            comentario: raw.review.comment,
-            fechaCreacion: raw.review.createdAt,
+            calificacion: raw.resena.rating,
+            comentario: raw.resena.comment,
+            fechaCreacion: raw.resena.createdAt,
           },
         }
       : {}),

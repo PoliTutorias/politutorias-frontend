@@ -8,6 +8,7 @@ import type { TutoriaHistorialListDTO } from '@/interfaces/historial/HistorialTy
 interface TarjetaTutoriaProps {
   readonly tutoria: TutoriaHistorialListDTO;
   readonly onSelectTutoria: (tutoriaId: string) => void;
+  readonly onCalificar?: (tutoriaId: string) => void;
 }
 
 function getInitials(nombre: string, apellido: string): string {
@@ -22,13 +23,38 @@ function formatFechaHora(fecha: string, hora: string): string {
   return `${day} de ${month} de ${year} a las ${hora}`;
 }
 
-export function TarjetaTutoria({ tutoria, onSelectTutoria }: TarjetaTutoriaProps) {
+export function TarjetaTutoria({
+  tutoria,
+  onSelectTutoria,
+  onCalificar,
+}: TarjetaTutoriaProps) {
   const isCompletada = tutoria.estado === 'COMPLETADA';
+  const hasReview = !!tutoria.resena;
+
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Don't open detail if clicking on the Calificar button
+    if ((e.target as HTMLElement).closest('button')) return;
+    onSelectTutoria(tutoria.id);
+  };
+
+  const handleCalificarClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onCalificar?.(tutoria.id);
+  };
+
+  const handleCardKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onSelectTutoria(tutoria.id);
+    }
+  };
 
   return (
-    <button
-      type="button"
-      onClick={() => onSelectTutoria(tutoria.id)}
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={handleCardClick}
+      onKeyDown={handleCardKeyDown}
       className="w-full cursor-pointer rounded-2xl border border-slate-200 bg-white p-5 text-left shadow-sm transition-shadow hover:shadow-md"
     >
       <div className="flex items-start gap-3">
@@ -53,18 +79,30 @@ export function TarjetaTutoria({ tutoria, onSelectTutoria }: TarjetaTutoriaProps
               </p>
             </div>
 
-            {/* Etiqueta de estado */}
-            {isCompletada ? (
-              <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-[#43a047] bg-[#f0fdf4] px-3 py-1 text-xs font-semibold text-[#43a047]">
-                <CheckCircle2 size={14} />
-                Completada
-              </span>
-            ) : (
-              <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-[#e53935] bg-[#fef2f2] px-3 py-1 text-xs font-semibold text-[#e53935] transition-colors hover:bg-[#fee2e2]">
-                <XCircle size={14} />
-                Inasistencia
-              </span>
-            )}
+            {/* Etiqueta de estado y botón Calificar */}
+            <div className="flex shrink-0 items-center gap-2">
+              {isCompletada && !hasReview && (
+                <button
+                  type="button"
+                  onClick={handleCalificarClick}
+                  className="rounded-lg bg-[#152c53] px-4 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-[#0f1f36]"
+                >
+                  Calificar
+                </button>
+              )}
+
+              {isCompletada ? (
+                <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-[#43a047] bg-[#f0fdf4] px-3 py-1 text-xs font-semibold text-[#43a047]">
+                  <CheckCircle2 size={14} />
+                  Completada
+                </span>
+              ) : (
+                <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-[#e53935] bg-[#fef2f2] px-3 py-1 text-xs font-semibold text-[#e53935] transition-colors hover:bg-[#fee2e2]">
+                  <XCircle size={14} />
+                  Inasistencia
+                </span>
+              )}
+            </div>
           </div>
 
           <div className="mt-3 rounded-lg border border-[#e4e9f1] bg-[#f6f9fc] px-4 py-2 text-sm text-[#64748b]">
@@ -79,8 +117,31 @@ export function TarjetaTutoria({ tutoria, onSelectTutoria }: TarjetaTutoriaProps
               El tutor reportó inasistencia para esta sesión.
             </div>
           )}
+
+          {/* Mostrar reseña si existe */}
+          {hasReview && tutoria.resena && (
+            <div className="mt-3 rounded-lg border border-[#f3c88f] border-l-[3px] border-l-[#f0aa31] bg-[#fffdf9] px-4 py-3">
+              <div className="flex items-center gap-2">
+                <div className="flex gap-0.5">
+                  {[...Array(tutoria.resena.calificacion)].map((_, i) => (
+                    <span key={i} className="text-[#f0aa31]">
+                      ★
+                    </span>
+                  ))}
+                </div>
+                <span className="text-sm font-semibold uppercase tracking-wide text-[#6e7f95]">
+                  Tu Calificación
+                </span>
+              </div>
+              {tutoria.resena.comentario && (
+                <p className="mt-2 text-sm italic text-[#334155]">
+                  &ldquo;{tutoria.resena.comentario}&rdquo;
+                </p>
+              )}
+            </div>
+          )}
         </div>
       </div>
-    </button>
+    </div>
   );
 }
