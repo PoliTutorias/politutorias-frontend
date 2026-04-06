@@ -42,10 +42,19 @@ export function TarjetaTutoria({
     onCalificar?.(tutoria.id);
   };
 
+  const handleCardKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onSelectTutoria(tutoria.id);
+    }
+  };
+
   return (
-    <button
-      type="button"
+    <div
+      role="button"
+      tabIndex={0}
       onClick={handleCardClick}
+      onKeyDown={handleCardKeyDown}
       className="w-full cursor-pointer rounded-2xl border border-slate-200 bg-white p-5 text-left shadow-sm transition-shadow hover:shadow-md"
     >
       <div className="flex items-start gap-3">
@@ -111,21 +120,21 @@ export function TarjetaTutoria({
 
           {/* Mostrar reseña si existe */}
           {hasReview && tutoria.resena && (
-            <div className="mt-3 rounded-lg border border-[#f0aa31] bg-[#fffbf0] px-4 py-3">
-              <div className="flex gaps-2 items-center gap-2">
+            <div className="mt-3 rounded-lg border border-[#f3c88f] border-l-[3px] border-l-[#f0aa31] bg-[#fffdf9] px-4 py-3">
+              <div className="flex items-center gap-2">
                 <div className="flex gap-0.5">
                   {[...Array(tutoria.resena.calificacion)].map((_, i) => (
-                    <span key={i} className="text-amber-400">
+                    <span key={i} className="text-[#f0aa31]">
                       ★
                     </span>
                   ))}
                 </div>
-                <span className="text-xs font-semibold uppercase text-[#f0aa31]">
+                <span className="text-sm font-semibold uppercase tracking-wide text-[#6e7f95]">
                   Tu Calificación
                 </span>
               </div>
               {tutoria.resena.comentario && (
-                <p className="mt-2 text-sm text-[#64748b]">
+                <p className="mt-2 text-sm italic text-[#334155]">
                   &ldquo;{tutoria.resena.comentario}&rdquo;
                 </p>
               )}
@@ -133,6 +142,6 @@ export function TarjetaTutoria({
           )}
         </div>
       </div>
-    </button>
+    </div>
   );
 }

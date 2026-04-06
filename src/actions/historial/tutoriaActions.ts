@@ -17,6 +17,13 @@ type BackendHistorialItem = {
   time: string;
   status: string;
   pricePerHour: string;
+  location: string | null;
+  resena?: {
+    id: string;
+    rating: number;
+    comment: string | null;
+    createdAt: string;
+  } | null;
 };
 
 type BackendPaginatedResponse = {
@@ -60,6 +67,13 @@ function mapBackendHistorialItem(item: BackendHistorialItem): TutoriaHistorialLi
     fecha: item.date,
     hora: item.time,
     estado: normalizeStatus(item.status),
+    resena: item.resena
+      ? {
+          calificacion: item.resena.rating,
+          comentario: item.resena.comment ?? '',
+          fechaCreacion: item.resena.createdAt,
+        }
+      : null,
   };
 }
 
