@@ -15,7 +15,7 @@ export default async function AgendaPage({ searchParams }: AgendaPageProps) {
   const currentPage = Number(pageValue ?? '1');
   const safePage = Number.isFinite(currentPage) && currentPage > 0 ? currentPage : 1;
 
-  const { data, error, totalProximas, totalPages } = await getScheduledTutoriasAction(safePage, 3);
+  const { data, error, totalProximas, totalPages } = await getScheduledTutoriasAction(safePage, 5);
 
   return (
     <div className="min-h-screen bg-[#eef2f6]">
