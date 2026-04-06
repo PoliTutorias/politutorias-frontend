@@ -19,7 +19,7 @@ export function SeccionTuResena({ rating, comment }: SeccionTuResenaProps) {
       </div>
       {comment && (
         <p className="mt-3 text-sm text-[#64748b]">
-          "{comment}"
+          &ldquo;{comment}&rdquo;
         </p>
       )}
     </section>

@@ -3,8 +3,8 @@ export interface ReviewEntity {
   rating: number;
   comment?: string | null;
   tutoriaId: string;
-  studentId: string;
-  tutorId: string;
+  studentId?: string;
+  tutorId?: string;
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string;
 }
