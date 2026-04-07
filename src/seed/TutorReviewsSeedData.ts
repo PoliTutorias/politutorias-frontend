@@ -3,7 +3,7 @@ import type { PaginatedReviewsResponse, ReviewDto, ReviewSummaryDto } from '@/in
 export const allTutorReviewsSeed: ReviewDto[] = [
   {
     id: 'review-001',
-    studentName: 'Sofia Mendoza',
+    studentName: 'Gabriel Espinoza',
     studentAvatarUrl: null,
     date: '2026-03-08T10:15:00.000Z',
     stars: 3,
@@ -76,7 +76,7 @@ export const allTutorReviewsSeed: ReviewDto[] = [
 ];
 
 export const tutorReviewsSummarySeed: ReviewSummaryDto = {
-  avgRating: 4.1,
+  avgRating: 3.9,
   totalReviews: 8,
   starDistribution: [
     { stars: 5, percentage: 38 },
@@ -86,9 +86,9 @@ export const tutorReviewsSummarySeed: ReviewSummaryDto = {
     { stars: 1, percentage: 12 },
   ],
   metrics: {
-    totalAppointments: 12,
-    completedHours: 48,
-    averageResponseTime: 92,
+    totalAppointments: 9,
+    completedHours: 4,
+    averageResponseTime: 89,
   },
 };
 

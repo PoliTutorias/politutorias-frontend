@@ -6,6 +6,8 @@ interface PaginationControlsProps {
   totalReviews: number;
   onLoadMore: () => void;
   isLoading?: boolean;
+  showCounter?: boolean;
+  showButton?: boolean;
 }
 
 export default function PaginationControls({
@@ -14,17 +16,21 @@ export default function PaginationControls({
   totalReviews,
   onLoadMore,
   isLoading = false,
+  showCounter = true,
+  showButton = true,
 }: PaginationControlsProps) {
   const showingCount = Math.min(currentPage * limit, totalReviews);
   const hasMore = showingCount < totalReviews;
 
   return (
     <div className="mt-5">
-      <p className="text-sm text-[#76869d]">
-        Mostrando {showingCount} de {totalReviews} reseñas
-      </p>
+      {showCounter && (
+        <p className="text-sm text-[#76869d]">
+          Mostrando {showingCount} de {totalReviews} reseñas
+        </p>
+      )}
 
-      {hasMore && (
+      {showButton && hasMore && (
         <div className="mt-5 flex justify-center">
           <button
             type="button"

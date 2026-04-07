@@ -10,6 +10,7 @@ import OfferInfoSection from '@/components/offers/OfferInfoSection/OfferInfoSect
 import PricingContactSection from '@/components/offers/PricingContactSection/PricingContactSection';
 import TutorSection from '@/components/tutor/TutorSection/TutorSection';
 import ExperienceSection from '@/components/tutor/ExperienceSection/ExperienceSection';
+import ReviewSection from '@/components/tutor-reviews/review-section/ReviewSection';
 import ModalSolicitarTutoria from '@/components/solicitud/ModalSolicitarTutoria/ModalSolicitarTutoria';
 import AlertaSolicitudPrevia from '@/components/common/AlertaSolicitudPrevia/AlertaSolicitudPrevia';
 import NotificacionExito from '@/components/common/NotificacionExito/NotificacionExito';
@@ -261,6 +262,7 @@ export default function DetallesOfertaPage({
             <div className="grid grid-cols-1 gap-6">
               <TutorSection tutor={offerDetails.tutor} />
               <ExperienceSection experiences={offerDetails.tutor.experience} />
+              <ReviewSection tutorId={offerDetails.tutor.id} />
             </div>
           </div>
         </div>
