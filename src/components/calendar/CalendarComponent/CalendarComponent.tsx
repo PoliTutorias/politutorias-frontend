@@ -6,8 +6,6 @@ import { DayCell } from '@/components/calendar/DayCell/DayCell';
 import type { CalendarDayData } from '@/interfaces/agenda/AgendaInterfaces';
 
 interface CalendarComponentProps {
-  currentMonthName: string;
-  currentYear: number;
   calendarDays: CalendarDayData[];
   selectedDate?: string;
   onDaySelect?: (date: string) => void;
@@ -28,33 +26,14 @@ function toIsoDateString(date: Date): string {
 }
 
 export function CalendarComponent({
-  currentMonthName,
-  currentYear,
   calendarDays,
   selectedDate,
   onDaySelect,
 }: CalendarComponentProps) {
   const fallbackMonthDate = useMemo(() => {
-    if (selectedDate) {
-      const [yearRaw, monthRaw] = selectedDate.split('-');
-      const parsedYear = Number(yearRaw);
-      const parsedMonth = Number(monthRaw);
-
-      if (!Number.isNaN(parsedYear) && !Number.isNaN(parsedMonth) && parsedMonth >= 1 && parsedMonth <= 12) {
-        return new Date(parsedYear, parsedMonth - 1, 1);
-      }
-    }
-
-    const monthValueFromSeed = calendarDays[0]?.date?.slice(5, 7);
-
-    if (monthValueFromSeed) {
-      const month = Number(monthValueFromSeed) - 1;
-      return new Date(currentYear, month, 1);
-    }
-
     const today = new Date();
     return new Date(today.getFullYear(), today.getMonth(), 1);
-  }, [calendarDays, currentYear, selectedDate]);
+  }, []);
 
   const [viewDate, setViewDate] = useState<Date>(fallbackMonthDate);
   const maxNextMonth = addMonths(fallbackMonthDate, 1);
@@ -74,10 +53,7 @@ export function CalendarComponent({
     viewDate.getFullYear() < maxNextMonth.getFullYear() ||
     (viewDate.getFullYear() === maxNextMonth.getFullYear() && viewDate.getMonth() < maxNextMonth.getMonth());
 
-  const isInitialMonthView =
-    viewDate.getFullYear() === currentYear && viewDate.getMonth() === fallbackMonthDate.getMonth();
-  const monthNameLabel = isInitialMonthView ? currentMonthName : formatMonthLabel(viewDate);
-  const monthLabel = `${monthNameLabel} ${viewDate.getFullYear()}`;
+  const monthLabel = `${formatMonthLabel(viewDate)} ${viewDate.getFullYear()}`;
 
   const cells = Array.from({ length: totalGridCells }, (_, index) => {
     const dayNumber = index - startWeekDay + 1;

@@ -20,12 +20,16 @@ export function InputFechaExperiencia({
   fieldName,
   errorMessage,
 }: InputFechaExperienciaProps) {
+  const PRESENTE = 'presente';
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let newValue = e.target.value;
 
-    // Permitir la palabra "Presente" en fechaFin
-    if (fieldName === 'fechaFin' && newValue.toLowerCase() === 'presente') {
-      newValue = 'Presente';
+    // Permitir escribir "Presente" letra por letra en fechaFin.
+    if (fieldName === 'fechaFin' && PRESENTE.startsWith(newValue.toLowerCase())) {
+      if (newValue.toLowerCase() === PRESENTE) {
+        newValue = 'Presente';
+      }
     } else {
       // Formatear automáticamente a MM/AAAA
       newValue = formatDateInput(newValue, fieldName);
@@ -48,6 +52,16 @@ export function InputFechaExperiencia({
 
     // Permitir teclas de control
     if (['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Enter'].includes(key)) {
+      return;
+    }
+
+    if (fieldName === 'fechaFin' && /^[a-zA-Z]$/.test(key)) {
+      const candidate = `${value}${key}`.toLowerCase();
+
+      // Solo permitir letras que construyan la palabra "presente".
+      if (!PRESENTE.startsWith(candidate) || candidate.length > PRESENTE.length) {
+        e.preventDefault();
+      }
       return;
     }
 
@@ -75,7 +89,7 @@ export function InputFechaExperiencia({
         value={value}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
-        maxLength={fieldName === 'fechaFin' && value.toLowerCase() === 'presente' ? 8 : 7}
+        maxLength={fieldName === 'fechaFin' ? 8 : 7}
         className={`px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
           errorMessage ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-primary'
         }`}

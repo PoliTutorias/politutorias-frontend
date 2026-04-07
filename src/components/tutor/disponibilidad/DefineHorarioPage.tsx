@@ -45,7 +45,6 @@ export function DefineHorarioPage({
     // Simular guardado con Server Action
     setIsLoading(true);
     try {
-      console.log('Enviando disponibilidad al servidor...');
 
       const result = await guardarDisponibilidadAction(disponibilidad);
 

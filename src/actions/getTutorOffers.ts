@@ -23,8 +23,6 @@ export async function getTutorOffersAction(): Promise<ApiResponse<OfertaDto[]>> 
       };
     }
 
-    console.log('[getTutorOffersAction] Obteniendo mis ofertas via JWT');
-
     const response = await fetch(`${baseUrl}ofertas/mis-ofertas`, {
       method: 'GET',
       headers: {

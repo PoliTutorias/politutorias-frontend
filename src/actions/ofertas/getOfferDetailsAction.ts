@@ -83,7 +83,6 @@ export async function getOfferDetailsAction(
   }
 
   try {
-    console.log(`🔍 Fetching offer details for ID: ${offerId} from ${backendUrl}`);
 
     const response = await fetch(`${backendUrl}ofertas/${offerId}`, {
       method: 'GET',
@@ -103,7 +102,6 @@ export async function getOfferDetailsAction(
     const backendData: OfertaBackendDto = await response.json();
     const mappedOferta = mapBackendOfertaToDetallesOferta(backendData);
 
-    console.log('✅ Offer details fetched successfully:', mappedOferta);
     return { success: true, data: mappedOferta };
   } catch (error) {
     const errorMsg = `❌ Error fetching offer: ${error instanceof Error ? error.message : String(error)}`;

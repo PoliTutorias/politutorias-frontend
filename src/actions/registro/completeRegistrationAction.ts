@@ -61,8 +61,6 @@ export async function completeRegistrationAction(
 
     const resultPerfil = await responsePerfil.json();
 
-    console.log('HU42 Response:', resultPerfil);
-    console.log('Status:', responsePerfil.status);
 
     if (!responsePerfil.ok) {
       return {
@@ -70,8 +68,6 @@ export async function completeRegistrationAction(
         message: resultPerfil.message || 'Error al finalizar el registro',
       };
     }
-
-    console.log('=== REGISTRO COMPLETADO EXITOSAMENTE ===');
 
     // Refrescar el JWT para obtener role: 'tutor' (antes era 'student')
     try {
@@ -89,7 +85,6 @@ export async function completeRegistrationAction(
           // Actualizar la cookie con el nuevo JWT que tiene role: 'tutor'
           const { setServerToken } = await import('@/lib/server-auth');
           await setServerToken(refreshData.token);
-          console.log('JWT actualizado con role: tutor');
         }
       }
     } catch (refreshError) {

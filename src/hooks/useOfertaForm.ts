@@ -56,7 +56,6 @@ export function useOfertaForm({
       }
     },
     (fieldErrors) => {
-      console.log('Form validation errors:', fieldErrors);
     }
   );
 

@@ -110,7 +110,6 @@ export default function RegistrarTutorPage() {
       
       if (isNextRedirect) {
         // Si es un NEXT_REDIRECT, significa que el registro fue exitoso y la redirección está en proceso
-        console.log('Redirecciones hacia dashboard/tutor...');
         return;
       }
       
