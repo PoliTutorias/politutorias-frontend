@@ -32,16 +32,9 @@ export async function actionFinalizarRegistro(
       };
     }
 
-    console.log('Token obtenido para finalizar registro (cookies o .env)');
-    console.log('Endpoint esperado: /api/perfil/finalizar');
-    console.log('Authorization header:', `Bearer [token]`);
-
     // Hacer petición real al backend
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL || 'http://localhost:3000/api/';
     const endpoint = `${backendUrl}perfil/finalizar`;
-
-    console.log('Enviando petición a:', endpoint);
-    console.log('Datos:', JSON.stringify(perfilData, null, 2));
 
     const response = await fetch(endpoint, {
       method: 'POST',
@@ -54,9 +47,6 @@ export async function actionFinalizarRegistro(
 
     // Parsear respuesta del backend
     const result = await response.json();
-
-    console.log('Respuesta del servidor:', result);
-    console.log('Status:', response.status);
 
     if (!response.ok) {
       return {

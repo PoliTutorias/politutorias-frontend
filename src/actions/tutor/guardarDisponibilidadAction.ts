@@ -24,11 +24,6 @@ export async function guardarDisponibilidadAction(
     
     const token = await getServerToken();
 
-    console.log('=== PETICIÓN GUARDAR DISPONIBILIDAD ===');
-    console.log('TutorId (de cookies):', tutorId);
-    console.log('Blocks cantidad:', blocks?.length);
-    console.log('========================================');
-
     // Validación: Al menos un bloque debe estar seleccionado
     if (!blocks || blocks.length === 0) {
       return {
@@ -58,10 +53,6 @@ export async function guardarDisponibilidadAction(
       blocks,
     };
 
-    console.log('Endpoint:', endpoint);
-    console.log('Request body:', JSON.stringify(requestBody, null, 2));
-    console.log('Headers: Content-Type: application/json, Authorization: Bearer [token]');
-
     try {
       const response = await fetch(endpoint, {
         method: 'POST',
@@ -74,9 +65,6 @@ export async function guardarDisponibilidadAction(
 
       // Parsear respuesta del backend
       const result = await response.json();
-
-      console.log('Respuesta del servidor:', result);
-      console.log('Status:', response.status);
 
       if (!response.ok) {
         return {

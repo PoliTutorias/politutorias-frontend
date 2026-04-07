@@ -93,8 +93,6 @@ export function FormularioDatosBasicos({
       // Llamar a la Server Action
       const result = await registrarDatosBasicosAction(formData);
 
-      console.log('Resultado de registrarDatosBasicosAction:', result);
-
       if (!result.success) {
         // Si hay errores de validación del servidor, mostrarlos
         if (result.errors) {

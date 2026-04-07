@@ -74,9 +74,6 @@ export async function createOfertaAction(
       description: data.description,
     };
 
-    console.log('[createOfertaAction] Request URL:', `${backendUrl}ofertas`);
-    console.log('[createOfertaAction] Request Body:', payload);
-
     const response = await fetch(`${backendUrl}ofertas`, {
       method: 'POST',
       headers: {
@@ -87,9 +84,6 @@ export async function createOfertaAction(
     });
 
     const rawResponseBody = await response.text();
-    console.log('[createOfertaAction] Response Status:', response.status, response.statusText);
-    console.log('[createOfertaAction] Response Headers:', Object.fromEntries(response.headers.entries()));
-    console.log('[createOfertaAction] Response Body:', rawResponseBody);
 
     let responseData: Record<string, unknown> = {};
     try {

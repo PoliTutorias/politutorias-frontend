@@ -32,15 +32,6 @@ export async function registrarDatosBasicosAction(
       biografiaCorta,
     };
 
-    // Log de los datos extraídos (para debugging)
-    console.log('Datos extraídos del form:', {
-      nombreCompleto,
-      numeroWhatsapp,
-      facultad,
-      semestreActual,
-      biografiaCorta,
-    });
-
     // Validar datos con Zod
     const validationResult = tutorBasicosSchema.safeParse(datosFormulario);
 
@@ -66,8 +57,6 @@ export async function registrarDatosBasicosAction(
       const token = await getServerToken();
       const endpoint = `${backendUrl}tutor/datos-basicos`;
 
-      console.log('Enviando datos a:', endpoint);
-
       // Enviar datos como JSON (FormData multipart corrompe caracteres especiales como °)
       const response = await fetch(endpoint, {
         method: 'POST',
@@ -86,8 +75,6 @@ export async function registrarDatosBasicosAction(
 
       // Parsear respuesta del backend
       const result = await response.json();
-
-      console.log('Respuesta del servidor:', result, 'Status:', response.status);
 
       if (!response.ok) {
         // Manejar errores del backend
@@ -124,7 +111,6 @@ export async function registrarDatosBasicosAction(
             sameSite: 'lax',
             maxAge: 24 * 60 * 60, // 24 horas
           });
-          console.log('Token guardado en cookies');
         }
         
         if (result.data?.id) {
@@ -134,7 +120,6 @@ export async function registrarDatosBasicosAction(
             sameSite: 'lax',
             maxAge: 24 * 60 * 60, // 24 horas
           });
-          console.log('TutorId guardado en cookies:', result.data.id);
         }
       }
 

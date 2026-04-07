@@ -46,7 +46,6 @@ export async function verificarSolicitudPreviaAction(
     if (data.existe) {
       console.warn(`⚠️ Ya existe solicitud previa: ${data.mensaje}`);
     } else {
-      console.log('✅ No existe solicitud previa');
     }
     return data;
   } catch (error) {
