@@ -10,6 +10,7 @@ import OfferInfoSection from '@/components/offers/OfferInfoSection/OfferInfoSect
 import PricingContactSection from '@/components/offers/PricingContactSection/PricingContactSection';
 import TutorSection from '@/components/tutor/TutorSection/TutorSection';
 import ExperienceSection from '@/components/tutor/ExperienceSection/ExperienceSection';
+import ReviewSection from '@/components/tutor-reviews/review-section/ReviewSection';
 import ModalSolicitarTutoria from '@/components/solicitud/ModalSolicitarTutoria/ModalSolicitarTutoria';
 import AlertaSolicitudPrevia from '@/components/common/AlertaSolicitudPrevia/AlertaSolicitudPrevia';
 import NotificacionExito from '@/components/common/NotificacionExito/NotificacionExito';
@@ -257,10 +258,11 @@ export default function DetallesOfertaPage({
       <section className="w-full bg-gray-100 py-8">
         <div className="container mx-auto px-12 lg:px-32">
           <div className="lg:max-w-4xl lg:mx-auto">
-            <h2 className="text-2xl font-extrabold text-primary mb-6">Sobre el Tutor</h2>
+            <h2 className="text-base font-extrabold text-primary mb-6">Sobre el Tutor</h2>
             <div className="grid grid-cols-1 gap-6">
               <TutorSection tutor={offerDetails.tutor} />
               <ExperienceSection experiences={offerDetails.tutor.experience} />
+              <ReviewSection tutorId={offerDetails.tutor.id} />
             </div>
           </div>
         </div>
