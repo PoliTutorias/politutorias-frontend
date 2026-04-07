@@ -258,7 +258,7 @@ export default function DetallesOfertaPage({
       <section className="w-full bg-gray-100 py-8">
         <div className="container mx-auto px-12 lg:px-32">
           <div className="lg:max-w-4xl lg:mx-auto">
-            <h2 className="text-2xl font-extrabold text-primary mb-6">Sobre el Tutor</h2>
+            <h2 className="text-base font-extrabold text-primary mb-6">Sobre el Tutor</h2>
             <div className="grid grid-cols-1 gap-6">
               <TutorSection tutor={offerDetails.tutor} />
               <ExperienceSection experiences={offerDetails.tutor.experience} />

@@ -108,7 +108,7 @@ export default function ReviewSection({ tutorId }: ReviewSectionProps) {
 
   return (
     <section className="rounded-lg bg-white p-4 md:p-6" data-tutor-id={tutorId}>
-      <h2 className="text-2xl font-bold text-primary">Reseñas de Estudiantes</h2>
+      <h2 className="text-base font-bold text-primary">Reseñas de Estudiantes</h2>
 
       {isLoading && (
         <div className="mt-6 rounded-lg border border-[#e7ebf0] bg-[#f8fbff] p-4 text-sm text-[#687a94]">

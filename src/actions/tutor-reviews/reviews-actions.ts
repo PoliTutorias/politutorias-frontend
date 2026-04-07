@@ -2,7 +2,8 @@
 
 import type { PaginatedReviewsResponse, ReviewDto } from '@/interfaces/reviews/review-dtos';
 import type { ReviewQueryParams } from '@/interfaces/reviews/review-query-params';
-import { allTutorReviewsSeed, tutorReviewsSummarySeed } from '@/seed/TutorReviewsSeedData';
+import { tutorReviewsSummarySeed } from '@/seed/TutorReviewsSeedData';
+import { getServerToken } from '@/lib/server-auth';
 
 interface TutorReviewsActionResponse {
   success: boolean;
@@ -10,34 +11,49 @@ interface TutorReviewsActionResponse {
   error?: string;
 }
 
+interface BackendReviewResponse {
+  reviews: Array<{
+    id: string;
+    student: {
+      id: string;
+      firstName: string;
+      lastName: string;
+      avatarUrl: string | null;
+    };
+    date: string;
+    stars: number;
+    tutoringSubject: string;
+    comment: string | null;
+  }>;
+  summary: {
+    avgRating: number;
+    totalReviews: number;
+    starDistribution: Record<string, number>;
+  };
+  total: number;
+  page: number;
+  limit: number;
+}
+
+interface BackendErrorResponse {
+  statusCode?: number;
+  message?: string;
+}
+
 function normalizeParams(params: ReviewQueryParams): Required<Pick<ReviewQueryParams, 'page' | 'limit' | 'sortBy' | 'ratingFilter'>> {
   return {
     page: Math.max(1, params.page ?? 1),
     limit: Math.max(1, params.limit ?? 3),
-    sortBy: params.sortBy ?? 'date',
+    sortBy: params.sortBy ?? 'createdAt',
     ratingFilter: params.ratingFilter ?? 'all',
   };
 }
 
-function sortReviews(reviews: ReviewDto[], sortBy: 'date' | 'stars'): ReviewDto[] {
-  const cloned = [...reviews];
-
+function mapSortBy(sortBy: ReviewQueryParams['sortBy']): 'createdAt' | 'stars' {
   if (sortBy === 'stars') {
-    return cloned.sort((a, b) => {
-      if (b.stars !== a.stars) return b.stars - a.stars;
-      return new Date(b.date).getTime() - new Date(a.date).getTime();
-    });
+    return 'stars';
   }
-
-  return cloned.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-}
-
-function filterByRating(reviews: ReviewDto[], ratingFilter: 'all' | '1' | '2' | '3' | '4' | '5'): ReviewDto[] {
-  if (ratingFilter === 'all') {
-    return reviews;
-  }
-
-  return reviews.filter((review) => review.stars === Number(ratingFilter));
+  return 'createdAt';
 }
 
 export async function fetchTutorReviews(params: ReviewQueryParams): Promise<TutorReviewsActionResponse> {
@@ -51,67 +67,71 @@ export async function fetchTutorReviews(params: ReviewQueryParams): Promise<Tuto
       };
     }
 
-    const filteredReviews = filterByRating(allTutorReviewsSeed, ratingFilter);
-    const sortedReviews = sortReviews(filteredReviews, sortBy);
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
+    if (!backendUrl) {
+      return { success: false, error: 'NEXT_PUBLIC_BACKEND_API_URL no esta configurado.' };
+    }
 
-    const start = (page - 1) * limit;
-    const end = start + limit;
-    const paginatedData = sortedReviews.slice(start, end);
+    const token = await getServerToken();
+    const normalizedBaseUrl = backendUrl.replace(/\/+$/, '');
+    const query = new URLSearchParams({
+      page: String(page),
+      limit: String(limit),
+      sortBy: mapSortBy(sortBy),
+      ratingFilter,
+    });
 
-    const response: PaginatedReviewsResponse = {
-      data: paginatedData,
-      page,
-      limit,
-      total: sortedReviews.length,
+    const apiResponse = await fetch(
+      `${normalizedBaseUrl}/tutors/${params.tutorId}/reviews?${query.toString()}`,
+      {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        cache: 'no-store',
+      }
+    );
+
+    if (!apiResponse.ok) {
+      const errorPayload = (await apiResponse.json().catch(() => ({}))) as BackendErrorResponse;
+      return {
+        success: false,
+        error: errorPayload.message ?? 'Error al obtener reseñas del tutor.',
+      };
+    }
+
+    const backendData = (await apiResponse.json()) as BackendReviewResponse;
+
+    const mappedData: PaginatedReviewsResponse = {
+      data: backendData.reviews.map((review): ReviewDto => ({
+        id: review.id,
+        studentName: `${review.student.firstName} ${review.student.lastName}`.trim(),
+        studentAvatarUrl: review.student.avatarUrl,
+        date: review.date,
+        stars: review.stars,
+        tutoringSubject: review.tutoringSubject,
+        comment: review.comment ?? '',
+      })),
+      page: backendData.page,
+      limit: backendData.limit,
+      total: backendData.total,
       summary: {
-        ...tutorReviewsSummarySeed,
-        totalReviews: allTutorReviewsSeed.length,
+        avgRating: backendData.summary.avgRating,
+        totalReviews: backendData.summary.totalReviews,
+        starDistribution: [5, 4, 3, 2, 1].map((stars) => ({
+          stars,
+          percentage: Number(backendData.summary.starDistribution[String(stars)] ?? 0),
+        })),
+        // La API actual no devuelve métricas; se mantienen valores del prototipo hasta que backend las exponga.
+        metrics: tutorReviewsSummarySeed.metrics,
       },
     };
 
     return {
       success: true,
-      data: response,
+      data: mappedData,
     };
-
-    // Backend integration (to be enabled when API is ready)
-    // const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
-    // const token = await getServerToken();
-    //
-    // if (!backendUrl) {
-    //   return { success: false, error: 'NEXT_PUBLIC_BACKEND_API_URL no esta configurado.' };
-    // }
-    //
-    // const normalizedBaseUrl = backendUrl.replace(/\/+$/, '');
-    // const query = new URLSearchParams({
-    //   page: String(page),
-    //   limit: String(limit),
-    //   sortBy,
-    //   ratingFilter,
-    // });
-    //
-    // const apiResponse = await fetch(
-    //   `${normalizedBaseUrl}/tutors/${params.tutorId}/reviews?${query.toString()}`,
-    //   {
-    //     method: 'GET',
-    //     headers: {
-    //       Accept: 'application/json',
-    //       ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    //     },
-    //     cache: 'no-store',
-    //   }
-    // );
-    //
-    // if (!apiResponse.ok) {
-    //   const errorPayload = await apiResponse.json().catch(() => ({}));
-    //   return {
-    //     success: false,
-    //     error: (errorPayload as { message?: string }).message ?? 'Error al obtener reseñas del tutor.',
-    //   };
-    // }
-    //
-    // const data = (await apiResponse.json()) as PaginatedReviewsResponse;
-    // return { success: true, data };
   } catch (error) {
     return {
       success: false,
@@ -125,7 +145,7 @@ export async function LoadReviewsAction(tutorId: string): Promise<TutorReviewsAc
     tutorId,
     page: 1,
     limit: 3,
-    sortBy: 'date',
+    sortBy: 'createdAt',
     ratingFilter: 'all',
   });
 }

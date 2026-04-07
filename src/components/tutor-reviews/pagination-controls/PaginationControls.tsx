@@ -25,7 +25,7 @@ export default function PaginationControls({
   return (
     <div className="mt-5">
       {showCounter && (
-        <p className="text-sm text-[#76869d]">
+        <p className="text-sm text-[#76869d] mb-4">
           Mostrando {showingCount} de {totalReviews} reseñas
         </p>
       )}
