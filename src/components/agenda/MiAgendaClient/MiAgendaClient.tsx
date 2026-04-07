@@ -20,10 +20,7 @@ function toIsoDateString(date: Date): string {
 export function MiAgendaClient({ initialData }: MiAgendaClientProps) {
   const router = useRouter();
   const todayIso = toIsoDateString(new Date());
-  const fallbackDate = initialData.calendarDays[0]?.date ?? todayIso;
-  const defaultSelectedDate = initialData.calendarDays.some((day) => day.date === todayIso)
-    ? todayIso
-    : fallbackDate;
+  const defaultSelectedDate = todayIso;
 
   const [selectedDate, setSelectedDate] = useState(defaultSelectedDate);
   const [selectedDayInfo, setSelectedDayInfo] = useState<SelectedDayInfo | null>(null);
@@ -114,8 +111,6 @@ export function MiAgendaClient({ initialData }: MiAgendaClientProps) {
   return (
     <section className="grid grid-cols-1 gap-6 lg:grid-cols-[2.3fr_1fr]">
       <CalendarComponent
-        currentMonthName={initialData.currentMonthName}
-        currentYear={initialData.currentYear}
         calendarDays={initialData.calendarDays}
         selectedDate={selectedDate}
         onDaySelect={handleDaySelect}

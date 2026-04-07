@@ -2,7 +2,6 @@
 
 import type { PaginatedReviewsResponse, ReviewDto } from '@/interfaces/reviews/review-dtos';
 import type { ReviewQueryParams } from '@/interfaces/reviews/review-query-params';
-import { tutorReviewsSummarySeed } from '@/seed/TutorReviewsSeedData';
 import { getServerToken } from '@/lib/server-auth';
 
 interface TutorReviewsActionResponse {
@@ -29,6 +28,11 @@ interface BackendReviewResponse {
     avgRating: number;
     totalReviews: number;
     starDistribution: Record<string, number>;
+  };
+  tutorStats: {
+    completedTutorias: number;
+    uniqueSubjects: number;
+    ratingParticipation: number;
   };
   total: number;
   page: number;
@@ -123,8 +127,11 @@ export async function fetchTutorReviews(params: ReviewQueryParams): Promise<Tuto
           stars,
           percentage: Number(backendData.summary.starDistribution[String(stars)] ?? 0),
         })),
-        // La API actual no devuelve métricas; se mantienen valores del prototipo hasta que backend las exponga.
-        metrics: tutorReviewsSummarySeed.metrics,
+        metrics: {
+          totalAppointments: backendData.tutorStats.completedTutorias,
+          completedHours: backendData.tutorStats.uniqueSubjects,
+          averageResponseTime: backendData.tutorStats.ratingParticipation,
+        },
       },
     };
 

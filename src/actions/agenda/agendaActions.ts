@@ -179,6 +179,8 @@ export async function fetchAgendaInitialData(): Promise<AgendaActionResult<Initi
       next: { revalidate: 0 },
     });
 
+    console.log({response})
+
     if (!response.ok) {
       return {
         success: true,
@@ -188,6 +190,7 @@ export async function fetchAgendaInitialData(): Promise<AgendaActionResult<Initi
     }
 
     const payload = (await response.json()) as BackendAgendaResponse;
+    console.log('[fetchAgendaInitialData] GET /tutor/agenda response:', payload);
     return { success: true, data: mapAgendaResponseToInitialData(payload) };
   } catch {
     return {
