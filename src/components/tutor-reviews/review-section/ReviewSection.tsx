@@ -89,14 +89,16 @@ export default function ReviewSection({ tutorId }: ReviewSectionProps) {
         return;
       }
 
+      const pageData = result.data;
+
       setReviews((previous) => {
         const existingIds = new Set(previous.map((review) => review.id));
-        const newItems = result.data.data.filter((review) => !existingIds.has(review.id));
+        const newItems = pageData.data.filter((review) => !existingIds.has(review.id));
         return [...previous, ...newItems];
       });
-      setCurrentPage(result.data.page);
-      setTotalReviews(result.data.total);
-      setReviewSummary(result.data.summary);
+      setCurrentPage(pageData.page);
+      setTotalReviews(pageData.total);
+      setReviewSummary(pageData.summary);
     } catch {
       setError('Ocurrió un error inesperado al cargar más reseñas.');
     } finally {
