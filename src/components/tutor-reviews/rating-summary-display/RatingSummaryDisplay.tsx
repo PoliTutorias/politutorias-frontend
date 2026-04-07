@@ -13,11 +13,13 @@ function formatRating(value: number): string {
 }
 
 export default function RatingSummaryDisplay({ summary }: RatingSummaryDisplayProps) {
+  const sortedDistribution = [...summary.starDistribution].sort((a, b) => b.stars - a.stars);
+
   return (
     <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
       <div className="flex items-center gap-6">
         <div className="w-20 shrink-0">
-          <p className="text-5xl font-bold leading-none text-primary">{formatRating(summary.avgRating)}</p>
+          <p className="text-4xl font-bold leading-none text-primary">{formatRating(summary.avgRating)}</p>
 
           <div className="mt-2 flex items-center gap-0.5 text-[#f2a21f]">
             {Array.from({ length: 5 }, (_, index) => (
@@ -25,12 +27,24 @@ export default function RatingSummaryDisplay({ summary }: RatingSummaryDisplayPr
             ))}
           </div>
 
-          <p className="mt-1 text-xl text-[#6d7f97]">{summary.totalReviews} reseñas</p>
+          <p className="mt-1 text-base text-[#6d7f97]">{summary.totalReviews} reseñas</p>
         </div>
 
-        <div className="min-h-28 flex-1 rounded-lg bg-[#f6f9fc] p-4">
-          <p className="text-sm font-semibold text-primary">Distribución de estrellas</p>
-          <p className="mt-1 text-xs text-[#8a99ae]">Se mostrará en la siguiente tarea.</p>
+        <div className="flex-1 space-y-2">
+          {sortedDistribution.map((item) => (
+            <div key={item.stars} className="grid grid-cols-[66px_1fr_38px] items-center gap-2">
+              <span className="text-sm font-medium text-[#3482d0]">{item.stars} estrella{item.stars > 1 ? 's' : ''}</span>
+
+              <div className="h-2.5 overflow-hidden rounded-full bg-[#e4eaf2]">
+                <div
+                  className="h-full rounded-full bg-[#f2a21f]"
+                  style={{ width: `${Math.min(Math.max(item.percentage, 0), 100)}%` }}
+                />
+              </div>
+
+              <span className="text-right text-sm text-[#7f8fa6]">{item.percentage}%</span>
+            </div>
+          ))}
         </div>
       </div>
 
