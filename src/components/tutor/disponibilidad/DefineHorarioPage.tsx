@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
-import { HorarioGrid } from '../HorarioGrid/HorarioGrid';
-import { useRegistroStore } from '@/lib/stores/registroStore';
 import { guardarDisponibilidadAction } from '@/actions/tutor/guardarDisponibilidadAction';
+import { useRegistroStore } from '@/lib/stores/registroStore';
+import { useState } from 'react';
 import { toast } from 'sonner';
+import { HorarioGrid } from '../HorarioGrid/HorarioGrid';
 
 interface DefineHorarioPageProps {
   onStepComplete?: () => void;
@@ -54,7 +54,7 @@ export function DefineHorarioPage({
       } else {
         onStepComplete?.();
       }
-    } catch (error) {
+    } catch {
       setErrorMessage('Error al guardar la disponibilidad');
       toast.error('Error al guardar la disponibilidad');
     } finally {

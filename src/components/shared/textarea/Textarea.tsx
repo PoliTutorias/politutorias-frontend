@@ -71,7 +71,8 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
 
       const event = new Event('input', { bubbles: true });
       textareaElement.dispatchEvent(event);
-    }, [maxLength]);
+      onPaste?.(e);
+    }, [maxLength, onPaste]);
 
     // Para el char count, usamos el valor del prop (react-hook-form watch)
     const displayValue = value ?? '';

@@ -1,16 +1,16 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import {
-  SolicitudListItemDto,
-  SolicitudStatus,
-} from '@/dtos/solicitudes.dto';
+import { getSolicitudesAction } from '@/actions/solicitudes/getSolicitudesAction';
+import { PaginationComponent } from '@/components/common/Pagination/PaginationComponent';
+import { AppNavBar } from '@/components/layout/AppNavBar/AppNavBar';
+import { DetalleSolicitudModal } from '@/components/solicitudes/DetalleSolicitudModal/DetalleSolicitudModal';
 import { SolicitudFilterTabs } from '@/components/solicitudes/SolicitudFilterTabs/SolicitudFilterTabs';
 import { SolicitudList } from '@/components/solicitudes/SolicitudList/SolicitudList';
-import { PaginationComponent } from '@/components/common/Pagination/PaginationComponent';
-import { getSolicitudesAction } from '@/actions/solicitudes/getSolicitudesAction';
-import { DetalleSolicitudModal } from '@/components/solicitudes/DetalleSolicitudModal/DetalleSolicitudModal';
-import { AppNavBar } from '@/components/layout/AppNavBar/AppNavBar';
+import {
+    SolicitudListItemDto,
+    SolicitudStatus,
+} from '@/dtos/solicitudes.dto';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 const ITEMS_PER_PAGE = 5;
 
@@ -79,7 +79,8 @@ export default function MisSolicitudesPage() {
     }
   }, []);
 
-  const handleCancelSolicitud = useCallback(async (_solicitudId: string) => {
+  const handleCancelSolicitud = useCallback(async (solicitudId: string) => {
+    void solicitudId;
     // Refrescar la lista tras cancelar
     void loadSolicitudes(currentStatusFilter, currentPage);
   }, [loadSolicitudes, currentStatusFilter, currentPage]);

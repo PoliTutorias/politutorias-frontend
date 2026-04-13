@@ -1,5 +1,6 @@
-import { MdOutlineApartment } from 'react-icons/md';
 import { TutorDetailDto } from '@/interfaces/offers/DetallesOfertaDto';
+import Image from 'next/image';
+import { MdOutlineApartment } from 'react-icons/md';
 
 interface TutorSectionProps {
   tutor: TutorDetailDto;
@@ -13,9 +14,12 @@ export default function TutorSection({ tutor }: TutorSectionProps) {
         {/* Avatar placeholder */}
         <div className="flex-shrink-0">
           {tutor.profileImageUrl ? (
-            <img
+            <Image
               src={tutor.profileImageUrl}
               alt={tutor.name}
+              width={48}
+              height={48}
+              unoptimized
               className="w-12 h-12 rounded-full object-cover"
             />
           ) : (

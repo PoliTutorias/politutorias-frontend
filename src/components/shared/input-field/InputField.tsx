@@ -117,7 +117,8 @@ export const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
 
       const event = new Event('input', { bubbles: true });
       inputElement.dispatchEvent(event);
-    }, [maxLength, validateInput]);
+      onPaste?.(e);
+    }, [maxLength, validateInput, onPaste]);
 
     // Para el char count, usamos el valor del DOM leído via value prop (react-hook-form watch)
     const displayValue = value ?? '';

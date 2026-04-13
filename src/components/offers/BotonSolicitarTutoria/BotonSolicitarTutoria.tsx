@@ -5,13 +5,11 @@ import clsx from 'clsx';
 interface BotonSolicitarTutoriaProps {
   isDisabled: boolean;
   onClick: () => void;
-  cantidadHorarios: number;
 }
 
 export default function BotonSolicitarTutoria({
   isDisabled,
   onClick,
-  cantidadHorarios,
 }: BotonSolicitarTutoriaProps) {
   return (
     <button

@@ -3,7 +3,6 @@ export function handleDateInputFormat(
   fieldName: 'fechaInicio' | 'fechaFin',
   currentValue: string
 ): string {
-  const input = event.currentTarget;
   const key = event.key;
   
   // Permitir teclas de control

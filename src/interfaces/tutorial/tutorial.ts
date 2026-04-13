@@ -44,4 +44,5 @@ export interface TutorialDetailDto {
   estado: TutorialEstado;
   studentRating?: number | null;
   studentComment?: string | null;
+  reviewDate?: string | null;
 }

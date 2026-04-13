@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
 import { formatDateInput } from '@/utils/clientDateValidation';
+import React from 'react';
 
 interface InputFechaExperienciaProps {
   label: string;

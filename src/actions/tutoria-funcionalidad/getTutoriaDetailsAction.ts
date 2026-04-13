@@ -2,7 +2,6 @@
 
 import type { TutoriaDetailWithReviewDto } from '@/seed/TutoriaSeedData';
 import { getTutoriaSeedData } from '@/seed/TutoriaSeedData';
-import { getServerToken } from '@/lib/server-auth';
 
 interface GetTutoriaDetailsResponse {
   success: boolean;

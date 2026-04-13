@@ -1,15 +1,14 @@
 'use client';
 
+import { EmptyOfferState } from '@/components/ofertas/EmptyOfferState';
 import { OfertaEntity } from '@/interfaces/oferta/OfertaEntity';
 import { OfertaCard } from './OfertaCard';
-import { EmptyOfferState } from '@/components/ofertas/EmptyOfferState';
 
 interface OfertasListProps {
   ofertas: OfertaEntity[];
   isLoading?: boolean;
   onEdit?: (id: string) => void;
   onDelete?: (id: string) => void;
-  onRetry?: () => void;
 }
 
 export function OfertasList({
@@ -17,7 +16,6 @@ export function OfertasList({
   isLoading = false,
   onEdit,
   onDelete,
-  onRetry,
 }: OfertasListProps) {
   if (isLoading) {
     return (

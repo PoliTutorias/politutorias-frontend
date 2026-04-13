@@ -1,8 +1,8 @@
 'use client';
 
-import { FiBookOpen, FiCalendar, FiClock, FiLink2, FiMapPin, FiMonitor, FiTrash2, FiX } from 'react-icons/fi';
 import { CompletedSessionBanner } from '@/components/session/CompletedSessionBanner/CompletedSessionBanner';
 import type { SessionDetailDTO } from '@/interfaces/session/SessionInterfaces';
+import { FiBookOpen, FiCalendar, FiClock, FiLink2, FiMapPin, FiMonitor, FiX } from 'react-icons/fi';
 
 interface SessionDetailModalProps {
   isOpen: boolean;
@@ -25,7 +25,6 @@ export function SessionDetailModal({
   isOpen,
   sessionDetails,
   onClose,
-  onCancelTutoria: _onCancelTutoria,
 }: SessionDetailModalProps) {
   if (!isOpen || !sessionDetails) {
     return null;

@@ -165,19 +165,6 @@ export function TutorialDetailModal({ tutorialId, isOpen, onClose, onComplete, o
                 <p className="mt-1 text-[13px] text-[#4f637f]">{detail.message}</p>
               </section>
 
-              {isCompletada && detail.studentRating != null && detail.studentComment != null && (
-                <section className="rounded-lg border border-[#e4e9f0] bg-[#f9fbff] px-3 py-3">
-                  <p className="text-[12px] font-bold text-[#1f2b3d]">CALIFICACION DEL ESTUDIANTE</p>
-                  <div className="mt-1 flex items-center gap-1 text-[#ce9a2f]">
-                    {Array.from({ length: 5 }).map((_, index) => (
-                      <Star key={`star-${index + 1}`} size={16} fill={index < fullStars ? 'currentColor' : 'none'} />
-                    ))}
-                    <span className="ml-1 text-[12px] font-semibold text-[#4f637f]">{detail.studentRating.toFixed(1)}/5</span>
-                  </div>
-                  <p className="mt-2 text-[13px] text-[#4f637f]">{detail.studentComment}</p>
-                </section>
-              )}
-
               {isCompletada && (
                 <div className="flex items-center gap-2 pt-1">
                   <span className="text-[14px] font-medium text-[#5f738f]">Estado:</span>
@@ -195,6 +182,39 @@ export function TutorialDetailModal({ tutorialId, isOpen, onClose, onComplete, o
                     <XCircle size={14} />
                     Inasistencia
                   </span>
+                </div>
+              )}
+
+              {isCompletada && detail.studentRating != null && (
+                <div className="pt-1">
+                  <p className="text-[14px] font-bold text-[#1f2b3d]">Reseña del Estudiante</p>
+                  <div className="mt-2 rounded-lg border-l-[3px] border-l-[#F9A825] bg-[#fefcf4] px-4 py-3">
+                    <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-0.5">
+                        {Array.from({ length: 5 }).map((_, index) => (
+                          <Star
+                            key={`review-star-${index + 1}`}
+                            size={14}
+                            fill={index < fullStars ? '#F9A825' : 'none'}
+                            stroke="#F9A825"
+                            strokeWidth={2}
+                          />
+                        ))}
+                      </div>
+                      <span className="ml-1 text-[13px] font-semibold text-[#1f2b3d]">{detail.studentRating}/5</span>
+                    </div>
+                    <p className="mt-1.5 text-[12px] text-[#6f8199]">
+                      Por {detail.studentName}
+                      {detail.reviewDate && (
+                        <> · {new Intl.DateTimeFormat('es-EC', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(detail.reviewDate))}</>
+                      )}
+                    </p>
+                    {detail.studentComment && (
+                      <p className="mt-2 text-[13px] italic text-[#4f637f]">
+                        &ldquo;{detail.studentComment}&rdquo;
+                      </p>
+                    )}
+                  </div>
                 </div>
               )}
             </>

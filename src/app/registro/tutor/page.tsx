@@ -1,15 +1,16 @@
 'use client';
 
-import { montserrat, dancingScript } from '@/lib/fonts';
-import { FormularioDatosBasicos } from '@/components/tutor/formulario-datos-basicos/FormularioDatosBasicos';
-import { DefineHorarioPage } from '@/components/tutor/disponibilidad/DefineHorarioPage';
-import { FormDetallesProfesionales } from '@/components/registro/form-detalles-profesionales/FormDetallesProfesionales';
 import { completeRegistrationAction } from '@/actions/registro/completeRegistrationAction';
-import { useRegistroStore } from '@/lib/stores/registroStore';
-import Link from 'next/link';
-import { useState, useRef, useEffect } from 'react';
-import { FiUser, FiArrowLeft, FiCamera } from 'react-icons/fi';
+import { FormDetallesProfesionales } from '@/components/registro/form-detalles-profesionales/FormDetallesProfesionales';
+import { DefineHorarioPage } from '@/components/tutor/disponibilidad/DefineHorarioPage';
+import { FormularioDatosBasicos } from '@/components/tutor/formulario-datos-basicos/FormularioDatosBasicos';
 import { Experiencia } from '@/interfaces/experiencia-tipo/Experiencia';
+import { dancingScript, montserrat } from '@/lib/fonts';
+import { useRegistroStore } from '@/lib/stores/registroStore';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useEffect, useRef, useState } from 'react';
+import { FiCamera, FiUser } from 'react-icons/fi';
 import { toast } from 'sonner';
 
 export default function RegistrarTutorPage() {
@@ -21,7 +22,7 @@ export default function RegistrarTutorPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Obtener datos del store (fotoPerfil viene del store, no necesita estado local duplicado)
-  const { datosBasicos, disponibilidad, setFotoPerfil: storeFotoPerfil, fotoPerfil: fotoFromStore, clearDatosBasicos, clearDisponibilidad } = useRegistroStore();
+  const { setFotoPerfil: storeFotoPerfil, fotoPerfil: fotoFromStore, clearDatosBasicos, clearDisponibilidad } = useRegistroStore();
 
   // Limpiar datos de registro anterior cuando la página se monta
   useEffect(() => {
@@ -211,9 +212,11 @@ export default function RegistrarTutorPage() {
                     style={{ borderColor: '#d1d5db' }}
                   >
                     {fotoFromStore ? (
-                      <img
+                      <Image
                         src={fotoFromStore}
                         alt="Foto de perfil"
+                        fill
+                        unoptimized
                         className="w-full h-full object-cover"
                       />
                     ) : (

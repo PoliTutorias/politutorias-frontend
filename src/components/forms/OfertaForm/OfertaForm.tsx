@@ -1,14 +1,14 @@
 'use client';
 
+import { useOfertaForm } from '@/hooks/useOfertaForm';
+import { CreateOfertaInput } from '@/schemas/createOfertaSchema';
+import { getCategoriesSeed } from '@/seed/CategoriesSeedData';
 import { ReactNode } from 'react';
-import { InputTituloOferta } from './InputTituloOferta';
+import { CategorySelector } from '../CategorySelector/CategorySelector';
 import { InputPrecioHora } from './InputPrecioHora';
+import { InputTituloOferta } from './InputTituloOferta';
 import { SelectModalidad } from './SelectModalidad';
 import { TextareaDescripcionOferta } from './TextareaDescripcionOferta';
-import { CategorySelector } from '../CategorySelector/CategorySelector';
-import { useOfertaForm } from '@/hooks/useOfertaForm';
-import { getCategoriesSeed } from '@/seed/CategoriesSeedData';
-import { CreateOfertaInput } from '@/schemas/createOfertaSchema';
 
 interface OfertaFormProps {
   title?: string;
@@ -30,7 +30,6 @@ export function OfertaForm({
   const {
     register,
     handleSubmit,
-    watch,
     setValue,
     trigger,
     errors,
@@ -118,6 +117,8 @@ export function OfertaForm({
         currentLength={formValues.description?.length || 0}
         maxLength={250}
       />
+
+      {children}
 
       {/* Action Buttons */}
       <div className="flex justify-end gap-3 pt-4">
