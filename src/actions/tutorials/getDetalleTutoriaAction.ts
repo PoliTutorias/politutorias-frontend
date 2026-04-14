@@ -20,6 +20,7 @@ type BackendDetalleTutoriaResponse = {
   status?: string;
   calificacionEstudiante?: number | null;
   comentarioEstudiante?: string | null;
+  resenaFecha?: string | null;
 };
 
 function parsePricePerHour(pricePerHour: string): number {
@@ -95,7 +96,12 @@ export async function getDetalleTutoriaAction(tutoriaId: string): Promise<Tutori
 
     const payload = (await response.json()) as BackendDetalleTutoriaResponse;
     const normalizedStatus = (payload.status || '').toLowerCase();
-    const estado = normalizedStatus === 'completada' || normalizedStatus === 'completed' ? 'Completada' : 'SIN_CONFIRMAR';
+    let estado: 'Completada' | 'Inasistencia' | 'SIN_CONFIRMAR' = 'SIN_CONFIRMAR';
+    if (normalizedStatus === 'completada' || normalizedStatus === 'completed') {
+      estado = 'Completada';
+    } else if (normalizedStatus === 'inasistencia') {
+      estado = 'Inasistencia';
+    }
     const studentName = payload.student?.name || 'Estudiante';
     const modality = (payload.modality || '').toLowerCase() === 'virtual' ? 'Virtual' : 'Presencial';
     const locationOrLink = modality === 'Virtual'
@@ -118,6 +124,7 @@ export async function getDetalleTutoriaAction(tutoriaId: string): Promise<Tutori
       estado,
       studentRating: payload.calificacionEstudiante ?? null,
       studentComment: payload.comentarioEstudiante ?? null,
+      reviewDate: payload.resenaFecha ?? null,
     };
   } catch {
     return null;
