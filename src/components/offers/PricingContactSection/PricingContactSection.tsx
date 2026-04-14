@@ -1,6 +1,5 @@
 'use client';
 
-import { Calendar } from 'lucide-react';
 import BotonSolicitarTutoria from '@/components/offers/BotonSolicitarTutoria/BotonSolicitarTutoria';
 
 interface PricingContactSectionProps {
@@ -28,7 +27,6 @@ export default function PricingContactSection({
       <BotonSolicitarTutoria
         isDisabled={cantidadHorariosSeleccionados === 0}
         onClick={onSolicitarClick}
-        cantidadHorarios={cantidadHorariosSeleccionados}
       />
 
       {/* Nota informativa */}

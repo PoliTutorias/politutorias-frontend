@@ -1,8 +1,9 @@
 'use client';
 
-import clsx from 'clsx';
-import { FiCalendar, FiCheckCircle, FiClock, FiMonitor, FiUser, FiXCircle } from 'react-icons/fi';
 import { SolicitudListItemDto, SolicitudStatus } from '@/dtos/solicitudes.dto';
+import clsx from 'clsx';
+import Image from 'next/image';
+import { FiCalendar, FiCheckCircle, FiClock, FiMonitor, FiUser, FiXCircle } from 'react-icons/fi';
 
 interface SolicitudCardProps {
   readonly solicitud: SolicitudListItemDto;
@@ -76,9 +77,12 @@ export function SolicitudCard({ solicitud, onClick }: SolicitudCardProps) {
         </span>
 
         <div className="flex items-start gap-3">
-          <img
+          <Image
             src={solicitud.avatarUrl || 'https://i.pravatar.cc/96'}
             alt={`Avatar de ${solicitud.tutorName}`}
+            width={48}
+            height={48}
+            unoptimized
             className="h-12 w-12 rounded-full object-cover"
           />
 

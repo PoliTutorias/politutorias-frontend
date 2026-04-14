@@ -7,14 +7,12 @@ interface SelectorModalidadProps {
   selectedModalidad?: 'virtual' | 'presencial';
   onSelect: (modalidad: 'virtual' | 'presencial') => void;
   error?: string;
-  name: string;
 }
 
 export default function SelectorModalidad({
   selectedModalidad,
   onSelect,
   error,
-  name,
 }: SelectorModalidadProps) {
   return (
     <div className="space-y-2">

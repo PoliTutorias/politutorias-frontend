@@ -1,18 +1,17 @@
 'use client';
 
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { registrarDatosBasicosAction } from '@/actions/tutor/registrarDatosBasicosAction';
+import { Dropdown } from '@/components/shared/dropdown/Dropdown';
 import { InputField } from '@/components/shared/input-field/InputField';
 import { Textarea } from '@/components/shared/textarea/Textarea';
-import { Dropdown } from '@/components/shared/dropdown/Dropdown';
 import { FACULTADES_SEED } from '@/lib/seeds/facultades';
 import { SEMESTRES_SEED } from '@/lib/seeds/semestres';
-import { tutorBasicosSchema, TutorBasicosInput } from '@/lib/validations/tutor-basicos-schema';
-import { registrarDatosBasicosAction } from '@/actions/tutor/registrarDatosBasicosAction';
-import { toast } from 'sonner';
 import { useRegistroStore } from '@/lib/stores/registroStore';
+import { TutorBasicosInput, tutorBasicosSchema } from '@/lib/validations/tutor-basicos-schema';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useEffect, useState } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
+import { toast } from 'sonner';
 
 interface FormularioDatosBasicosProps {
   onStepComplete?: () => void;
@@ -22,12 +21,9 @@ interface FormularioDatosBasicosProps {
 
 export function FormularioDatosBasicos({
   onStepComplete,
-  savedData = {},
   onSaveData,
 }: FormularioDatosBasicosProps) {
-  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [mounted, setMounted] = useState(false);
   const { setDatosBasicos } = useRegistroStore();
 
   const {
@@ -35,7 +31,7 @@ export function FormularioDatosBasicos({
     handleSubmit,
     formState: { errors, dirtyFields },
     setError,
-    watch,
+    control,
     reset,
   } = useForm<TutorBasicosInput>({
     resolver: zodResolver(tutorBasicosSchema),
@@ -52,7 +48,6 @@ export function FormularioDatosBasicos({
   // Cargar datos del store SOLO al montar el componente (una vez)
   // Usar getState() para leer sin suscribirse reactivamente al store
   useEffect(() => {
-    setMounted(true);
     const storedData = useRegistroStore.getState().datosBasicos;
     if (storedData.nombreCompleto || storedData.numeroWhatsapp) {
       reset({
@@ -65,7 +60,7 @@ export function FormularioDatosBasicos({
     }
   }, [reset]);
 
-  const formValues = watch();
+  const formValues = useWatch({ control });
 
   // Función para obtener el estado de validación de un campo
   const getFieldValidationState = (fieldName: string): boolean => {

@@ -1,7 +1,8 @@
 'use client';
 
-import { FaRegStar, FaStar } from 'react-icons/fa';
 import type { ReviewDto } from '@/interfaces/reviews/review-dtos';
+import Image from 'next/image';
+import { FaRegStar, FaStar } from 'react-icons/fa';
 
 interface ReviewCardProps {
   review: ReviewDto;
@@ -34,9 +35,12 @@ export default function ReviewCard({ review }: ReviewCardProps) {
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-start gap-3">
           {review.studentAvatarUrl ? (
-            <img
+            <Image
               src={review.studentAvatarUrl}
               alt={review.studentName}
+              width={40}
+              height={40}
+              unoptimized
               className="h-10 w-10 rounded-full object-cover"
             />
           ) : (

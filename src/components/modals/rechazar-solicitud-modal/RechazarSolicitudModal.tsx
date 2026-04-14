@@ -1,16 +1,16 @@
 'use client';
 
-import { useEffect, useTransition } from 'react';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import { FiInfo, FiX } from 'react-icons/fi';
-import { toast } from 'sonner';
 import { rechazarSolicitudAction } from '@/actions/solicitudes/rechazarSolicitudAction';
 import {
-  RechazarSolicitudFormValues,
-  rechazarSolicitudSchema,
-  rejectionReasonEnum,
+    RechazarSolicitudFormValues,
+    rechazarSolicitudSchema,
+    rejectionReasonEnum,
 } from '@/lib/validations/rechazar-solicitud.schema';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useEffect, useTransition } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
+import { FiInfo, FiX } from 'react-icons/fi';
+import { toast } from 'sonner';
 
 interface RechazarSolicitudModalProps {
   isOpen: boolean;
@@ -31,7 +31,7 @@ export function RechazarSolicitudModal({
 
   const {
     register,
-    watch,
+    control,
     reset,
     handleSubmit,
     formState: { errors, isValid },
@@ -44,8 +44,8 @@ export function RechazarSolicitudModal({
     },
   });
 
-  const selectedReason = watch('reason');
-  const commentValue = watch('comment') ?? '';
+  const selectedReason = useWatch({ control, name: 'reason' });
+  const commentValue = useWatch({ control, name: 'comment' }) ?? '';
 
   const isOtherSelected = selectedReason === 'Otro';
 

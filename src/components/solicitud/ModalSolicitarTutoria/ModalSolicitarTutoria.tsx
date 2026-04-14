@@ -1,12 +1,12 @@
 'use client';
 
-import { useState } from 'react';
-import { X, Calendar, Send } from 'lucide-react';
-import { HorarioDisponibleDto } from '@/interfaces/offers/DetallesOfertaDto';
-import { TutorDetailDto } from '@/interfaces/offers/DetallesOfertaDto';
 import InputMensaje from '@/components/common/InputMensaje/InputMensaje';
 import SelectorModalidad from '@/components/solicitud/SelectorModalidad/SelectorModalidad';
+import { HorarioDisponibleDto, TutorDetailDto } from '@/interfaces/offers/DetallesOfertaDto';
 import clsx from 'clsx';
+import { Calendar, Send, X } from 'lucide-react';
+import Image from 'next/image';
+import { useState } from 'react';
 
 interface ModalSolicitarTutoriaProps {
   isOpen: boolean;
@@ -67,10 +67,6 @@ export default function ModalSolicitarTutoria({
     return `${dayNum} ${monthAbbr}`;
   }
 
-  const handleRemoveHorario = (index: number) => {
-    // Esta funcionalidad será manejada por el parent component
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors: Record<string, string> = {};
@@ -124,12 +120,15 @@ export default function ModalSolicitarTutoria({
         <form onSubmit={handleSubmit} className="p-4 space-y-4">
           {/* Información del tutor con fondo gris azulado*/}
           <div className="bg-blue-50 px-4 py-3 rounded-lg flex items-center gap-3">
-            <img
+            <Image
               src={
                 tutorInfo.profileImageUrl ||
                 'https://via.placeholder.com/50'
               }
               alt={tutorInfo.name}
+              width={48}
+              height={48}
+              unoptimized
               className="w-12 h-12 rounded-full object-cover shrink-0"
             />
             <div className="flex-1 min-w-0">
@@ -188,7 +187,6 @@ export default function ModalSolicitarTutoria({
               selectedModalidad={modalidad}
               onSelect={setModalidad}
               error={errors.modalidad}
-              name="modalidad"
             />
           )}
 

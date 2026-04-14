@@ -73,7 +73,7 @@ const DAY_TO_SAFE_ID: Record<DayLabel, string> = {
  * Cada cambio de filtro re-dispara la consulta al backend enviando
  * todos los criterios activos combinados.
  */
-export function ClientOffersWrapper({ initialOffers, header, children, initialSearchTerm }: ClientOffersWrapperProps) {
+export function ClientOffersWrapper({ initialOffers, children, initialSearchTerm }: ClientOffersWrapperProps) {
   const [offers, setOffers] = useState<OfertaEntity[]>(initialOffers);
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -274,11 +274,6 @@ export function ClientOffersWrapper({ initialOffers, header, children, initialSe
   /**
    * Limpiar filtro de búsqueda
    */
-  const handleClearSearchFilter = useCallback(() => {
-    setActiveSearchTerm('');
-    executeFilter({ searchTerm: '' });
-  }, [executeFilter]);
-
   /**
    * Limpiar todos los filtros
    */

@@ -1,21 +1,21 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { cancelarSolicitudAction } from '@/actions/solicitudes/cancelarSolicitudAction';
+import { getSolicitudDetailAction } from '@/actions/solicitudes/getSolicitudDetailAction';
+import { SolicitudDetailDto, SolicitudStatus } from '@/dtos/solicitudes.dto';
+import Image from 'next/image';
+import { useEffect, useState } from 'react';
 import {
-  FiAlertCircle,
-  FiBookOpen,
-  FiCalendar,
-  FiClock,
-  FiMapPin,
-  FiMessageSquare,
-  FiMonitor,
-  FiTrash2,
-  FiX,
+    FiAlertCircle,
+    FiBookOpen,
+    FiCalendar,
+    FiClock,
+    FiMapPin,
+    FiMessageSquare,
+    FiMonitor,
+    FiX,
 } from 'react-icons/fi';
 import { toast } from 'sonner';
-import { SolicitudDetailDto, SolicitudStatus } from '@/dtos/solicitudes.dto';
-import { getSolicitudDetailAction } from '@/actions/solicitudes/getSolicitudDetailAction';
-import { cancelarSolicitudAction } from '@/actions/solicitudes/cancelarSolicitudAction';
 
 interface DetalleSolicitudModalProps {
   readonly isOpen: boolean;
@@ -170,9 +170,12 @@ export function DetalleSolicitudModal({
         {/* ── Tutor card ── */}
         <div className="flex items-center justify-between gap-3 rounded-xl bg-[#edf2f7] px-4 py-3">
           <div className="flex items-center gap-3">
-            <img
+            <Image
               src={solicitudDetail.avatarUrl || 'https://i.pravatar.cc/96'}
               alt={`Avatar de ${solicitudDetail.tutorName}`}
+              width={44}
+              height={44}
+              unoptimized
               className="h-11 w-11 rounded-full object-cover"
             />
             <div>
@@ -271,6 +274,16 @@ export function DetalleSolicitudModal({
 
         {/* Footer */}
         <footer className="flex items-center justify-end gap-3 border-t border-slate-100 px-5 py-3">
+          {isPendiente && (
+            <button
+              type="button"
+              onClick={handleCancelClick}
+              disabled={isCancelling}
+              className="rounded-lg border border-red-200 bg-red-50 px-5 py-2 text-sm font-semibold text-red-600 transition-colors hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {isCancelling ? 'Cancelando...' : 'Cancelar solicitud'}
+            </button>
+          )}
           <button
             type="button"
             onClick={onClose}

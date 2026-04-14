@@ -1,12 +1,12 @@
 'use client';
 
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import {
-  createOfertaSchema,
-  type CreateOfertaInput,
-  type CreateOfertaFormValues,
+    createOfertaSchema,
+    type CreateOfertaFormValues,
+    type CreateOfertaInput,
 } from '@/schemas/createOfertaSchema';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm, useWatch } from 'react-hook-form';
 
 interface UseOfertaFormOptions {
   onSubmit?: (data: CreateOfertaInput) => void | Promise<void>;
@@ -27,9 +27,10 @@ export function useOfertaForm({
     register,
     handleSubmit,
     watch,
+    control,
     setValue,
     trigger,
-    formState: { errors, isSubmitting, dirtyFields, isDirty },
+    formState: { errors, isSubmitting, dirtyFields },
     reset,
   } = useForm<CreateOfertaFormValues, unknown, CreateOfertaInput>({
     resolver: zodResolver(createOfertaSchema),
@@ -37,7 +38,7 @@ export function useOfertaForm({
     defaultValues: defaultValues as CreateOfertaFormValues,
   });
 
-  const formValues = watch();
+  const formValues = useWatch({ control });
 
   // Detectar si un campo es válido
   const isFieldValid = (fieldName: keyof CreateOfertaFormValues) => {
@@ -55,8 +56,7 @@ export function useOfertaForm({
         await onSubmit(data);
       }
     },
-    (fieldErrors) => {
-    }
+    () => {}
   );
 
   return {
