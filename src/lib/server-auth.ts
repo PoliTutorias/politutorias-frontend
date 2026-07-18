@@ -34,7 +34,7 @@ export async function getServerToken(): Promise<string | null> {
   }
 
   // Fallback legacy
-  return process.env.TEMPORARY_TOKEN ?? null;
+  return null;
 }
 
 /**
